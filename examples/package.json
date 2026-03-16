@@ -1,0 +1,28 @@
+{
+  "name": "funcai-examples",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "basic": "tsx src/01-basic.ts",
+    "prompt": "tsx src/02-define-prompt.ts",
+    "typed-input": "tsx src/03-typed-input.ts",
+    "messages": "tsx src/04-message-chain.ts",
+    "few-shots": "tsx src/05-few-shots.ts",
+    "transform": "tsx src/06-transform.ts",
+    "detailed": "tsx src/07-detailed.ts",
+    "retry": "tsx src/08-retry-fallback.ts",
+    "codegen": "tsx src/09-cli-codegen.ts",
+    "multimodal": "tsx src/10-multimodal.ts",
+    "scaffold": "tsx src/11-scaffold.ts",
+    "all": "tsx src/01-basic.ts && tsx src/02-define-prompt.ts && tsx src/03-typed-input.ts && tsx src/05-few-shots.ts && tsx src/06-transform.ts && tsx src/07-detailed.ts && tsx src/10-multimodal.ts"
+  },
+  "dependencies": {
+    "funcai": "workspace:*",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.9.0"
+  }
+}
