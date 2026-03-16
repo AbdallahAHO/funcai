@@ -22,7 +22,7 @@ writeFileSync(
   join(promptDir, 'sentiment.prompt.md'),
   `---
 id: sentiment
-model: openai/gpt-4o-mini
+model: google/gemini-3.1-flash-lite-preview
 temperature: 0.1
 maxTokens: 200
 ---
@@ -36,7 +36,7 @@ writeFileSync(
   join(promptDir, 'sentiment.concise.prompt.md'),
   `---
 id: sentiment
-model: openai/gpt-4o-mini
+model: google/gemini-3.1-flash-lite-preview
 temperature: 0
 maxTokens: 50
 ---
@@ -59,7 +59,7 @@ import { definePrompt } from "funcai";
 
 export const sentiment = definePrompt({
   id: "sentiment",
-  model: "openai/gpt-4o-mini",
+  model: "google/gemini-3.1-flash-lite-preview",
   temperature: 0.1,
   maxTokens: 200,
   system: \`You are a sentiment classifier...\`,

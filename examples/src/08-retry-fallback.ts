@@ -28,7 +28,7 @@ const extract = ai.fn({
   }),
   input: (text: string) => text,
   retries: 2, // override: 3 attempts per model
-  fallback: ['openai/gpt-4o-mini', 'google/gemini-2.5-flash'],
+  fallback: ['google/gemini-3.1-flash-lite-preview', 'google/gemini-2.5-flash'],
 });
 
 // Normal usage — retries and fallback are transparent

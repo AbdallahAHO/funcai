@@ -13,7 +13,7 @@ export type ScaffoldOptions = {
 export const DEFAULTS: ScaffoldOptions = {
   name: 'classify-sentiment',
   description: 'Classify text by sentiment and confidence',
-  modelId: 'openai/gpt-4o-mini',
+  modelId: 'google/gemini-3.1-flash-lite-preview',
   fields: ['sentiment', 'confidence', 'reason'],
   posthog: false,
   testLevels: ['unit', 'integration'],

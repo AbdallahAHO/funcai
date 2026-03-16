@@ -150,7 +150,7 @@ describe('promptMdTemplate', () => {
     const result = promptMdTemplate(defaultOpts());
 
     expect(result).toContain('id: classify-sentiment');
-    expect(result).toContain('model: openai/gpt-4o-mini');
+    expect(result).toContain('model: google/gemini-3.1-flash-lite-preview');
     expect(result).toContain('temperature: 0');
     expect(result).toContain('maxTokens: 500');
   });
@@ -188,7 +188,7 @@ describe('indexTemplate', () => {
     const result = indexTemplate(defaultOpts());
 
     expect(result).toContain('export const classifySentiment = ai.fn(');
-    expect(result).toContain("model: 'openai/gpt-4o-mini'");
+    expect(result).toContain("model: 'google/gemini-3.1-flash-lite-preview'");
     expect(result).toContain('schema: classifySentimentSchema');
     expect(result).toContain('export type { ClassifySentimentOutput }');
   });

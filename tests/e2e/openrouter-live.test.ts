@@ -4,7 +4,7 @@ import { createAiFn } from '@/core/factory';
 import { openrouter } from '@/provider/openrouter';
 
 // Use cheapest reliable model with structured output support
-const TEST_MODEL = 'mistralai/ministral-3b-2512';
+const TEST_MODEL = 'mistralai/gemini-3.1-flash-lite-preview';
 
 describe.skipIf(!process.env.OPENROUTER_API_KEY)('OpenRouter E2E', () => {
   const ai = createAiFn({ provider: openrouter(), retries: 1 });

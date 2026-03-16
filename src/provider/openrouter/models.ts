@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-03-06
+// Last updated: 2026-03-16
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -147,8 +147,8 @@ export const OPENROUTER_MODELS = {
     description:
       'DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and ag',
     contextLength: 163_840,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.25, completionPerMToken: 0.4 },
+    maxCompletionTokens: null,
+    pricing: { promptPerMToken: 0.26, completionPerMToken: 0.38 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -841,6 +841,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and v */
+  'qwen/qwen3.5-9b': {
+    name: 'Qwen: Qwen3.5-9B',
+    provider: 'Qwen',
+    description:
+      'Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and v',
+    contextLength: 256_000,
+    maxCompletionTokens: null,
+    pricing: { promptPerMToken: 0.05, completionPerMToken: 0.15 },
+    modalities: ['text', 'image', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** The Qwen3.5 native vision-language Flash models are built on a hybrid architecture that integrates a linear attention me */
   'qwen/qwen3.5-flash-02-23': {
     name: 'Qwen: Qwen3.5-Flash',
@@ -901,3 +914,81 @@ export const MULTIMODAL_VIDEO_MODELS = OPENROUTER_MODEL_IDS.filter((id) =>
 export const REASONING_MODELS = OPENROUTER_MODEL_IDS.filter(
   (id) => OPENROUTER_MODELS[id].capabilities.reasoning,
 );
+
+type ModelOption = {
+  id: string;
+  name: string;
+  provider: string;
+  description: string;
+  contextLength: number;
+  pricing: { promptPerMToken: number; completionPerMToken: number };
+  modalities: readonly InputModality[];
+  capabilities: { structuredOutput: boolean; tools: boolean; reasoning: boolean };
+};
+
+type ListModelsOptions = {
+  provider?: string;
+  modality?: InputModality;
+  reasoning?: boolean;
+  maxPromptCost?: number;
+  sortBy?: 'price' | 'context' | 'name';
+};
+
+/**
+ * Returns a filtered, sorted list of available models for UI dropdowns and pickers.
+ *
+ * @example
+ * ```ts
+ * import { listModels } from "funcai/providers/openrouter";
+ *
+ * // All models
+ * const all = listModels();
+ *
+ * // Only Anthropic models with vision
+ * const claude = listModels({ provider: "Anthropic", modality: "image" });
+ *
+ * // Cheap models under $2/M tokens, sorted by price
+ * const cheap = listModels({ maxPromptCost: 2, sortBy: "price" });
+ *
+ * // Reasoning models only
+ * const thinkers = listModels({ reasoning: true });
+ *
+ * // Use in a <select> dropdown
+ * const options = listModels().map(m => ({
+ *   value: m.id,
+ *   label: `${m.name} ($${m.pricing.promptPerMToken}/M)`,
+ * }));
+ * ```
+ */
+export function listModels(options?: ListModelsOptions): ModelOption[] {
+  let models = OPENROUTER_MODEL_IDS.map((id) => ({ id, ...OPENROUTER_MODELS[id] }));
+
+  if (options?.provider) {
+    const p = options.provider.toLowerCase();
+    models = models.filter((m) => m.provider.toLowerCase() === p);
+  }
+
+  if (options?.modality) {
+    const mod = options.modality;
+    models = models.filter((m) => (m.modalities as readonly string[]).includes(mod));
+  }
+
+  if (options?.reasoning !== undefined) {
+    models = models.filter((m) => m.capabilities.reasoning === options.reasoning);
+  }
+
+  if (options?.maxPromptCost !== undefined) {
+    models = models.filter((m) => m.pricing.promptPerMToken <= options.maxPromptCost!);
+  }
+
+  const sortBy = options?.sortBy ?? 'name';
+  if (sortBy === 'price') {
+    models.sort((a, b) => a.pricing.promptPerMToken - b.pricing.promptPerMToken);
+  } else if (sortBy === 'context') {
+    models.sort((a, b) => b.contextLength - a.contextLength);
+  } else {
+    models.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  return models;
+}

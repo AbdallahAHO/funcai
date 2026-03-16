@@ -1,5 +1,6 @@
 export type { InputModality, ModelInfo, OpenRouterModelId } from './models';
 export {
+  listModels,
   MULTIMODAL_AUDIO_MODELS,
   MULTIMODAL_FILE_MODELS,
   MULTIMODAL_IMAGE_MODELS,

@@ -14,7 +14,7 @@ const ai = createAiFn({ provider: openrouter() });
 
 // Sync transform: normalize tags to lowercase
 const extractTags = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'Extract relevant tags from the given text. Return 3-5 tags.',
   schema: z.object({ tags: z.array(z.string()) }),
   input: (text: string) => text,
@@ -29,7 +29,7 @@ console.log('Tags:', tags);
 
 // Async transform: enrich with external data
 const extractEntities = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'Extract company names and people mentioned in the text.',
   schema: z.object({
     companies: z.array(z.string()),

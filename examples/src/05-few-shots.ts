@@ -13,7 +13,7 @@ import { z } from 'zod';
 const ai = createAiFn({ provider: openrouter() });
 
 const categorize = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'Categorize support tickets by department and urgency level.',
   schema: z.object({
     department: z.enum(['billing', 'technical', 'general', 'security']),

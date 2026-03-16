@@ -15,7 +15,7 @@ const ai = createAiFn({ provider: openrouter() });
 // --- Static messages: inject persistent context ---
 
 const codeReviewer = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'You are a senior code reviewer. Focus on bugs, not style.',
   schema: z.object({
     issues: z.array(
@@ -54,7 +54,7 @@ type ChatInput = {
 };
 
 const chat = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'You are a concise technical assistant. Keep replies under 2 sentences.',
   schema: z.object({ reply: z.string() }),
   messages: (input: ChatInput) => input.history,

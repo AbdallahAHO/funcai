@@ -614,7 +614,7 @@ import { definePrompt } from "funcai";
 
 export const searchFilters = definePrompt({
   id: "search-filters",
-  model: "openai/gpt-4o-mini",
+  model: "google/gemini-3.1-flash-lite-preview",
   temperature: 0,
   system: `...escaped system prompt content...`,
 });

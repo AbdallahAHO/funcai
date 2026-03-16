@@ -13,7 +13,7 @@ import { z } from 'zod';
 const ai = createAiFn({ provider: openrouter() });
 
 const classify = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'Classify the language of the given text.',
   schema: z.object({
     language: z.string(),

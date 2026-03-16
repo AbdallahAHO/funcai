@@ -54,7 +54,7 @@ describe('openrouter', () => {
   it('reuses instance: second model() call does not throw after first succeeds', () => {
     const provider = openrouter({ apiKey: 'sk-reuse' });
     provider.model({ modelId: 'openai/gpt-4o' });
-    expect(() => provider.model({ modelId: 'openai/gpt-4o-mini' })).not.toThrow();
+    expect(() => provider.model({ modelId: 'google/gemini-3.1-flash-lite-preview' })).not.toThrow();
   });
 
   it('prefers explicit apiKey over env var', () => {

@@ -15,7 +15,7 @@ const ai = createAiFn({ provider: openrouter() });
 // Define once — reuse across functions
 const intentPrompt = ai.definePrompt({
   id: 'classify-intent',
-  model: 'openai/gpt-4o-mini', // autocomplete from OpenRouter models
+  model: 'google/gemini-3.1-flash-lite-preview', // autocomplete from OpenRouter models
   temperature: 0,
   system: `You are an intent classifier for a customer support system.
 Classify user messages into one of the predefined categories.

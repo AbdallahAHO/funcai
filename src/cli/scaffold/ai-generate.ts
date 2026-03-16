@@ -13,7 +13,7 @@ export async function generateWithAi(opts: ScaffoldOptions): Promise<AiContent |
     const ai = createAiFn({ provider: openrouter(), retries: 1 });
 
     const generateContent = ai.fn({
-      model: 'openai/gpt-4o-mini',
+      model: 'google/gemini-3.1-flash-lite-preview',
       system: `You design AI function configurations. Given a feature description and output fields,
 generate a precise system prompt, realistic few-shot examples, and Zod type strings for each field.
 

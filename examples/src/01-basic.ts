@@ -10,7 +10,7 @@ import { z } from 'zod';
 const ai = createAiFn({ provider: openrouter() });
 
 const classify = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system: 'Classify the sentiment of the given text as positive, negative, or neutral.',
   schema: z.object({
     sentiment: z.enum(['positive', 'negative', 'neutral']),

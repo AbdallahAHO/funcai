@@ -41,7 +41,7 @@ Pass structured data instead of plain strings — the `input` function formats i
 
 ```typescript
 const analyzeReview = ai.fn({
-  model: "openai/gpt-4o-mini",
+  model: "google/gemini-3.1-flash-lite-preview",
   system: "Analyze product reviews. Identify actionable feedback, sentiment, and suggest improvements.",
   schema: z.object({
     sentiment: z.enum(["positive", "negative", "mixed"]),
@@ -171,7 +171,7 @@ Guide the model with input/output pairs. Injected into the system prompt automat
 
 ```typescript
 const classifyEmail = ai.fn({
-  model: "openai/gpt-4o-mini",
+  model: "google/gemini-3.1-flash-lite-preview",
   system: "Classify incoming emails by intent and urgency for the support queue.",
   schema: z.object({
     intent: z.enum(["support", "billing", "feature-request", "bug-report", "spam", "other"]),
@@ -313,7 +313,7 @@ const result = await classifyEmail.detailed("Our team can't access the API since
 });
 // → {
 //     output: { intent: "bug-report", urgency: "high", suggestedAction: "Escalate..." },
-//     model: "openai/gpt-4o-mini",
+//     model: "google/gemini-3.1-flash-lite-preview",
 //     usage: { inputTokens: 142, outputTokens: 38 },
 //     cost: 0.00018,
 //     traceId: "req-abc-123",
@@ -373,7 +373,7 @@ Separate prompt config from function logic. Supports `{{VARIABLE}}` injection �
 ```typescript
 const prompt = ai.definePrompt({
   id: "product-description",
-  model: "openai/gpt-4o-mini",
+  model: "google/gemini-3.1-flash-lite-preview",
   system: "Write a product description in {{LANGUAGE}} for the {{MARKET}} market. Tone: {{TONE}}.",
   temperature: 0.7,
 });
@@ -705,7 +705,7 @@ createAiFn({ provider: openrouter(), trace: myTrace });
 
 ```typescript
 model: "anthropic/claude-sonnet-4"
-model: "openai/gpt-4o-mini"          // cheaper, faster
+model: "google/gemini-3.1-flash-lite-preview"          // cheaper, faster
 model: "google/gemini-2.5-flash"     // vision + PDF support
 ```
 
@@ -722,7 +722,7 @@ system: "You are a product review analyst. Extract actionable insights from cust
 ```typescript
 const reviewPrompt = ai.definePrompt({
   id: "review-analysis",
-  model: "openai/gpt-4o-mini",
+  model: "google/gemini-3.1-flash-lite-preview",
   system: "Analyze customer reviews for the {{CATEGORY}} department.",
   temperature: 0.2,
   maxTokens: 500,

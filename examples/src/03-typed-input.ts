@@ -20,7 +20,7 @@ type ReviewInput = {
 };
 
 const analyzeReview = ai.fn({
-  model: 'openai/gpt-4o-mini',
+  model: 'google/gemini-3.1-flash-lite-preview',
   system:
     'Analyze product reviews for actionable insights. Focus on specific, implementable feedback.',
   schema: z.object({

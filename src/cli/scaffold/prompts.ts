@@ -5,11 +5,11 @@ import { DEFAULTS, type ScaffoldOptions, type TestLevel } from './types';
 const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 const POPULAR_MODELS = [
-  'openai/gpt-4o-mini',
+  'google/gemini-3.1-flash-lite-preview',
   'anthropic/claude-sonnet-4.6',
   'google/gemini-2.5-flash',
   'deepseek/deepseek-v3.2',
-  'mistralai/ministral-3b-2512',
+  'google/gemini-3.1-flash-lite-preview',
 ] as const;
 
 const MODEL_CHOICES = [
