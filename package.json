@@ -1,6 +1,6 @@
 {
   "name": "funcai",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AI as a Function — structured AI output with typed providers, tracing, and retry",
   "type": "module",
   "bin": {
