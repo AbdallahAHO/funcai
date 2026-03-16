@@ -1,0 +1,162 @@
+import * as p from '@clack/prompts';
+import { OPENROUTER_MODELS } from '@/provider/openrouter/models';
+import { DEFAULTS, type ScaffoldOptions, type TestLevel } from './types';
+
+const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
+const POPULAR_MODELS = [
+  'openai/gpt-4o-mini',
+  'anthropic/claude-sonnet-4.6',
+  'google/gemini-2.5-flash',
+  'deepseek/deepseek-v3.2',
+  'mistralai/ministral-3b-2512',
+] as const;
+
+const MODEL_CHOICES = [
+  ...POPULAR_MODELS.map((id) => {
+    const info = OPENROUTER_MODELS[id];
+    return {
+      value: id as string,
+      label: id,
+      hint: `$${info.pricing.promptPerMToken}/$${info.pricing.completionPerMToken} per M tokens`,
+    };
+  }),
+  { value: '_custom', label: 'Custom' },
+] as const;
+
+function cancelGuard<T>(value: T | symbol): T {
+  if (p.isCancel(value)) {
+    p.cancel('Cancelled.');
+    process.exit(0);
+  }
+  return value;
+}
+
+export async function collectOptions(
+  flags: Partial<ScaffoldOptions> & { skipPrompts?: boolean },
+): Promise<ScaffoldOptions> {
+  const opts: ScaffoldOptions = { ...DEFAULTS, ...flags };
+
+  if (flags.skipPrompts) return opts;
+
+  p.intro('funcai scaffold');
+
+  // Name
+  if (!flags.name) {
+    const name = cancelGuard(
+      await p.text({
+        message: 'Feature name (kebab-case)',
+        placeholder: DEFAULTS.name,
+        initialValue: DEFAULTS.name,
+        validate: (v) => {
+          if (!v) return 'Name is required';
+          if (!KEBAB_CASE_REGEX.test(v)) return 'Must be kebab-case (e.g., my-feature)';
+        },
+      }),
+    );
+    opts.name = name;
+  }
+
+  // Description
+  if (!flags.description) {
+    const description = cancelGuard(
+      await p.text({
+        message: 'What does this AI function do?',
+        placeholder: DEFAULTS.description,
+        initialValue: DEFAULTS.description,
+      }),
+    );
+    opts.description = description;
+  }
+
+  // Model
+  if (!flags.modelId) {
+    const modelChoice = cancelGuard(
+      await p.select({
+        message: 'Model',
+        options: [...MODEL_CHOICES],
+        initialValue: DEFAULTS.modelId,
+      }),
+    );
+
+    if (modelChoice === '_custom') {
+      const customModel = cancelGuard(
+        await p.text({
+          message: 'Custom model ID (e.g., meta-llama/llama-3.1-8b-instruct)',
+          validate: (v) => {
+            if (!v) return 'Model ID is required';
+            if (!v.includes('/')) return 'Expected format: provider/model-name';
+          },
+        }),
+      );
+      opts.modelId = customModel;
+    } else {
+      opts.modelId = modelChoice;
+    }
+  }
+
+  // Fields
+  if (!flags.fields) {
+    const fieldsInput = cancelGuard(
+      await p.text({
+        message: 'Output fields (comma-separated)',
+        placeholder: DEFAULTS.fields.join(', '),
+        initialValue: DEFAULTS.fields.join(', '),
+      }),
+    );
+    opts.fields = fieldsInput
+      .split(',')
+      .map((f) => f.trim())
+      .filter(Boolean);
+  }
+
+  // PostHog
+  if (flags.posthog === undefined) {
+    const posthog = cancelGuard(
+      await p.confirm({
+        message: 'Enable PostHog tracing?',
+        initialValue: DEFAULTS.posthog,
+      }),
+    );
+    opts.posthog = posthog;
+  }
+
+  // Test levels
+  if (!flags.testLevels) {
+    const testLevels = cancelGuard(
+      await p.multiselect<TestLevel>({
+        message: 'Test levels',
+        options: [
+          { value: 'unit' as TestLevel, label: 'Unit', hint: 'schema + few-shot validation' },
+          {
+            value: 'integration' as TestLevel,
+            label: 'Integration',
+            hint: 'MockLanguageModelV3 pipeline',
+          },
+          {
+            value: 'e2e' as TestLevel,
+            label: 'E2E',
+            hint: 'live API call (skipped without API key)',
+          },
+        ],
+        initialValues: [...DEFAULTS.testLevels],
+        required: false,
+      }),
+    );
+    opts.testLevels = testLevels;
+  }
+
+  // AI generation
+  const hasApiKey = Boolean(process.env.OPENROUTER_API_KEY);
+  if (flags.aiGenerate === undefined && hasApiKey) {
+    const aiGenerate = cancelGuard(
+      await p.confirm({
+        message: 'Generate prompt & examples with AI?',
+        initialValue: true,
+      }),
+    );
+    opts.aiGenerate = aiGenerate;
+  }
+
+  return opts;
+}
