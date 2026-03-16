@@ -1,0 +1,119 @@
+{
+  "name": "funcai",
+  "version": "1.0.0",
+  "description": "AI as a Function — structured AI output with typed providers, tracing, and retry",
+  "type": "module",
+  "bin": {
+    "funcai": "./dist/bin/funcai.js"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./providers/openrouter": {
+      "import": {
+        "types": "./dist/provider/openrouter.d.ts",
+        "default": "./dist/provider/openrouter.js"
+      },
+      "require": {
+        "types": "./dist/provider/openrouter.d.cts",
+        "default": "./dist/provider/openrouter.cjs"
+      }
+    },
+    "./trace/posthog": {
+      "import": {
+        "types": "./dist/trace/posthog.d.ts",
+        "default": "./dist/trace/posthog.js"
+      },
+      "require": {
+        "types": "./dist/trace/posthog.d.cts",
+        "default": "./dist/trace/posthog.cjs"
+      }
+    },
+    "./test": {
+      "import": {
+        "types": "./dist/test/index.d.ts",
+        "default": "./dist/test/index.js"
+      },
+      "require": {
+        "types": "./dist/test/index.d.cts",
+        "default": "./dist/test/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "check": "biome check .",
+    "fix": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "pnpm build",
+    "gate": "pnpm check && pnpm typecheck && pnpm build && pnpm test",
+    "update:models": "tsx scripts/update-openrouter-models.ts",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "zod": ">=3.22"
+  },
+  "peerDependenciesMeta": {
+    "posthog-node": {
+      "optional": true
+    },
+    "@posthog/ai": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.1",
+    "@openrouter/ai-sdk-provider": "^2.2.3",
+    "ai": "^6.0.116",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.6",
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "@posthog/ai": "^7.9.5",
+    "@types/node": "^25.3.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "posthog-node": "^5.28.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
+    "zod": "^3.25.76"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AbdallahAHO/funcai.git"
+  },
+  "homepage": "https://github.com/AbdallahAHO/funcai#readme",
+  "keywords": [
+    "ai",
+    "llm",
+    "structured-output",
+    "zod",
+    "typescript",
+    "openrouter",
+    "ai-sdk"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
