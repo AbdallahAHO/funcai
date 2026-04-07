@@ -63,6 +63,7 @@
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm build",
     "gate": "pnpm check && pnpm typecheck && pnpm build && pnpm test",
+    "models:report": "tsx scripts/model-registry-report.ts",
     "update:models": "tsx scripts/update-openrouter-models.ts",
     "prepare": "husky"
   },
