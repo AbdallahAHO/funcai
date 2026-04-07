@@ -644,11 +644,13 @@ With the `--ai` flag, the scaffold command dogfoods `funcai` itself to generate 
 
 ### tsup dual format output
 
-`tsup.config.ts` defines five entry points, each compiled to both ESM (`.js`) and CJS (`.cjs`):
+`tsup.config.ts` defines seven entry points, each compiled to both ESM (`.js`) and CJS (`.cjs`):
 
 | Entry | Output |
 |-------|--------|
 | `src/index.ts` | `dist/index.{js,cjs,d.ts,d.cts}` |
+| `src/provider/lmstudio/index.ts` | `dist/provider/lmstudio.{js,cjs,d.ts,d.cts}` |
+| `src/provider/ollama/index.ts` | `dist/provider/ollama.{js,cjs,d.ts,d.cts}` |
 | `src/provider/openrouter/index.ts` | `dist/provider/openrouter.{js,cjs,d.ts,d.cts}` |
 | `src/trace/posthog.ts` | `dist/trace/posthog.{js,cjs,d.ts,d.cts}` |
 | `test/index.ts` | `dist/test/index.{js,cjs,d.ts,d.cts}` |
@@ -661,6 +663,8 @@ Build flags: `dts: true`, `splitting: true` (code-splits shared chunks in ESM), 
 ```json
 {
   ".":                     { "import": { "types": "...", "default": "..." }, "require": { ... } },
+  "./providers/lmstudio":  { "import": { ... }, "require": { ... } },
+  "./providers/ollama":    { "import": { ... }, "require": { ... } },
   "./providers/openrouter": { "import": { ... }, "require": { ... } },
   "./trace/posthog":       { "import": { ... }, "require": { ... } },
   "./test":                { "import": { ... }, "require": { ... } }
@@ -672,7 +676,7 @@ Each export has separate `types` and `default` conditions for both `import` and 
 ### Tree-shaking considerations
 
 - `external: ['zod', 'posthog-node', '@posthog/ai']` ensures these are never bundled into the output. `zod` is a peer dep; PostHog packages are optional peers.
-- `@openrouter/ai-sdk-provider` is a runtime dependency but loaded lazily inside `openrouter()`. Consumers who import only from `funcai` (the root) and use `createProvider()` with a custom model never load OpenRouter code.
+- `@openrouter/ai-sdk-provider`, `@ai-sdk/openai-compatible`, and `ai-sdk-ollama` are runtime dependencies but loaded lazily inside their provider factories. Consumers who import only from `funcai` (the root) and use `createProvider()` with a custom model never load provider-specific code.
 - `splitting: true` means shared code between entry points (like `types.ts`) is extracted into shared chunks rather than duplicated.
 
 ### Peer dependency strategy

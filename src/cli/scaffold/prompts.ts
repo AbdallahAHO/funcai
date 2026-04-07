@@ -1,6 +1,12 @@
 import * as p from '@clack/prompts';
 import { OPENROUTER_MODELS } from '@/provider/openrouter/models';
-import { DEFAULTS, type ScaffoldOptions, type TestLevel } from './types';
+import {
+  DEFAULTS,
+  getDefaultModelId,
+  type ProviderKind,
+  type ScaffoldOptions,
+  type TestLevel,
+} from './types';
 
 const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
@@ -24,6 +30,12 @@ const MODEL_CHOICES = [
   { value: '_custom', label: 'Custom' },
 ] as const;
 
+const PROVIDER_CHOICES = [
+  { value: 'openrouter' as const, label: 'OpenRouter', hint: 'Hosted models with curated picker' },
+  { value: 'lmstudio' as const, label: 'LM Studio', hint: 'Local OpenAI-compatible server' },
+  { value: 'ollama' as const, label: 'Ollama', hint: 'Local Ollama API' },
+] as const;
+
 function cancelGuard<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
     p.cancel('Cancelled.');
@@ -36,6 +48,7 @@ export async function collectOptions(
   flags: Partial<ScaffoldOptions> & { skipPrompts?: boolean },
 ): Promise<ScaffoldOptions> {
   const opts: ScaffoldOptions = { ...DEFAULTS, ...flags };
+  opts.modelId = flags.modelId ?? getDefaultModelId(opts.provider);
 
   if (flags.skipPrompts) return opts;
 
@@ -69,29 +82,57 @@ export async function collectOptions(
     opts.description = description;
   }
 
-  // Model
-  if (!flags.modelId) {
-    const modelChoice = cancelGuard(
-      await p.select({
-        message: 'Model',
-        options: [...MODEL_CHOICES],
-        initialValue: DEFAULTS.modelId,
+  // Provider
+  if (!flags.provider) {
+    const provider = cancelGuard(
+      await p.select<ProviderKind>({
+        message: 'Provider',
+        options: [...PROVIDER_CHOICES],
+        initialValue: DEFAULTS.provider,
       }),
     );
+    opts.provider = provider;
+    if (!flags.modelId) {
+      opts.modelId = getDefaultModelId(provider);
+    }
+  }
 
-    if (modelChoice === '_custom') {
+  // Model
+  if (!flags.modelId) {
+    if (opts.provider === 'openrouter') {
+      const modelChoice = cancelGuard(
+        await p.select({
+          message: 'Model',
+          options: [...MODEL_CHOICES],
+          initialValue: getDefaultModelId(opts.provider),
+        }),
+      );
+
+      if (modelChoice === '_custom') {
+        const customModel = cancelGuard(
+          await p.text({
+            message: 'Custom model ID (e.g., meta-llama/llama-3.1-8b-instruct)',
+            validate: (v) => {
+              if (!v) return 'Model ID is required';
+              if (!v.includes('/')) return 'Expected format: provider/model-name';
+            },
+          }),
+        );
+        opts.modelId = customModel;
+      } else {
+        opts.modelId = modelChoice;
+      }
+    } else {
+      const placeholder = opts.provider === 'lmstudio' ? 'google/gemma-4-26b-a4b' : 'gemma4:latest';
       const customModel = cancelGuard(
         await p.text({
-          message: 'Custom model ID (e.g., meta-llama/llama-3.1-8b-instruct)',
-          validate: (v) => {
-            if (!v) return 'Model ID is required';
-            if (!v.includes('/')) return 'Expected format: provider/model-name';
-          },
+          message: 'Model ID',
+          placeholder,
+          initialValue: getDefaultModelId(opts.provider),
+          validate: (v) => (!v ? 'Model ID is required' : undefined),
         }),
       );
       opts.modelId = customModel;
-    } else {
-      opts.modelId = modelChoice;
     }
   }
 

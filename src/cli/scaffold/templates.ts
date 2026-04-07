@@ -1,5 +1,45 @@
 import { toCamelCase, toPascalCase } from '../utils';
-import type { AiContent, ScaffoldOptions } from './types';
+import type { AiContent, ProviderKind, ScaffoldOptions } from './types';
+
+function providerImportPath(provider: ProviderKind): string {
+  if (provider === 'lmstudio') return 'funcai/providers/lmstudio';
+  if (provider === 'ollama') return 'funcai/providers/ollama';
+  return 'funcai/providers/openrouter';
+}
+
+function providerFactory(provider: ProviderKind): string {
+  if (provider === 'lmstudio') return 'lmstudio';
+  if (provider === 'ollama') return 'ollama';
+  return 'openrouter';
+}
+
+function providerReadmeName(provider: ProviderKind): string {
+  if (provider === 'lmstudio') return 'LM Studio';
+  if (provider === 'ollama') return 'Ollama';
+  return 'OpenRouter';
+}
+
+function providerE2eEnv(provider: ProviderKind): { gate: string; command: string } {
+  if (provider === 'lmstudio') {
+    return {
+      gate: 'process.env.LMSTUDIO_BASE_URL || process.env.LMSTUDIO_MODEL',
+      command:
+        'LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b',
+    };
+  }
+
+  if (provider === 'ollama') {
+    return {
+      gate: 'process.env.OLLAMA_BASE_URL || process.env.OLLAMA_MODEL',
+      command: 'OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest',
+    };
+  }
+
+  return {
+    gate: 'process.env.OPENROUTER_API_KEY',
+    command: 'OPENROUTER_API_KEY=sk-...',
+  };
+}
 
 /**
  * Infers a Zod type string from a field name using common naming conventions.
@@ -169,6 +209,7 @@ export function promptMdTemplate(opts: ScaffoldOptions, aiContent?: AiContent): 
   const systemPrompt = aiContent?.systemPrompt ?? defaultSystemPrompt(opts);
   return `---
 id: ${opts.name}
+provider: ${opts.provider}
 model: ${opts.modelId}
 temperature: 0
 maxTokens: 500
@@ -188,17 +229,19 @@ export function indexTemplate(opts: ScaffoldOptions, aiContent?: AiContent): str
 
   // Escape backticks and template literals for embedding in template string
   const escapedPrompt = systemPrompt.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+  const providerName = providerFactory(opts.provider);
+  const providerPackage = providerImportPath(opts.provider);
 
   const posthogImport = opts.posthog ? "import { posthog } from 'funcai/trace/posthog';\n" : '';
   const posthogTrace = opts.posthog ? `\n  trace: posthog(process.env.POSTHOG_API_KEY!),` : '';
 
   return `import { createAiFn } from 'funcai';
-import { openrouter } from 'funcai/providers/openrouter';
+import { ${providerName} } from '${providerPackage}';
 ${posthogImport}import { examples } from './few-shots';
 import { ${camel}Schema, type ${pascal}Output } from './schema';
 
 const ai = createAiFn({
-  provider: openrouter(),${posthogTrace}
+  provider: ${providerName}(),${posthogTrace}
 });
 
 /**
@@ -237,6 +280,7 @@ export { ${camel}Schema } from './schema';
 export function readmeTemplate(opts: ScaffoldOptions): string {
   const camel = toCamelCase(opts.name);
   const pascal = toPascalCase(opts.name);
+  const liveTest = providerE2eEnv(opts.provider);
   const fieldsTable = opts.fields
     .map((field) => {
       const type = inferZodType(field).replace(/^z\./, '').split('.')[0] ?? 'string';
@@ -290,7 +334,7 @@ const { output, model, usage, latencyMs, traceId } = await ${camel}.detailed(
 npx vitest run tests/
 
 # E2E with live API
-OPENROUTER_API_KEY=sk-... npx vitest run tests/${opts.name}.e2e.test.ts
+${liveTest.command} npx vitest run tests/${opts.name}.e2e.test.ts
 \`\`\`
 
 ## Customization
@@ -299,6 +343,7 @@ OPENROUTER_API_KEY=sk-... npx vitest run tests/${opts.name}.e2e.test.ts
 2. **Prompt** — Edit \`${opts.name}.prompt.md\`, then run \`funcai generate .\` to regenerate
 3. **Examples** — Add more few-shots in \`few-shots.ts\` for better model accuracy
 4. **Model** — Change the \`model\` field in \`index.ts\` or \`${opts.name}.prompt.md\`
+5. **Provider** — This scaffold targets ${providerReadmeName(opts.provider)}
 `;
 }
 
@@ -386,16 +431,18 @@ describe('${pascal} — integration', () => {
 export function e2eTestTemplate(opts: ScaffoldOptions): string {
   const camel = toCamelCase(opts.name);
   const pascal = toPascalCase(opts.name);
+  const providerName = providerReadmeName(opts.provider);
+  const liveTest = providerE2eEnv(opts.provider);
 
   return `import { describe, expect, it } from 'vitest';
 import { ${camel}Schema } from '../schema';
 import { ${camel} } from '../index';
 
 /**
- * E2E test — makes a real API call via OpenRouter.
- * Skipped automatically when OPENROUTER_API_KEY is not set.
+ * E2E test — makes a real API call via ${providerName}.
+ * Skipped automatically until ${providerName} env vars are configured.
  */
-describe.skipIf(!process.env.OPENROUTER_API_KEY)('${pascal} — e2e', () => {
+describe.skipIf(!(${liveTest.gate}))('${pascal} — e2e', () => {
   it(
     'returns valid output from a live API call',
     async () => {

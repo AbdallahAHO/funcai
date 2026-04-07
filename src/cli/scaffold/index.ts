@@ -41,6 +41,12 @@ export function parseScaffoldFlags(args: string[]): ScaffoldFlags {
         flags.modelId = next;
         i++;
         break;
+      case '--provider':
+        if (next === 'openrouter' || next === 'lmstudio' || next === 'ollama') {
+          flags.provider = next;
+        }
+        i++;
+        break;
       case '--description':
         flags.description = next;
         i++;

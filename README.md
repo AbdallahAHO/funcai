@@ -407,12 +407,31 @@ Full working examples in [`examples/`](./examples/):
 | 09 | `pnpm codegen` | CLI `generate` from `.prompt.md` files |
 | 10 | `pnpm multimodal` | Images, PDFs, and `ContentPart[]` input |
 | 11 | `pnpm scaffold` | CLI `scaffold` — bootstrap a feature folder |
+| 12 | `pnpm lmstudio:vision` | LM Studio + Gemma 4 vision for handwritten recipe-card intake triage |
+| 13 | `pnpm ollama:vision` | Ollama + Gemma 4 vision for bakery prep briefs |
+| 14 | `pnpm local:multilingual` | Local Gemma 4 multilingual support triage |
 
 ```bash
 cd examples
 OPENROUTER_API_KEY=sk-or-... pnpm basic    # most examples need an API key
+LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm lmstudio:vision
+OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest pnpm ollama:vision
+LOCAL_PROVIDER=lmstudio LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm local:multilingual
 pnpm codegen                                # no API key needed
 pnpm scaffold                               # no API key needed
+```
+
+For local-first workflows, the new examples are tuned around Gemma 4 because Google currently positions it for multimodal reasoning, agentic workflows, and multilingual experiences. See: [Gemma 4](https://deepmind.google/models/gemma/gemma-4/)
+
+The easiest way to understand the new local providers is to run the three Gemma 4 examples in [`examples/`](./examples/). They are documented with exact commands, sample output from validated runs, and local-model caveats in [`examples/README.md`](./examples/README.md).
+
+Validated commands from local testing:
+
+```bash
+cd examples
+LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm lmstudio:vision
+OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest pnpm ollama:vision
+LOCAL_PROVIDER=lmstudio LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm local:multilingual
 ```
 
 ---
@@ -426,6 +445,7 @@ Scaffolds a working feature folder with schema, prompt, few-shots, index, tests,
 ```bash
 npx funcai scaffold                    # interactive TUI (defaults work out of the box)
 npx funcai scaffold --name invoice-parser --fields "vendor,amount,currency" -y
+npx funcai scaffold --provider ollama --model gemma4:latest -y
 npx funcai scaffold -y                 # accept all defaults, no prompts
 ```
 
@@ -448,7 +468,7 @@ classify-sentiment/
 
 </details>
 
-Flags: `--name`, `--fields`, `--model`, `--description`, `--posthog`, `--ai`, `-y`
+Flags: `--name`, `--provider`, `--fields`, `--model`, `--description`, `--posthog`, `--ai`, `-y`
 
 ### `funcai generate` — Prompt-as-code
 
@@ -458,6 +478,7 @@ Write system prompts in markdown, generate type-safe TypeScript modules.
 <!-- prompts/review-ticket.prompt.md -->
 ---
 id: review-ticket
+provider: openrouter
 model: anthropic/claude-sonnet-4
 temperature: 0.1
 maxTokens: 200
@@ -608,6 +629,38 @@ import {
 ```
 
 </details>
+
+**LM Studio** ships built-in via the OpenAI-compatible local server:
+
+```typescript
+import { lmstudio } from "funcai/providers/lmstudio";
+
+createAiFn({ provider: lmstudio() });
+createAiFn({
+  provider: lmstudio({
+    baseURL: "http://192.168.2.188:1234/v1",
+  }),
+});
+```
+
+LM Studio structured output works with schema-based JSON responses. In local testing, the server accepted `response_format.type: "json_schema"` and rejected `"json_object"`, so `funcai` should continue to rely on schema-driven object generation instead of JSON-object mode shortcuts.
+
+In local testing with Gemma 4 vision, smaller schemas were more reliable than OCR-heavy ones. See the local intake-triage example in [`examples/src/12-lmstudio-gemma4-vision.ts`](./examples/src/12-lmstudio-gemma4-vision.ts) and the full walkthrough in [`examples/README.md`](./examples/README.md).
+
+**Ollama** ships built-in via the local Ollama API:
+
+```typescript
+import { ollama } from "funcai/providers/ollama";
+
+createAiFn({ provider: ollama() });
+createAiFn({
+  provider: ollama({
+    baseURL: "http://127.0.0.1:11434",
+  }),
+});
+```
+
+See the local Gemma 4 examples in [`examples/src/13-ollama-gemma4-vision.ts`](./examples/src/13-ollama-gemma4-vision.ts) and [`examples/src/14-local-gemma4-multilingual.ts`](./examples/src/14-local-gemma4-multilingual.ts), plus the exact commands and sample output in [`examples/README.md`](./examples/README.md).
 
 <details>
 <summary><strong>Custom provider</strong> — wrap any AI SDK-compatible model</summary>
@@ -918,6 +971,8 @@ const result = await classifySentiment.detailed("The customer service was incred
 | Path | Exports |
 |------|---------|
 | `funcai` | `createAiFn`, `AiFnError`, `definePrompt`, `createProvider`, `buildSystemPrompt`, `formatExamples`, `injectVariables` |
+| `funcai/providers/lmstudio` | `lmstudio` |
+| `funcai/providers/ollama` | `ollama` |
 | `funcai/providers/openrouter` | `openrouter` |
 | `funcai/trace/posthog` | `posthog` |
 | `funcai/test` | `track`, `unmockAll`, `isMocked`, `validateExamples` |

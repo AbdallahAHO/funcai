@@ -1,7 +1,7 @@
 import type { LanguageModel, ModelMessage, ProviderMetadata } from 'ai';
 import { generateObject } from 'ai';
 import type { z } from 'zod';
-import type { ContentPart, Message, ReasoningConfig } from './types';
+import type { ContentPart, Message } from './types';
 
 type ExecuteOptions<TSchema extends z.ZodType> = {
   model: LanguageModel;
@@ -11,7 +11,7 @@ type ExecuteOptions<TSchema extends z.ZodType> = {
   schema: TSchema;
   temperature?: number;
   maxTokens?: number;
-  reasoning?: ReasoningConfig;
+  providerOptions?: Record<string, Record<string, unknown>>;
 };
 
 type ExecuteResult<T> = {
@@ -52,7 +52,6 @@ export async function execute<TSchema extends z.ZodType>(
     schema,
     temperature,
     maxTokens,
-    reasoning,
   } = options;
 
   // Build the messages array for AI SDK
@@ -73,16 +72,7 @@ export async function execute<TSchema extends z.ZodType>(
     schema,
     temperature,
     maxOutputTokens: maxTokens,
-    ...(reasoning && {
-      providerOptions: {
-        openrouter: {
-          reasoning:
-            'maxTokens' in reasoning
-              ? { max_tokens: reasoning.maxTokens }
-              : { effort: reasoning.effort },
-        },
-      },
-    }),
+    ...(options.providerOptions && { providerOptions: options.providerOptions as never }),
   });
 
   return {

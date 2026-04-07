@@ -7,6 +7,9 @@ import type { z } from 'zod';
 
 export type Provider<TModelId extends string = string> = {
   model: (config: { modelId: string }) => LanguageModel;
+  buildGenerateOptions?: (config: { reasoning?: ReasoningConfig }) => {
+    providerOptions?: Record<string, Record<string, unknown>>;
+  };
   /** Phantom field for model ID type propagation — never set at runtime */
   __modelId?: TModelId;
 };

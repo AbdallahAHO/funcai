@@ -143,6 +143,18 @@ describe('parsePromptFile', () => {
       expect(result.frontmatter.model).toBe('openai/gpt-4o');
       expect(result.content).toBe('Content.');
     });
+
+    it('parses provider when present in frontmatter', () => {
+      const filePath = writePrompt(
+        'provider.prompt.md',
+        '---\nid: provider\nprovider: ollama\nmodel: gemma4:latest\n---\n\nContent.',
+      );
+
+      const result = parsePromptFile(filePath);
+
+      expect(result.frontmatter.provider).toBe('ollama');
+      expect(result.frontmatter.model).toBe('gemma4:latest');
+    });
   });
 
   describe('error handling - bad frontmatter', () => {
@@ -483,20 +495,20 @@ describe('generatePrompts', () => {
       expect(code).not.toMatch(/system: `[^\\]*`[^,]/);
     });
 
-    it('escapes ${variable} template literal expressions', () => {
+    it(`escapes \${variable} template literal expressions`, () => {
       writePrompt(
         'template.prompt.md',
         validPromptFile({
           id: 'template',
-          content: 'The value is ${someVar} and ${another}.',
+          content: `The value is \${someVar} and \${another}.`,
         }),
       );
 
       generatePrompts(tempDir);
 
       const code = readGenerated('template.prompt.ts');
-      expect(code).toContain('\\${someVar}');
-      expect(code).toContain('\\${another}');
+      expect(code).toContain(`\\\${someVar}`);
+      expect(code).toContain(`\\\${another}`);
     });
 
     it('handles system prompt with both backticks and template expressions', () => {
@@ -504,14 +516,14 @@ describe('generatePrompts', () => {
         'mixed.prompt.md',
         validPromptFile({
           id: 'mixed',
-          content: 'Run `echo ${HOME}` to test.',
+          content: `Run \`echo \${HOME}\` to test.`,
         }),
       );
 
       generatePrompts(tempDir);
 
       const code = readGenerated('mixed.prompt.ts');
-      expect(code).toContain('\\`echo \\${HOME}\\`');
+      expect(code).toContain(`\\\`echo \\\${HOME}\\\``);
     });
   });
 

@@ -207,12 +207,12 @@ describe('indexTemplate', () => {
   it('escapes template expressions in the system prompt', () => {
     const opts = customOpts();
     const result = indexTemplate(opts, {
-      systemPrompt: 'Value is ${var}',
+      systemPrompt: `Value is \${var}`,
       fewShots: [],
       fieldTypes: {},
     });
 
-    expect(result).toContain('\\${var}');
+    expect(result).toContain(`\\\${var}`);
   });
 
   it('includes JSDoc with description and multiple examples', () => {
@@ -269,6 +269,13 @@ describe('readmeTemplate', () => {
     expect(result).toContain('npx vitest run tests/');
     expect(result).toContain('OPENROUTER_API_KEY');
   });
+
+  it('uses provider-specific testing instructions for local providers', () => {
+    const result = readmeTemplate(customOpts({ provider: 'ollama', modelId: 'gemma4:latest' }));
+
+    expect(result).toContain('OLLAMA_BASE_URL=http://127.0.0.1:11434');
+    expect(result).toContain('OLLAMA_MODEL=gemma4:latest');
+  });
 });
 
 // -- Test templates -----------------------------------------------------------
@@ -316,7 +323,7 @@ describe('e2eTestTemplate', () => {
   it('uses describe.skipIf for API key gate', () => {
     const result = e2eTestTemplate(defaultOpts());
 
-    expect(result).toContain('describe.skipIf(!process.env.OPENROUTER_API_KEY)');
+    expect(result).toContain('describe.skipIf(!(process.env.OPENROUTER_API_KEY))');
   });
 
   it('imports the function from index', () => {
@@ -329,6 +336,12 @@ describe('e2eTestTemplate', () => {
     const result = e2eTestTemplate(defaultOpts());
 
     expect(result).toContain('timeout: 30_000');
+  });
+
+  it('uses provider-specific env gates for local providers', () => {
+    const result = e2eTestTemplate(customOpts({ provider: 'lmstudio' }));
+
+    expect(result).toContain('process.env.LMSTUDIO_BASE_URL || process.env.LMSTUDIO_MODEL');
   });
 });
 
@@ -357,6 +370,12 @@ describe('parseScaffoldFlags', () => {
     const flags = parseScaffoldFlags(['--model', 'google/gemini-2.5-flash']);
 
     expect(flags.modelId).toBe('google/gemini-2.5-flash');
+  });
+
+  it('parses --provider flag', () => {
+    const flags = parseScaffoldFlags(['--provider', 'ollama']);
+
+    expect(flags.provider).toBe('ollama');
   });
 
   it('parses -y flag as skipPrompts', () => {
