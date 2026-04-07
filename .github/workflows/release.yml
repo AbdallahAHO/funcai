@@ -207,7 +207,7 @@ jobs:
 
       - name: Publish to npm
         if: steps.version.outputs.skip != 'true' && env.ACT != 'true'
-        run: npm publish --provenance --access public
+        run: npx -y npm@11.12.1 publish --provenance --access public
 
       - name: Commit, tag, and push
         if: steps.version.outputs.skip != 'true' && env.ACT != 'true'
