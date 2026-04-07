@@ -1,0 +1,59 @@
+name: Refresh Models
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+
+concurrency:
+  group: refresh-models
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Refresh model registry
+        run: pnpm update:models -- --write
+
+      - name: Format generated files
+        run: pnpm fix
+
+      - name: Generate PR summary
+        run: pnpm models:report -- --output "$RUNNER_TEMP/model-refresh-pr.md"
+
+      - name: Print summary for local act runs
+        if: env.ACT == 'true'
+        run: cat "$RUNNER_TEMP/model-refresh-pr.md"
+
+      - name: Create or update refresh PR
+        if: env.ACT != 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/refresh-models
+          delete-branch: true
+          commit-message: 'fix(models): refresh OpenRouter registry'
+          title: 'fix(models): refresh OpenRouter registry'
+          body-path: ${{ runner.temp }}/model-refresh-pr.md
+          labels: |
+            maintenance
+            models

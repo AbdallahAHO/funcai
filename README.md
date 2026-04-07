@@ -595,7 +595,7 @@ openrouter({
 <details>
 <summary><strong>Model registry</strong> — 55+ models with pricing and capabilities</summary>
 
-Curated registry with typed IDs, pricing, modalities, and capabilities. Use `pnpm update:models` to refresh from the OpenRouter API.
+Curated registry with typed IDs, pricing, modalities, and capabilities. The registry is baked into the package for deterministic DX, but arbitrary OpenRouter model IDs are still accepted at runtime. Use `pnpm update:models` to refresh from the OpenRouter API.
 
 ```typescript
 import {
