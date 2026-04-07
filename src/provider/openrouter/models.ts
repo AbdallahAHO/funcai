@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-03-16
+// Last updated: 2026-04-07
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -201,19 +201,6 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_048_576,
     maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 0.5, completionPerMToken: 3 },
-    modalities: ['text', 'image', 'file', 'audio', 'video'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: true },
-  },
-
-  /** Gemini 3 Pro is Google’s flagship frontier model for high-precision multimodal reasoning, combining strong performance a */
-  'google/gemini-3-pro-preview': {
-    name: 'Google: Gemini 3 Pro Preview',
-    provider: 'Google',
-    description:
-      'Gemini 3 Pro is Google’s flagship frontier model for high-precision multimodal reasoning, combining strong performance a',
-    contextLength: 1_048_576,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 2, completionPerMToken: 12 },
     modalities: ['text', 'image', 'file', 'audio', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -668,7 +655,7 @@ export const OPENROUTER_MODELS = {
     contextLength: 400_000,
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 1.75, completionPerMToken: 14 },
-    modalities: ['text', 'image'],
+    modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
@@ -685,6 +672,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput wor */
+  'openai/gpt-5.4-mini': {
+    name: 'OpenAI: GPT-5.4 Mini',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput wor',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.75, completionPerMToken: 4.5 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and  */
+  'openai/gpt-5.4-nano': {
+    name: 'OpenAI: GPT-5.4 Nano',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and ',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.2, completionPerMToken: 1.25 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. The o1  */
   'openai/o1': {
     name: 'OpenAI: o1',
@@ -695,7 +708,7 @@ export const OPENROUTER_MODELS = {
     maxCompletionTokens: 100_000,
     pricing: { promptPerMToken: 15, completionPerMToken: 60 },
     modalities: ['text', 'image', 'file'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
   /** o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual rea */
@@ -721,7 +734,7 @@ export const OPENROUTER_MODELS = {
     maxCompletionTokens: 100_000,
     pricing: { promptPerMToken: 1.1, completionPerMToken: 4.4 },
     modalities: ['text', 'file'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
   /** OpenAI o4-mini is a compact reasoning model in the o-series, optimized for fast, cost-efficient performance while retain */
@@ -848,7 +861,7 @@ export const OPENROUTER_MODELS = {
     description:
       'Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and v',
     contextLength: 256_000,
-    maxCompletionTokens: null,
+    maxCompletionTokens: 32_768,
     pricing: { promptPerMToken: 0.05, completionPerMToken: 0.15 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -862,7 +875,7 @@ export const OPENROUTER_MODELS = {
       'The Qwen3.5 native vision-language Flash models are built on a hybrid architecture that integrates a linear attention me',
     contextLength: 1_000_000,
     maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.4 },
+    pricing: { promptPerMToken: 0.065, completionPerMToken: 0.26 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -914,81 +927,3 @@ export const MULTIMODAL_VIDEO_MODELS = OPENROUTER_MODEL_IDS.filter((id) =>
 export const REASONING_MODELS = OPENROUTER_MODEL_IDS.filter(
   (id) => OPENROUTER_MODELS[id].capabilities.reasoning,
 );
-
-type ModelOption = {
-  id: string;
-  name: string;
-  provider: string;
-  description: string;
-  contextLength: number;
-  pricing: { promptPerMToken: number; completionPerMToken: number };
-  modalities: readonly InputModality[];
-  capabilities: { structuredOutput: boolean; tools: boolean; reasoning: boolean };
-};
-
-type ListModelsOptions = {
-  provider?: string;
-  modality?: InputModality;
-  reasoning?: boolean;
-  maxPromptCost?: number;
-  sortBy?: 'price' | 'context' | 'name';
-};
-
-/**
- * Returns a filtered, sorted list of available models for UI dropdowns and pickers.
- *
- * @example
- * ```ts
- * import { listModels } from "funcai/providers/openrouter";
- *
- * // All models
- * const all = listModels();
- *
- * // Only Anthropic models with vision
- * const claude = listModels({ provider: "Anthropic", modality: "image" });
- *
- * // Cheap models under $2/M tokens, sorted by price
- * const cheap = listModels({ maxPromptCost: 2, sortBy: "price" });
- *
- * // Reasoning models only
- * const thinkers = listModels({ reasoning: true });
- *
- * // Use in a <select> dropdown
- * const options = listModels().map(m => ({
- *   value: m.id,
- *   label: `${m.name} ($${m.pricing.promptPerMToken}/M)`,
- * }));
- * ```
- */
-export function listModels(options?: ListModelsOptions): ModelOption[] {
-  let models = OPENROUTER_MODEL_IDS.map((id) => ({ id, ...OPENROUTER_MODELS[id] }));
-
-  if (options?.provider) {
-    const p = options.provider.toLowerCase();
-    models = models.filter((m) => m.provider.toLowerCase() === p);
-  }
-
-  if (options?.modality) {
-    const mod = options.modality;
-    models = models.filter((m) => (m.modalities as readonly string[]).includes(mod));
-  }
-
-  if (options?.reasoning !== undefined) {
-    models = models.filter((m) => m.capabilities.reasoning === options.reasoning);
-  }
-
-  if (options?.maxPromptCost !== undefined) {
-    models = models.filter((m) => m.pricing.promptPerMToken <= options.maxPromptCost!);
-  }
-
-  const sortBy = options?.sortBy ?? 'name';
-  if (sortBy === 'price') {
-    models.sort((a, b) => a.pricing.promptPerMToken - b.pricing.promptPerMToken);
-  } else if (sortBy === 'context') {
-    models.sort((a, b) => b.contextLength - a.contextLength);
-  } else {
-    models.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  return models;
-}
