@@ -135,7 +135,7 @@ export function createFn<
           schema: config.schema,
           temperature,
           maxTokens,
-          reasoning,
+          ...context.provider.buildGenerateOptions?.({ reasoning }),
         });
       },
       primaryModel: modelId,

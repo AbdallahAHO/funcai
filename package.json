@@ -17,6 +17,26 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./providers/lmstudio": {
+      "import": {
+        "types": "./dist/provider/lmstudio.d.ts",
+        "default": "./dist/provider/lmstudio.js"
+      },
+      "require": {
+        "types": "./dist/provider/lmstudio.d.cts",
+        "default": "./dist/provider/lmstudio.cjs"
+      }
+    },
+    "./providers/ollama": {
+      "import": {
+        "types": "./dist/provider/ollama.d.ts",
+        "default": "./dist/provider/ollama.js"
+      },
+      "require": {
+        "types": "./dist/provider/ollama.d.cts",
+        "default": "./dist/provider/ollama.cjs"
+      }
+    },
     "./providers/openrouter": {
       "import": {
         "types": "./dist/provider/openrouter.d.ts",
@@ -79,9 +99,11 @@
     }
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.40",
     "@clack/prompts": "^0.10.1",
     "@openrouter/ai-sdk-provider": "^2.2.3",
-    "ai": "^6.0.116",
+    "ai": "^6.0.149",
+    "ai-sdk-ollama": "^3.8.2",
     "gray-matter": "^4.0.3"
   },
   "devDependencies": {

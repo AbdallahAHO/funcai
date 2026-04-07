@@ -19,7 +19,23 @@ describe('reasoning-mode: reasoning config passed to generateObject', () => {
   it('passes reasoning effort to providerOptions', async () => {
     const doGenerate = vi.fn().mockResolvedValue(mockResponse({ result: 'ok' }));
     const model = new MockLanguageModelV3({ doGenerate });
-    const provider = { model: () => model };
+    const provider = {
+      model: () => model,
+      buildGenerateOptions: ({
+        reasoning,
+      }: {
+        reasoning?: { effort: string } | { maxTokens: number };
+      }) =>
+        reasoning && 'effort' in reasoning
+          ? {
+              providerOptions: {
+                openrouter: {
+                  reasoning: { effort: reasoning.effort },
+                },
+              },
+            }
+          : {},
+    };
 
     const ai = createAiFn({ provider, retries: 0 });
 
@@ -43,7 +59,23 @@ describe('reasoning-mode: reasoning config passed to generateObject', () => {
   it('passes reasoning maxTokens as max_tokens to providerOptions', async () => {
     const doGenerate = vi.fn().mockResolvedValue(mockResponse({ result: 'ok' }));
     const model = new MockLanguageModelV3({ doGenerate });
-    const provider = { model: () => model };
+    const provider = {
+      model: () => model,
+      buildGenerateOptions: ({
+        reasoning,
+      }: {
+        reasoning?: { effort: string } | { maxTokens: number };
+      }) =>
+        reasoning && 'maxTokens' in reasoning
+          ? {
+              providerOptions: {
+                openrouter: {
+                  reasoning: { max_tokens: reasoning.maxTokens },
+                },
+              },
+            }
+          : {},
+    };
 
     const ai = createAiFn({ provider, retries: 0 });
 
@@ -78,6 +110,27 @@ describe('reasoning-mode: reasoning config passed to generateObject', () => {
     });
 
     await analyze('simple input');
+
+    const providerOpts = extractProviderOptions(doGenerate.mock.calls[0][0]);
+    expect(providerOpts).toBeUndefined();
+  });
+
+  it('omits providerOptions for providers without a generate-options hook', async () => {
+    const doGenerate = vi.fn().mockResolvedValue(mockResponse({ result: 'ok' }));
+    const model = new MockLanguageModelV3({ doGenerate });
+    const provider = { model: () => model };
+
+    const ai = createAiFn({ provider, retries: 0 });
+
+    const analyze = ai.fn({
+      model: 'test-model',
+      system: 'Analyze the input.',
+      schema: z.object({ result: z.string() }),
+      input: (text: string) => text,
+      reasoning: { effort: 'high' },
+    });
+
+    await analyze('local input');
 
     const providerOpts = extractProviderOptions(doGenerate.mock.calls[0][0]);
     expect(providerOpts).toBeUndefined();

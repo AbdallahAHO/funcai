@@ -6,6 +6,7 @@ import { toCamelCase } from './utils';
 
 type PromptFrontmatter = {
   id: string;
+  provider?: 'openrouter' | 'lmstudio' | 'ollama';
   model: string;
   temperature?: number;
   maxTokens?: number;
@@ -22,7 +23,9 @@ type ParsedPrompt = {
  * Checks if a model ID exists in the OpenRouter registry and returns
  * suggestions if not. Returns null if recognized, or a warning string.
  */
-function validateModelId(modelId: string): string | null {
+function validateModelId(modelId: string, provider?: string): string | null {
+  if (provider && provider !== 'openrouter') return null;
+  if (!modelId.includes('/')) return null;
   if (modelId in OPENROUTER_MODELS) return null;
 
   const prefix = modelId.split('/')[0];
@@ -84,11 +87,11 @@ export function parsePromptFile(filePath: string): ParsedPrompt {
     throw new Error(
       `Missing required "model" field in frontmatter: ${filePath}\n` +
         `Found fields: ${Object.keys(fm).join(', ')}\n` +
-        'Add a "model" field, e.g.:\n  ---\n  id: ${fm.id}\n  model: openai/gpt-4o\n  ---',
+        `Add a "model" field, e.g.:\n  ---\n  id: \${fm.id}\n  model: openai/gpt-4o\n  ---`,
     );
   }
 
-  const modelWarning = validateModelId(fm.model);
+  const modelWarning = validateModelId(fm.model, fm.provider);
   if (modelWarning) {
     console.warn(`⚠ ${filePath}: ${modelWarning}`);
   }

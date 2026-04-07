@@ -59,6 +59,19 @@ export function openrouter(config?: OpenRouterConfig): Provider<OpenRouterModelI
   }
 
   return {
+    buildGenerateOptions: ({ reasoning }) =>
+      reasoning
+        ? {
+            providerOptions: {
+              openrouter: {
+                reasoning:
+                  'maxTokens' in reasoning
+                    ? { max_tokens: reasoning.maxTokens }
+                    : { effort: reasoning.effort },
+              },
+            },
+          }
+        : {},
     model: ({ modelId }): LanguageModel => {
       if (!instance) {
         const apiKey = config?.apiKey ?? process.env.OPENROUTER_API_KEY;
