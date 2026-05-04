@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-04-07
+// Last updated: 2026-05-04
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -75,6 +75,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Fast-mode variant of [Opus 4.6](/anthropic/claude-opus-4.6) - identical capabilities with higher output speed at premium */
+  'anthropic/claude-opus-4.6-fast': {
+    name: 'Anthropic: Claude Opus 4.6 (Fast)',
+    provider: 'Anthropic',
+    description:
+      'Fast-mode variant of [Opus 4.6](/anthropic/claude-opus-4.6) - identical capabilities with higher output speed at premium',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 30, completionPerMToken: 150 },
+    modalities: ['text', 'image'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Opus 4.7 is the next generation of Anthropic\'s Opus family, built for long-running, asynchronous agents. Building on the */
+  'anthropic/claude-opus-4.7': {
+    name: 'Anthropic: Claude Opus 4.7',
+    provider: 'Anthropic',
+    description:
+      "Opus 4.7 is the next generation of Anthropic's Opus family, built for long-running, asynchronous agents. Building on the",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 5, completionPerMToken: 25 },
+    modalities: ['text', 'image'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Claude Sonnet 4.5 is Anthropic’s most advanced Sonnet model to date, optimized for real-world agents and coding workflow */
   'anthropic/claude-sonnet-4.5': {
     name: 'Anthropic: Claude Sonnet 4.5',
@@ -121,8 +147,8 @@ export const OPENROUTER_MODELS = {
     description:
       'May 28th update to the [original DeepSeek R1](/deepseek/deepseek-r1) Performance on par with [OpenAI o1](/openai/o1), bu',
     contextLength: 163_840,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.45, completionPerMToken: 2.15 },
+    maxCompletionTokens: 32_768,
+    pricing: { promptPerMToken: 0.5, completionPerMToken: 2.15 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -134,8 +160,8 @@ export const OPENROUTER_MODELS = {
     description:
       "DeepSeek-V3.1 Terminus is an update to [DeepSeek V3.1](/deepseek/deepseek-chat-v3.1) that maintains the model's original",
     contextLength: 163_840,
-    maxCompletionTokens: null,
-    pricing: { promptPerMToken: 0.21, completionPerMToken: 0.79 },
+    maxCompletionTokens: 32_768,
+    pricing: { promptPerMToken: 0.27, completionPerMToken: 0.95 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -146,9 +172,22 @@ export const OPENROUTER_MODELS = {
     provider: 'DeepSeek',
     description:
       'DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and ag',
-    contextLength: 163_840,
-    maxCompletionTokens: null,
-    pricing: { promptPerMToken: 0.26, completionPerMToken: 0.38 },
+    contextLength: 131_072,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.252, completionPerMToken: 0.378 },
+    modalities: ['text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B a */
+  'deepseek/deepseek-v4-flash': {
+    name: 'DeepSeek: DeepSeek V4 Flash',
+    provider: 'DeepSeek',
+    description:
+      'DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B a',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 384_000,
+    pricing: { promptPerMToken: 0.14, completionPerMToken: 0.28 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -280,7 +319,7 @@ export const OPENROUTER_MODELS = {
     maxCompletionTokens: 16_384,
     pricing: { promptPerMToken: 0.15, completionPerMToken: 0.6 },
     modalities: ['text', 'image'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+    capabilities: { structuredOutput: true, tools: false, reasoning: false },
   },
 
   /** Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion p */
@@ -394,7 +433,7 @@ export const OPENROUTER_MODELS = {
     description:
       'GPT-4.1 is a flagship large language model optimized for advanced instruction following, real-world software engineering',
     contextLength: 1_047_576,
-    maxCompletionTokens: 32_768,
+    maxCompletionTokens: null,
     pricing: { promptPerMToken: 2, completionPerMToken: 8 },
     modalities: ['image', 'text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
@@ -524,7 +563,7 @@ export const OPENROUTER_MODELS = {
     description:
       'GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, a',
     contextLength: 400_000,
-    maxCompletionTokens: 128_000,
+    maxCompletionTokens: null,
     pricing: { promptPerMToken: 0.05, completionPerMToken: 0.4 },
     modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -588,7 +627,7 @@ export const OPENROUTER_MODELS = {
     provider: 'OpenAI',
     description: 'GPT-5.1-Codex-Mini is a smaller and faster version of GPT-5.1-Codex',
     contextLength: 400_000,
-    maxCompletionTokens: 100_000,
+    maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 0.25, completionPerMToken: 2 },
     modalities: ['image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -614,7 +653,7 @@ export const OPENROUTER_MODELS = {
     description:
       'GPT-5.2 Chat (AKA Instant) is the fast, lightweight member of the 5.2 family, optimized for low-latency chat while retai',
     contextLength: 128_000,
-    maxCompletionTokens: 16_384,
+    maxCompletionTokens: 32_000,
     pricing: { promptPerMToken: 1.75, completionPerMToken: 14 },
     modalities: ['file', 'image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
@@ -672,6 +711,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** [GPT-5.4](https://openrouter.ai/openai/gpt-5.4) Image 2 combines OpenAI\'s GPT-5.4 model with state-of-the-art image gene */
+  'openai/gpt-5.4-image-2': {
+    name: 'OpenAI: GPT-5.4 Image 2',
+    provider: 'OpenAI',
+    description:
+      "[GPT-5.4](https://openrouter.ai/openai/gpt-5.4) Image 2 combines OpenAI's GPT-5.4 model with state-of-the-art image gene",
+    contextLength: 272_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 8, completionPerMToken: 15 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: false, reasoning: true },
+  },
+
   /** GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput wor */
   'openai/gpt-5.4-mini': {
     name: 'OpenAI: GPT-5.4 Mini',
@@ -694,6 +746,19 @@ export const OPENROUTER_MODELS = {
     contextLength: 400_000,
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 0.2, completionPerMToken: 1.25 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.5 is OpenAI’s frontier model designed for complex professional workloads, building on GPT-5.4 with stronger reason */
+  'openai/gpt-5.5': {
+    name: 'OpenAI: GPT-5.5',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.5 is OpenAI’s frontier model designed for complex professional workloads, building on GPT-5.4 with stronger reason',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 5, completionPerMToken: 30 },
     modalities: ['file', 'image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -757,10 +822,10 @@ export const OPENROUTER_MODELS = {
     description:
       'Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-',
     contextLength: 262_144,
-    maxCompletionTokens: null,
+    maxCompletionTokens: 16_384,
     pricing: { promptPerMToken: 0.071, completionPerMToken: 0.1 },
     modalities: ['text'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+    capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
 
   /** Qwen3-32B is a dense 32.8B parameter causal language model from the Qwen3 series, optimized for both complex reasoning a */
@@ -796,8 +861,8 @@ export const OPENROUTER_MODELS = {
     description:
       'Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is opt',
     contextLength: 262_144,
-    maxCompletionTokens: null,
-    pricing: { promptPerMToken: 0.22, completionPerMToken: 1 },
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.22, completionPerMToken: 1.8 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -835,8 +900,8 @@ export const OPENROUTER_MODELS = {
     description:
       'The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear ',
     contextLength: 262_144,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.163, completionPerMToken: 1.3 },
+    maxCompletionTokens: 262_144,
+    pricing: { promptPerMToken: 0.15, completionPerMToken: 1 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -860,9 +925,9 @@ export const OPENROUTER_MODELS = {
     provider: 'Qwen',
     description:
       'Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and v',
-    contextLength: 256_000,
-    maxCompletionTokens: 32_768,
-    pricing: { promptPerMToken: 0.05, completionPerMToken: 0.15 },
+    contextLength: 262_144,
+    maxCompletionTokens: null,
+    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.15 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -889,6 +954,84 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_000_000,
     maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 0.26, completionPerMToken: 1.56 },
+    modalities: ['text', 'image', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Qwen3.5 Plus (April 2026) is a large-scale multimodal language model from Alibaba. It accepts text, image, and video inp */
+  'qwen/qwen3.5-plus-20260420': {
+    name: 'Qwen: Qwen3.5 Plus 2026-04-20',
+    provider: 'Qwen',
+    description:
+      'Qwen3.5 Plus (April 2026) is a large-scale multimodal language model from Alibaba. It accepts text, image, and video inp',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.4, completionPerMToken: 2.4 },
+    modalities: ['text', 'image', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It fea */
+  'qwen/qwen3.6-27b': {
+    name: 'Qwen: Qwen3.6 27B',
+    provider: 'Qwen',
+    description:
+      'Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It fea',
+    contextLength: 262_144,
+    maxCompletionTokens: 81_920,
+    pricing: { promptPerMToken: 0.32, completionPerMToken: 3.2 },
+    modalities: ['text', 'image', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Qwen3.6-35B-A3B is an open-weight multimodal model from Alibaba Cloud with 35 billion total parameters and 3 billion act */
+  'qwen/qwen3.6-35b-a3b': {
+    name: 'Qwen: Qwen3.6 35B A3B',
+    provider: 'Qwen',
+    description:
+      'Qwen3.6-35B-A3B is an open-weight multimodal model from Alibaba Cloud with 35 billion total parameters and 3 billion act',
+    contextLength: 262_144,
+    maxCompletionTokens: 262_144,
+    pricing: { promptPerMToken: 0.15, completionPerMToken: 1 },
+    modalities: ['text', 'image', 'video'],
+    capabilities: { structuredOutput: true, tools: false, reasoning: true },
+  },
+
+  /** Qwen3.6 Flash is a fast, efficient language model from Alibaba\'s Qwen 3.6 series. It supports text, image, and video inp */
+  'qwen/qwen3.6-flash': {
+    name: 'Qwen: Qwen3.6 Flash',
+    provider: 'Qwen',
+    description:
+      "Qwen3.6 Flash is a fast, efficient language model from Alibaba's Qwen 3.6 series. It supports text, image, and video inp",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.25, completionPerMToken: 1.5 },
+    modalities: ['text', 'image', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Qwen3.6-Max-Preview is a proprietary frontier model from Alibaba Cloud built on a sparse mixture-of-experts architecture */
+  'qwen/qwen3.6-max-preview': {
+    name: 'Qwen: Qwen3.6 Max Preview',
+    provider: 'Qwen',
+    description:
+      'Qwen3.6-Max-Preview is a proprietary frontier model from Alibaba Cloud built on a sparse mixture-of-experts architecture',
+    contextLength: 262_144,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 1.04, completionPerMToken: 6.24 },
+    modalities: ['text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Qwen 3.6 Plus builds on a hybrid architecture that combines efficient linear attention with sparse mixture-of-experts ro */
+  'qwen/qwen3.6-plus': {
+    name: 'Qwen: Qwen3.6 Plus',
+    provider: 'Qwen',
+    description:
+      'Qwen 3.6 Plus builds on a hybrid architecture that combines efficient linear attention with sparse mixture-of-experts ro',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.325, completionPerMToken: 1.95 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
