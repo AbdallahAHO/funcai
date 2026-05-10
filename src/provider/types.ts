@@ -14,8 +14,12 @@ import type { Provider } from '@/core/types';
  * );
  * ```
  */
-export function createProvider(factory: (config: { modelId: string }) => LanguageModel): Provider {
+export function createProvider(
+  factory: (config: { modelId: string }) => LanguageModel,
+  options?: { id?: string },
+): Provider {
   return {
+    ...(options?.id && { id: options.id }),
     model: factory,
   };
 }

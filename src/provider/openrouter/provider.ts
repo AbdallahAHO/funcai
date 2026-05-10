@@ -59,6 +59,7 @@ export function openrouter(config?: OpenRouterConfig): Provider<OpenRouterModelI
   }
 
   return {
+    id: 'openrouter',
     buildGenerateOptions: ({ reasoning }) =>
       reasoning
         ? {

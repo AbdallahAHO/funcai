@@ -36,6 +36,8 @@ export function createAiFn<P extends Provider>(
     provider: config.provider,
     trace: config.trace,
     defaultRetries: config.retries ?? DEFAULT_RETRIES,
+    cache: config.cache,
+    cachePolicy: config.cachePolicy,
   };
 
   return {

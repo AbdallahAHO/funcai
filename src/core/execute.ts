@@ -72,6 +72,7 @@ export async function execute<TSchema extends z.ZodType>(
     schema,
     temperature,
     maxOutputTokens: maxTokens,
+    maxRetries: 0,
     ...(options.providerOptions && { providerOptions: options.providerOptions as never }),
   });
 

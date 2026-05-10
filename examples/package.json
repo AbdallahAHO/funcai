@@ -19,10 +19,13 @@
     "ollama:vision": "tsx src/13-ollama-gemma4-vision.ts",
     "local:multilingual": "tsx src/14-local-gemma4-multilingual.ts",
     "local:all": "tsx src/12-lmstudio-gemma4-vision.ts && tsx src/13-ollama-gemma4-vision.ts && tsx src/14-local-gemma4-multilingual.ts",
-    "all": "tsx src/01-basic.ts && tsx src/02-define-prompt.ts && tsx src/03-typed-input.ts && tsx src/05-few-shots.ts && tsx src/06-transform.ts && tsx src/07-detailed.ts && tsx src/10-multimodal.ts"
+    "cache:memory": "tsx src/15-cache-memory.ts",
+    "cache:redis": "tsx src/16-cache-redis.ts",
+    "all": "tsx src/01-basic.ts && tsx src/02-define-prompt.ts && tsx src/03-typed-input.ts && tsx src/05-few-shots.ts && tsx src/06-transform.ts && tsx src/07-detailed.ts && tsx src/10-multimodal.ts && tsx src/15-cache-memory.ts"
   },
   "dependencies": {
     "funcai": "link:..",
+    "redis": "^4.7.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {

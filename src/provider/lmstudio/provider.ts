@@ -30,6 +30,7 @@ export function lmstudio(config?: LMStudioConfig): Provider<LMStudioModelId> {
   > | null = null;
 
   return {
+    id: 'lmstudio',
     model: ({ modelId }): LanguageModel => {
       if (!instance) {
         instance = createOpenAICompatible<LMStudioModelId, string, string, string>({

@@ -192,6 +192,16 @@ describe('parsePromptFile', () => {
 
       expect(() => parsePromptFile(filePath)).toThrow();
     });
+
+    it('throws when id is not kebab-case', () => {
+      const filePath = writePrompt(
+        'bad-id.prompt.md',
+        '---\nid: customer.support\nmodel: openai/gpt-4o\n---\n\nContent.',
+      );
+
+      expect(() => parsePromptFile(filePath)).toThrow(/Prompt ids must be kebab-case/);
+      expect(() => parsePromptFile(filePath)).toThrow(/customer\.support/);
+    });
   });
 
   describe('content edge cases', () => {
@@ -568,14 +578,69 @@ describe('generatePrompts', () => {
 
       const result = generatePrompts(tempDir);
 
-      // Both files are found and generated. The output .ts uses basename,
-      // so nested files are generated at the promptsDir root.
       expect(result.files).toHaveLength(2);
       expect(result.files).toContain('top.prompt.ts');
-      expect(result.files).toContain('nested.prompt.ts');
+      expect(result.files).toContain('sub/nested.prompt.ts');
 
-      const nested = readGenerated('nested.prompt.ts');
+      const nested = readGenerated('nested.prompt.ts', 'sub');
       expect(nested).toContain('export const nested = definePrompt(');
+    });
+
+    it('keeps same-basename prompts isolated by directory', () => {
+      writePrompt(
+        'shared.prompt.md',
+        validPromptFile({ id: 'alpha-shared', content: 'From A.' }),
+        'a',
+      );
+      writePrompt(
+        'shared.prompt.md',
+        validPromptFile({ id: 'beta-shared', content: 'From B.' }),
+        'b',
+      );
+
+      const result = generatePrompts(tempDir);
+
+      expect(result.files).toContain('a/shared.prompt.ts');
+      expect(result.files).toContain('b/shared.prompt.ts');
+
+      const fromA = readGenerated('shared.prompt.ts', 'a');
+      const fromB = readGenerated('shared.prompt.ts', 'b');
+
+      expect(fromA).toContain('export const alphaShared = definePrompt(');
+      expect(fromA).toContain('system: `From A.`');
+      expect(fromB).toContain('export const betaShared = definePrompt(');
+      expect(fromB).toContain('system: `From B.`');
+    });
+  });
+
+  describe('cleanup', () => {
+    it('removes stale variant modules and group indexes after prompt deletion', () => {
+      writePrompt('feature.prompt.md', validPromptFile({ id: 'feature', content: 'Default.' }));
+      writePrompt('feature.exp.prompt.md', validPromptFile({ id: 'feature', content: 'Exp.' }));
+
+      generatePrompts(tempDir);
+      rmSync(join(tempDir, 'feature.exp.prompt.md'));
+
+      const result = generatePrompts(tempDir);
+      const files = readdirSync(tempDir);
+
+      expect(result.files).toEqual(['feature.prompt.ts']);
+      expect(files).toContain('feature.prompt.ts');
+      expect(files).not.toContain('feature.exp.prompt.ts');
+      expect(files).not.toContain('feature.prompts.ts');
+    });
+
+    it('cleans up generated prompt modules when the last source prompt is removed', () => {
+      writePrompt('only.prompt.md', validPromptFile({ id: 'only', content: 'Only.' }));
+
+      generatePrompts(tempDir);
+      rmSync(join(tempDir, 'only.prompt.md'));
+
+      const result = generatePrompts(tempDir);
+      const files = readdirSync(tempDir);
+
+      expect(result.files).toEqual([]);
+      expect(files).not.toContain('only.prompt.ts');
     });
   });
 
