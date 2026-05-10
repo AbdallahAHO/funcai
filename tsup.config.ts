@@ -7,6 +7,7 @@ export default defineConfig([
       'provider/lmstudio': 'src/provider/lmstudio/index.ts',
       'provider/ollama': 'src/provider/ollama/index.ts',
       'provider/openrouter': 'src/provider/openrouter/index.ts',
+      'provider/cloudflare': 'src/provider/cloudflare/index.ts',
       'trace/posthog': 'src/trace/posthog.ts',
       'test/index': 'test/index.ts',
       'bin/funcai': 'bin/funcai.ts',

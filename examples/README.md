@@ -8,6 +8,11 @@ Working examples for every `funcai` pattern. Each file is standalone and runnabl
 cd examples
 pnpm install
 export OPENROUTER_API_KEY=sk-or-your-key-here
+export CLOUDFLARE_ACCOUNT_ID=your-account-id
+export CLOUDFLARE_API_TOKEN=your-cloudflare-token
+export CLOUDFLARE_EMAIL=your-cloudflare-email
+export CLOUDFLARE_GLOBAL_API_KEY=your-cloudflare-global-key
+export CLOUDFLARE_AI_GATEWAY_ID=default
 export LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1
 export LMSTUDIO_MODEL=google/gemma-4-26b-a4b
 export OLLAMA_BASE_URL=http://127.0.0.1:11434
@@ -66,6 +71,9 @@ pnpm local:multilingual # 14 — Local Gemma 4 multilingual ticket triage
 pnpm local:all       # Run the local-provider examples in sequence
 pnpm cache:memory    # 15 — In-memory result cache (built-in)
 pnpm cache:redis     # 16 — Redis result cache adapter
+pnpm cloudflare:basic  # 17 — Cloudflare AI Gateway structured ticket routing
+pnpm cloudflare:vision # 18 — Cloudflare AI Gateway multimodal archive intake
+pnpm cloudflare:all    # Run both Cloudflare examples in sequence
 pnpm all             # Run examples 01-07 in sequence
 ```
 
@@ -89,6 +97,40 @@ pnpm all             # Run examples 01-07 in sequence
 | 14 | `14-local-gemma4-multilingual.ts` | Switchable local Gemma 4 multilingual support triage | Local LM Studio or Ollama |
 | 15 | `15-cache-memory.ts` | In-memory result cache: hit, miss, and `cacheControl.bypass` | Yes |
 | 16 | `16-cache-redis.ts` | Redis adapter for the `CacheProvider` contract | Yes + Redis |
+| 17 | `17-cloudflare-gateway.ts` | Cloudflare AI Gateway + Workers AI structured ticket routing | Cloudflare |
+| 18 | `18-cloudflare-gateway-vision.ts` | Cloudflare AI Gateway multimodal structured archive intake | Cloudflare |
+
+## Cloudflare AI Gateway workflows
+
+These examples use `funcai/providers/cloudflare`, which only accepts Workers AI model IDs from the strict structured-output registry. The default gateway is `default`; set `CLOUDFLARE_AI_GATEWAY_ID` when you want a named gateway such as `production`.
+
+API tokens should include `AI Gateway Read`, `AI Gateway Write`, `AI Gateway Run`, and `Workers AI Read`. The examples also support legacy Global API Key auth with `CLOUDFLARE_EMAIL` and `CLOUDFLARE_GLOBAL_API_KEY`.
+
+Run:
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=... \
+CLOUDFLARE_API_TOKEN=... \
+pnpm cloudflare:basic
+
+CLOUDFLARE_ACCOUNT_ID=... \
+CLOUDFLARE_EMAIL=... \
+CLOUDFLARE_GLOBAL_API_KEY=... \
+pnpm cloudflare:basic
+
+CLOUDFLARE_ACCOUNT_ID=... \
+CLOUDFLARE_API_TOKEN=... \
+CLOUDFLARE_AI_GATEWAY_ID=production \
+pnpm cloudflare:vision
+```
+
+Use-case:
+A support team wants structured operational routing through Workers AI while keeping Cloudflare AI Gateway caching, logs, and retries in front of the model.
+
+What this demonstrates:
+- The provider sends schema-backed object generation through Cloudflare AI Gateway.
+- `CloudflareModelId` excludes Workers AI models without explicit structured-output support.
+- Multimodal Workers AI models are allowed only when they pass the same structured-output gate.
 
 ## Gemma 4 local workflows
 

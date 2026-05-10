@@ -1,5 +1,5 @@
 export type TestLevel = 'unit' | 'integration' | 'e2e';
-export type ProviderKind = 'openrouter' | 'lmstudio' | 'ollama';
+export type ProviderKind = 'openrouter' | 'lmstudio' | 'ollama' | 'cloudflare';
 
 export type ScaffoldOptions = {
   name: string;
@@ -16,6 +16,7 @@ export const DEFAULT_MODEL_IDS: Record<ProviderKind, string> = {
   openrouter: 'google/gemini-3.1-flash-lite-preview',
   lmstudio: 'google/gemma-4-26b-a4b',
   ollama: 'gemma4:latest',
+  cloudflare: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
 };
 
 export const DEFAULTS: ScaffoldOptions = {

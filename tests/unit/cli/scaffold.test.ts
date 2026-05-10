@@ -170,6 +170,14 @@ describe('promptMdTemplate', () => {
 
     expect(result).toContain('Custom AI prompt content here');
   });
+
+  it('quotes Cloudflare model IDs so YAML frontmatter stays valid', () => {
+    const result = promptMdTemplate(
+      customOpts({ provider: 'cloudflare', modelId: '@cf/zai-org/glm-4.7-flash' }),
+    );
+
+    expect(result).toContain('model: "@cf/zai-org/glm-4.7-flash"');
+  });
 });
 
 // -- indexTemplate -------------------------------------------------------------
@@ -182,6 +190,16 @@ describe('indexTemplate', () => {
     expect(result).toContain("import { openrouter } from 'funcai/providers/openrouter'");
     expect(result).toContain("import { examples } from './few-shots'");
     expect(result).toContain('import { classifySentimentSchema');
+  });
+
+  it('imports the Cloudflare provider when selected', () => {
+    const result = indexTemplate(
+      customOpts({ provider: 'cloudflare', modelId: '@cf/zai-org/glm-4.7-flash' }),
+    );
+
+    expect(result).toContain("import { cloudflareAiGateway } from 'funcai/providers/cloudflare'");
+    expect(result).toContain('provider: cloudflareAiGateway()');
+    expect(result).toContain("model: '@cf/zai-org/glm-4.7-flash'");
   });
 
   it('exports the function with correct name and type', () => {
@@ -276,6 +294,16 @@ describe('readmeTemplate', () => {
     expect(result).toContain('OLLAMA_BASE_URL=http://127.0.0.1:11434');
     expect(result).toContain('OLLAMA_MODEL=gemma4:latest');
   });
+
+  it('uses provider-specific testing instructions for Cloudflare', () => {
+    const result = readmeTemplate(
+      customOpts({ provider: 'cloudflare', modelId: '@cf/zai-org/glm-4.7-flash' }),
+    );
+
+    expect(result).toContain('CLOUDFLARE_ACCOUNT_ID=...');
+    expect(result).toContain('CLOUDFLARE_API_TOKEN=...');
+    expect(result).toContain('Cloudflare AI Gateway');
+  });
 });
 
 // -- Test templates -----------------------------------------------------------
@@ -343,6 +371,13 @@ describe('e2eTestTemplate', () => {
 
     expect(result).toContain('process.env.LMSTUDIO_BASE_URL || process.env.LMSTUDIO_MODEL');
   });
+
+  it('uses provider-specific env gates for Cloudflare', () => {
+    const result = e2eTestTemplate(customOpts({ provider: 'cloudflare' }));
+
+    expect(result).toContain('process.env.CLOUDFLARE_ACCOUNT_ID');
+    expect(result).toContain('process.env.CLOUDFLARE_API_TOKEN');
+  });
 });
 
 // -- parseScaffoldFlags -------------------------------------------------------
@@ -376,6 +411,12 @@ describe('parseScaffoldFlags', () => {
     const flags = parseScaffoldFlags(['--provider', 'ollama']);
 
     expect(flags.provider).toBe('ollama');
+  });
+
+  it('parses --provider cloudflare', () => {
+    const flags = parseScaffoldFlags(['--provider', 'cloudflare']);
+
+    expect(flags.provider).toBe('cloudflare');
   });
 
   it('parses -y flag as skipPrompts', () => {

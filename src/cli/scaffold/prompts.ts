@@ -1,4 +1,5 @@
 import * as p from '@clack/prompts';
+import { CLOUDFLARE_MODELS } from '@/provider/cloudflare/models';
 import { OPENROUTER_MODELS } from '@/provider/openrouter/models';
 import {
   DEFAULTS,
@@ -30,8 +31,24 @@ const MODEL_CHOICES = [
   { value: '_custom', label: 'Custom' },
 ] as const;
 
+const CLOUDFLARE_MODEL_CHOICES = [
+  ...Object.entries(CLOUDFLARE_MODELS).map(([id, info]) => ({
+    value: id,
+    label: id,
+    hint:
+      info.pricing.promptPerMToken === null || info.pricing.completionPerMToken === null
+        ? info.structuredOutputSource
+        : `$${info.pricing.promptPerMToken}/$${info.pricing.completionPerMToken} per M tokens`,
+  })),
+] as const;
+
 const PROVIDER_CHOICES = [
   { value: 'openrouter' as const, label: 'OpenRouter', hint: 'Hosted models with curated picker' },
+  {
+    value: 'cloudflare' as const,
+    label: 'Cloudflare AI Gateway',
+    hint: 'Workers AI models with explicit structured output',
+  },
   { value: 'lmstudio' as const, label: 'LM Studio', hint: 'Local OpenAI-compatible server' },
   { value: 'ollama' as const, label: 'Ollama', hint: 'Local Ollama API' },
 ] as const;
@@ -122,6 +139,15 @@ export async function collectOptions(
       } else {
         opts.modelId = modelChoice;
       }
+    } else if (opts.provider === 'cloudflare') {
+      const modelChoice = cancelGuard(
+        await p.select({
+          message: 'Model',
+          options: [...CLOUDFLARE_MODEL_CHOICES],
+          initialValue: getDefaultModelId(opts.provider),
+        }),
+      );
+      opts.modelId = modelChoice;
     } else {
       const placeholder = opts.provider === 'lmstudio' ? 'google/gemma-4-26b-a4b' : 'gemma4:latest';
       const customModel = cancelGuard(

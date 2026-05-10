@@ -4,18 +4,21 @@ import type { AiContent, ProviderKind, ScaffoldOptions } from './types';
 function providerImportPath(provider: ProviderKind): string {
   if (provider === 'lmstudio') return 'funcai/providers/lmstudio';
   if (provider === 'ollama') return 'funcai/providers/ollama';
+  if (provider === 'cloudflare') return 'funcai/providers/cloudflare';
   return 'funcai/providers/openrouter';
 }
 
 function providerFactory(provider: ProviderKind): string {
   if (provider === 'lmstudio') return 'lmstudio';
   if (provider === 'ollama') return 'ollama';
+  if (provider === 'cloudflare') return 'cloudflareAiGateway';
   return 'openrouter';
 }
 
 function providerReadmeName(provider: ProviderKind): string {
   if (provider === 'lmstudio') return 'LM Studio';
   if (provider === 'ollama') return 'Ollama';
+  if (provider === 'cloudflare') return 'Cloudflare AI Gateway';
   return 'OpenRouter';
 }
 
@@ -32,6 +35,13 @@ function providerE2eEnv(provider: ProviderKind): { gate: string; command: string
     return {
       gate: 'process.env.OLLAMA_BASE_URL || process.env.OLLAMA_MODEL',
       command: 'OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest',
+    };
+  }
+
+  if (provider === 'cloudflare') {
+    return {
+      gate: 'process.env.CLOUDFLARE_ACCOUNT_ID && (process.env.CLOUDFLARE_AI_GATEWAY_API_KEY || process.env.CLOUDFLARE_API_TOKEN)',
+      command: 'CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=...',
     };
   }
 
@@ -207,10 +217,11 @@ function defaultSystemPrompt(opts: ScaffoldOptions): string {
 
 export function promptMdTemplate(opts: ScaffoldOptions, aiContent?: AiContent): string {
   const systemPrompt = aiContent?.systemPrompt ?? defaultSystemPrompt(opts);
+  const modelId = opts.modelId.startsWith('@') ? JSON.stringify(opts.modelId) : opts.modelId;
   return `---
 id: ${opts.name}
 provider: ${opts.provider}
-model: ${opts.modelId}
+model: ${modelId}
 temperature: 0
 maxTokens: 500
 ---
