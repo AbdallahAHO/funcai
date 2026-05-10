@@ -1,5 +1,16 @@
 // Factory
 
+export type {
+  CacheControl,
+  CacheMetadata,
+  CachePolicy,
+  CacheProvider,
+  CacheSetEntry,
+  CacheSetOptions,
+  FnCacheConfig,
+  MemoryCache,
+} from './core/cache';
+export { createMemoryCache } from './core/cache';
 export type { AttemptRecord } from './core/errors';
 // Errors
 export { AiFnError } from './core/errors';

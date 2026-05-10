@@ -1,5 +1,12 @@
 import type { z } from 'zod';
 import { buildSystemPrompt } from '@/prompt/build';
+import type { CachePolicy, CacheProvider } from './cache';
+import {
+  buildCacheKey,
+  parseCachedDetailedResult,
+  resolveCacheConfig,
+  toCachedDetailedResult,
+} from './cache';
 import { execute } from './execute';
 import { withRetry } from './retry';
 import type {
@@ -18,6 +25,8 @@ type FnContext = {
   provider: Provider;
   trace?: TracePlugin;
   defaultRetries: number;
+  cache?: CacheProvider;
+  cachePolicy?: CachePolicy;
 };
 
 /** Extracts cost (USD) from provider metadata when available. */
@@ -45,7 +54,7 @@ export function createFn<
   // Resolve model and system from prompt or inline config
   const modelId = config.prompt?.model ?? config.model;
   const system = config.prompt?.system ?? config.system;
-  const featureId = config.prompt?.id ?? 'anonymous';
+  const featureId = config.id ?? config.prompt?.id ?? 'anonymous';
 
   if (!modelId) throw new Error('ai.fn: "model" is required (via prompt config or inline)');
   if (!system) throw new Error('ai.fn: "system" is required (via prompt config or inline)');
@@ -106,6 +115,57 @@ export function createFn<
       messages = config.messages;
     }
 
+    const generateOptions = context.provider.buildGenerateOptions?.({ reasoning }) ?? {};
+    const cacheConfig = resolveCacheConfig({
+      cacheProvider: context.cache,
+      factoryPolicy: context.cachePolicy,
+      fnCache: config.cache,
+      callControl: options?.cacheControl,
+    });
+    const cacheKey =
+      cacheConfig &&
+      buildCacheKey({
+        featureId,
+        providerId: context.provider.id,
+        primaryModel: modelId,
+        fallback,
+        systemPrompt,
+        messages,
+        userContent,
+        params: {
+          temperature,
+          maxTokens,
+          reasoning,
+          providerOptions: generateOptions.providerOptions,
+        },
+        cache: cacheConfig,
+      });
+
+    if (cacheConfig && cacheKey) {
+      try {
+        const cached = parseCachedDetailedResult<TOutput>(await context.cache?.get(cacheKey));
+        if (cached) {
+          return {
+            output: cached.output,
+            model: cached.model,
+            usage: { inputTokens: 0, outputTokens: 0 },
+            traceId,
+            latencyMs: performance.now() - start,
+            attempts: 0,
+            cache: {
+              hit: true,
+              key: cacheKey,
+              namespace: cacheConfig.namespace,
+              ttlSeconds: cacheConfig.ttlSeconds,
+              ageMs: Date.now() - cached.createdAt,
+            },
+          };
+        }
+      } catch {
+        // Cache read failures are treated as misses so generation still works.
+      }
+    }
+
     const {
       result,
       model: usedModel,
@@ -135,7 +195,7 @@ export function createFn<
           schema: config.schema,
           temperature,
           maxTokens,
-          ...context.provider.buildGenerateOptions?.({ reasoning }),
+          ...generateOptions,
         });
       },
       primaryModel: modelId,
@@ -153,7 +213,7 @@ export function createFn<
     // Extract cost from provider metadata when available (e.g. OpenRouter)
     const cost = extractCost(result.providerMetadata);
 
-    return {
+    const detailed = {
       output,
       model: usedModel,
       usage: result.usage,
@@ -161,13 +221,34 @@ export function createFn<
       traceId,
       latencyMs,
       attempts,
+      ...(cacheConfig &&
+        cacheKey && {
+          cache: {
+            hit: false,
+            key: cacheKey,
+            namespace: cacheConfig.namespace,
+            ttlSeconds: cacheConfig.ttlSeconds,
+          },
+        }),
       ...(result.providerMetadata && { providerMetadata: result.providerMetadata }),
     };
+
+    if (cacheConfig && cacheKey) {
+      try {
+        await context.cache?.set(cacheKey, toCachedDetailedResult(output, usedModel), {
+          ttlSeconds: cacheConfig.ttlSeconds,
+        });
+      } catch {
+        // Cache write failures should not fail a successful model call.
+      }
+    }
+
+    return detailed;
   };
 
   // The simple callable — returns output directly
-  const fn = async (input: TInput): Promise<TOutput> => {
-    const result = await run(input);
+  const fn = async (input: TInput, options?: CallOptions): Promise<TOutput> => {
+    const result = await run(input, options);
     return result.output;
   };
 

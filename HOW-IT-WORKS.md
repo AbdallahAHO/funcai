@@ -2,16 +2,16 @@
 
 ## Executive Summary
 
-**What this is:** `funcai` turns any Zod schema into a callable, typed async function that returns validated structured output from an LLM. You define what you want back, and it handles the rest — model selection, retry with exponential backoff, fallback chains, multimodal input, cost tracking, and observability.
+**What this is:** `funcai` turns any Zod schema into a callable, typed async function that returns validated structured output from an LLM. You define what you want back, and it handles the rest — model selection, retry with exponential backoff, fallback chains, opt-in result caching, multimodal input, cost tracking, and observability.
 
 **How it works in 30 seconds:**
 
 1. `createAiFn({ provider, trace })` — bind a provider (OpenRouter) and optional tracing (PostHog)
 2. `ai.fn({ model, system, schema, input })` — define a function: what model, what instructions, what output shape, how to format input
-3. `await myFn(data)` — call it. Input gets formatted, system prompt gets assembled (with few-shots if any), the model is called via AI SDK's `generateObject`, output is Zod-validated, optionally transformed, and returned typed
+3. `await myFn(data)` — call it. Input gets formatted, system prompt gets assembled (with few-shots if any), an enabled cache is checked, the model is called via AI SDK's `generateObject` on misses, output is Zod-validated, optionally transformed, and returned typed
 4. If it fails → retry with backoff → fall back to next model → throw `AiFnError` with full attempt history
 
-**The tech:** Built on [Vercel AI SDK](https://sdk.vercel.ai/) `generateObject`. OpenRouter as the default provider. PostHog for tracing. Zero classes — factory functions and closures all the way down. Dual ESM/CJS build via tsup.
+**The tech:** Built on [Vercel AI SDK](https://sdk.vercel.ai/) `generateObject`. OpenRouter as the default provider. PostHog for tracing. A small async KV cache contract for repeatable results. Zero classes — factory functions and closures all the way down. Dual ESM/CJS build via tsup.
 
 **Who this doc is for:** Contributors, AI coding agents picking up development, and anyone wanting a deep understanding of the internals. If you just want to use the library, see [README.md](./README.md).
 
@@ -141,6 +141,7 @@ graph TD
         EXECUTE["execute.ts<br/>execute()"]
         RETRY["retry.ts<br/>withRetry()"]
         ERRORS["errors.ts<br/>AiFnError"]
+        CACHE["cache.ts<br/>CacheProvider + keys"]
         TYPES["types.ts<br/>All type definitions"]
     end
 
@@ -171,6 +172,7 @@ graph TD
     FN --> RETRY
     FN --> BUILD
     RETRY --> ERRORS
+    FN --> CACHE
     BUILD --> FORMAT
     GENERATE --> DEFINE
 ```
@@ -179,7 +181,7 @@ graph TD
 
 | Layer | Purpose | Key files |
 |-------|---------|-----------|
-| **Core** | The execution engine. Factory, function builder, retry logic, AI SDK integration, error types, all shared types. | `factory.ts`, `fn.ts`, `execute.ts`, `retry.ts`, `errors.ts`, `types.ts` |
+| **Core** | The execution engine. Factory, function builder, result caching, retry logic, AI SDK integration, error types, all shared types. | `factory.ts`, `fn.ts`, `cache.ts`, `execute.ts`, `retry.ts`, `errors.ts`, `types.ts` |
 | **Prompt** | Prompt assembly. Create prompts (`definePrompt`), assemble with examples (`buildSystemPrompt`), template formatting (`injectVariables`, `formatExamples`). | `define.ts`, `build.ts`, `format.ts` |
 | **Provider** | Model instantiation. Adapts AI services (OpenRouter, custom) into the `Provider` interface that core consumes. | `openrouter/provider.ts`, `types.ts` |
 | **Trace** | Observability. Implements `TracePlugin` to wrap models with monitoring (PostHog). | `posthog.ts` |
@@ -193,6 +195,7 @@ src/
 ├── core/
 │   ├── factory.ts                    # createAiFn() — the entry point
 │   ├── fn.ts                         # createFn() — builds callable AI functions
+│   ├── cache.ts                      # CacheProvider, stable keys, memory cache
 │   ├── execute.ts                    # execute() — calls AI SDK generateObject
 │   ├── retry.ts                      # withRetry() — retry + fallback logic
 │   ├── errors.ts                     # AiFnError with attempt history
@@ -279,6 +282,24 @@ The entire library is built around AI SDK's `generateObject()`. This is the fund
 ### Closure-scoped mock state
 
 Each `createFn` call creates a fresh closure with its own `mockImpl` and `mockOnceQueue`. This means mocking one AI function never interferes with another. The `.mock()`, `.mockOnce()`, `.unmock()`, and `.isMocked` methods are attached directly to the callable function, so the test API is `myFn.mock(...)` — no wrapper objects, no test framework dependency.
+
+### Cache as dependency injection, not infrastructure
+
+`createAiFn({ cache })` accepts a tiny async KV contract (`get`, `set`, optional `delete`). The library does not know whether the backing store is Redis, Cloudflare KV, localStorage, D1, or the built-in `createMemoryCache()`. Functions still opt in individually with `cache: true` or `cache: { ttlSeconds, version }`, which avoids accidentally caching personalized or intentionally creative generations.
+
+Cache keys hash the effective generation request:
+
+- stable function id (`config.id` or `prompt.id`)
+- provider id, primary model, and fallback list
+- final system prompt after few-shot injection
+- full message chain in order
+- final user content returned by `input(...)`
+- temperature, max tokens, reasoning, and provider options
+- explicit cache version
+
+Trace context (`traceId`, `userId`, `sessionId`, custom properties), latency, attempts, timestamps, and retry metadata are deliberately excluded so observability cannot fragment the cache.
+
+Successful post-transform outputs are cached. Errors are never cached. Cache hits return before `provider.model()` and `trace.wrap()`, so PostHog AI tracing is only emitted for real provider calls.
 
 ---
 
@@ -377,17 +398,20 @@ fn(input)
 3. config.messages                  -- Resolve message chain (static array or dynamic function)
   |
   v
-4. withRetry({                     -- Wrap execution in retry + fallback logic
+4. result cache lookup             -- If enabled, hash the effective request
+  |
+  v
+5. withRetry({                     -- Wrap execution in retry + fallback logic
   |   fn: async (modelId) => {
   |     |
   |     v
-  |   5. provider.model(modelId)   -- Create LanguageModel instance from provider
+  |   6. provider.model(modelId)   -- Create LanguageModel instance from provider
   |     |
   |     v
-  |   6. trace.wrap(model, ctx)    -- Wrap model with trace plugin (if configured)
+  |   7. trace.wrap(model, ctx)    -- Wrap model with trace plugin (if configured)
   |     |
   |     v
-  |   7. execute({                 -- Call AI SDK's generateObject
+  |   8. execute({                 -- Call AI SDK's generateObject
   |        model, systemPrompt,
   |        userContent, messages,
   |        schema, temperature,
@@ -395,28 +419,32 @@ fn(input)
   |      })
   |     |
   |     v
-  |   8. Zod schema validation     -- AI SDK validates output against schema
+  |   9. Zod schema validation     -- AI SDK validates output against schema
   |   }
   | })
   |
   v
-9. config.transform(output, input) -- Apply post-processing transform (if configured)
+10. config.transform(output, input) -- Apply post-processing transform (if configured)
   |
   v
-10. extractCost(providerMetadata)  -- Pull USD cost from OpenRouter metadata
+11. extractCost(providerMetadata)  -- Pull USD cost from OpenRouter metadata
   |
   v
-11. Return TOutput (simple call) or DetailedResult<TOutput> (.detailed() call)
+12. write cache                    -- Store only successful post-transform outputs
+  |
+  v
+13. Return TOutput (simple call) or DetailedResult<TOutput> (.detailed() call)
 ```
 
 **Key details:**
 
-- Steps 5-8 happen inside the retry loop. Each retry (and each fallback model) re-creates the model instance and re-wraps with tracing, ensuring trace context captures the actual model used.
+- Cache hits short-circuit after step 4. They return `usage: { inputTokens: 0, outputTokens: 0 }`, `attempts: 0`, and `cache.hit: true`.
+- Steps 6-9 happen inside the retry loop. Each retry (and each fallback model) re-creates the model instance and re-wraps with tracing, ensuring trace context captures the actual model used.
 - The system prompt is built once at function creation time (in `createFn`), outside the retry loop, since it does not change between attempts.
-- `fn(input)` delegates to `run(input)` and strips the metadata, returning only `output`.
+- `fn(input, options?)` delegates to `run(input, options)` and strips the metadata, returning only `output`.
 - `fn.detailed(input, options?)` calls `run(input, options)` and returns the full `DetailedResult`.
 - `traceId` is generated via `crypto.randomUUID()` unless provided in `CallOptions`.
-- Multimodal content (images, PDFs, audio) passes through the same pipeline as text. The `toSdkMessage()` function does not distinguish between content types — the AI SDK handles encoding and transport at step 7.
+- Multimodal content (images, PDFs, audio) passes through the same pipeline as text. The `toSdkMessage()` function does not distinguish between content types — the AI SDK handles encoding and transport at step 8.
 - Cost extraction reads `providerMetadata.openrouter.usage.cost` when present. OpenRouter always includes it; other providers return `undefined`.
 
 ---
@@ -466,6 +494,10 @@ class AiFnError extends Error {
 }
 ```
 
+### AI SDK retries are disabled inside `execute()`
+
+The AI SDK also has its own retry option. `funcai` sets `maxRetries: 0` on the `generateObject` call so there is exactly one retry/fallback policy to reason about: `withRetry()`.
+
 ---
 
 ## 6. Provider System
@@ -474,12 +506,13 @@ class AiFnError extends Error {
 
 ```typescript
 type Provider<TModelId extends string = string> = {
+  id?: string;
   model: (config: { modelId: string }) => LanguageModel;
   __modelId?: TModelId;
 };
 ```
 
-A provider must implement a single method: `model()`, which takes a model ID string and returns an AI SDK `LanguageModel`. That is the entire contract.
+A provider must implement a single method: `model()`, which takes a model ID string and returns an AI SDK `LanguageModel`. `id` is optional but recommended because it participates in cache keys.
 
 ### How `ModelIdOf<P>` propagates types
 

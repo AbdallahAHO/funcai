@@ -1,11 +1,19 @@
 import type { LanguageModel, ProviderMetadata } from 'ai';
 import type { z } from 'zod';
+import type {
+  CacheControl,
+  CacheMetadata,
+  CachePolicy,
+  CacheProvider,
+  FnCacheConfig,
+} from './cache';
 
 // ---------------------------------------------------------------------------
 // Provider
 // ---------------------------------------------------------------------------
 
 export type Provider<TModelId extends string = string> = {
+  id?: string;
   model: (config: { modelId: string }) => LanguageModel;
   buildGenerateOptions?: (config: { reasoning?: ReasoningConfig }) => {
     providerOptions?: Record<string, Record<string, unknown>>;
@@ -100,6 +108,7 @@ export type CallOptions = {
   userId?: string;
   sessionId?: string;
   properties?: Record<string, unknown>;
+  cacheControl?: CacheControl;
 };
 
 // ---------------------------------------------------------------------------
@@ -115,6 +124,8 @@ export type DetailedResult<T> = {
   traceId: string;
   latencyMs: number;
   attempts: number;
+  /** Present when this invocation used an enabled cache policy */
+  cache?: CacheMetadata;
   /** Raw provider-specific metadata passed through from the AI SDK */
   providerMetadata?: ProviderMetadata;
 };
@@ -129,6 +140,15 @@ export type FnConfig<
   TOutput = z.infer<TSchema>,
   TModelId extends string = string,
 > = {
+  /**
+   * Stable feature id used for tracing and cache keys when no prompt config is provided.
+   *
+   * @example
+   * ```ts
+   * ai.fn({ id: "classify-ticket", model, system, schema, input })
+   * ```
+   */
+  id?: string;
   schema: TSchema;
 
   // Prompt: either a PromptConfig or inline
@@ -156,6 +176,9 @@ export type FnConfig<
   retries?: number;
   fallback?: TModelId[];
 
+  // Opt-in result caching
+  cache?: FnCacheConfig;
+
   // Post-processing
   transform?: (output: z.infer<TSchema>, input: TInput) => TOutput | Promise<TOutput>;
 };
@@ -173,7 +196,7 @@ export type MockImplementation<TInput, TOutput> =
 // ---------------------------------------------------------------------------
 
 export type AiFn<TInput, TOutput> = {
-  (input: TInput): Promise<TOutput>;
+  (input: TInput, options?: CallOptions): Promise<TOutput>;
   detailed: (input: TInput, options?: CallOptions) => Promise<DetailedResult<TOutput>>;
   mock: (implementation: MockImplementation<TInput, TOutput>) => void;
   mockOnce: (implementation: MockImplementation<TInput, TOutput>) => void;
@@ -189,6 +212,8 @@ export type CreateAiFnConfig<P extends Provider> = {
   provider: P;
   trace?: TracePlugin;
   retries?: number;
+  cache?: CacheProvider;
+  cachePolicy?: CachePolicy;
 };
 
 // ---------------------------------------------------------------------------

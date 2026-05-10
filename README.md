@@ -1,6 +1,6 @@
 # funcai
 
-AI as a Function — define a Zod schema, get validated structured output back. Retry, fallback, tracing, multimodal, and cost tracking built in.
+AI as a Function — define a Zod schema, get validated structured output back. Retry, fallback, tracing, caching, multimodal, and cost tracking built in.
 
 Built on the [Vercel AI SDK](https://sdk.vercel.ai/). Wraps `generateObject` into typed, callable functions.
 
@@ -300,6 +300,55 @@ try {
 
 </details>
 
+### Result caching
+
+Cache repeatable AI functions with any async KV store. Caching is opt-in per function, and cache hits return before the provider or trace wrapper runs.
+
+```typescript
+import { createAiFn, createMemoryCache } from "funcai";
+import { openrouter } from "funcai/providers/openrouter";
+
+const ai = createAiFn({
+  provider: openrouter(),
+  cache: createMemoryCache(), // use Redis/KV/etc. in production
+  cachePolicy: {
+    namespace: "support-ai",
+    ttlSeconds: 300,
+  },
+});
+
+const classifyTicket = ai.fn({
+  id: "classify-ticket",
+  model: "anthropic/claude-sonnet-4",
+  system: "Classify support tickets by intent and urgency.",
+  schema: ticketSchema,
+  input: (ticket: { subject: string; body: string }) =>
+    `${ticket.subject}\n\n${ticket.body}`,
+  cache: {
+    ttlSeconds: 600,
+    version: "schema-v1",
+  },
+});
+
+await classifyTicket(ticket); // cache miss → provider call
+
+const again = await classifyTicket.detailed(ticket);
+again.cache?.hit; // true
+again.usage; // { inputTokens: 0, outputTokens: 0 } on cache hits
+```
+
+The cache key hashes the effective generation request: function id, provider id, model, fallback list, final system prompt, full message chain, final user content, model params, provider options, and `cache.version`. It does not include trace IDs, user IDs, timestamps, latency, or retry metadata.
+
+Use `version` as your cache-busting knob when the prompt meaning, output schema, or `transform` logic changes.
+
+```typescript
+await classifyTicket(ticket, {
+  cacheControl: { bypass: true }, // skip cache read/write once
+});
+```
+
+Cache hits skip PostHog AI tracing because no model call happens. Misses and bypassed calls trace normally.
+
 ### Detailed metadata
 
 `.detailed()` returns output alongside usage, cost, latency, and trace context.
@@ -319,6 +368,7 @@ const result = await classifyEmail.detailed("Our team can't access the API since
 //     traceId: "req-abc-123",
 //     latencyMs: 620,
 //     attempts: 1,
+//     cache: { hit: false, key: "support-ai:result:...", ttlSeconds: 600, ... },
 //     providerMetadata: { ... },
 //   }
 ```
@@ -754,6 +804,14 @@ createAiFn({ provider: openrouter(), trace: myTrace });
 <details>
 <summary><strong>model + system + prompt</strong></summary>
 
+#### `id` *(recommended)* — stable feature id
+
+Used for tracing and cache keys when no `prompt` is provided.
+
+```typescript
+id: "classify-ticket"
+```
+
 #### `model` *(required\*)* — OpenRouter model ID
 
 ```typescript
@@ -897,6 +955,34 @@ transform: async (output, input) => {
 </details>
 
 <details>
+<summary><strong>cache</strong> — opt-in result caching</summary>
+
+Provide `cache` to `createAiFn`, then opt in per function.
+
+```typescript
+const ai = createAiFn({
+  provider: openrouter(),
+  cache: createMemoryCache(),
+  cachePolicy: { namespace: "support-ai", ttlSeconds: 300 },
+});
+
+const classify = ai.fn({
+  id: "classify-ticket",
+  model,
+  system,
+  schema,
+  input,
+  cache: { ttlSeconds: 600, version: "v1" },
+});
+```
+
+`cache: true` uses the factory policy. Function-level settings override factory settings. Per-call `cacheControl.ttlSeconds` overrides both for that write.
+
+Only successful post-transform outputs are cached. Errors are never cached.
+
+</details>
+
+<details>
 <summary><strong>reasoning</strong> — extended thinking mode</summary>
 
 Enable reasoning/thinking for models that support it (Claude Opus, OpenAI o-series, DeepSeek R1, etc.).
@@ -938,7 +1024,7 @@ fallback: ["openai/gpt-4o", "google/gemini-2.5-pro"]
 
 ### `.detailed()` — full generation metadata
 
-Returns output alongside usage, cost, latency, and trace context. All options flow into your tracing plugin (e.g. PostHog).
+Returns output alongside usage, cost, latency, cache status, and trace context. Trace fields flow into your tracing plugin (e.g. PostHog).
 
 ```typescript
 const result = await classifySentiment.detailed("The customer service was incredibly helpful", {
@@ -949,6 +1035,7 @@ const result = await classifySentiment.detailed("The customer service was incred
     env: "production",
     feature: "feedback-analysis",
   },
+  cacheControl: { bypass: false },   // optional: bypass or override ttlSeconds
 });
 // → {
 //     output: { sentiment: "positive", confidence: 0.92 },
@@ -970,7 +1057,7 @@ const result = await classifySentiment.detailed("The customer service was incred
 
 | Path | Exports |
 |------|---------|
-| `funcai` | `createAiFn`, `AiFnError`, `definePrompt`, `createProvider`, `buildSystemPrompt`, `formatExamples`, `injectVariables` |
+| `funcai` | `createAiFn`, `createMemoryCache`, `AiFnError`, `definePrompt`, `createProvider`, `buildSystemPrompt`, `formatExamples`, `injectVariables`, cache types |
 | `funcai/providers/lmstudio` | `lmstudio` |
 | `funcai/providers/ollama` | `ollama` |
 | `funcai/providers/openrouter` | `openrouter` |
