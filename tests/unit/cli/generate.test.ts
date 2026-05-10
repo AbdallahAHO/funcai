@@ -638,6 +638,30 @@ describe('generatePrompts', () => {
       expect(fromB).toContain('export const betaShared = definePrompt(');
       expect(fromB).toContain('system: `From B.`');
     });
+
+    it('returns slash-normalized paths for nested prompt variants', () => {
+      writePrompt(
+        'search.prompt.md',
+        validPromptFile({ id: 'search', content: 'Default.' }),
+        'sub',
+      );
+      writePrompt(
+        'search.fast.prompt.md',
+        validPromptFile({ id: 'search', content: 'Fast.' }),
+        'sub',
+      );
+
+      const result = generatePrompts(tempDir);
+
+      expect(result.files).toEqual(
+        expect.arrayContaining([
+          'sub/search.prompt.ts',
+          'sub/search.fast.prompt.ts',
+          'sub/search.prompts.ts',
+        ]),
+      );
+      expect(result.files.every((file) => !file.includes('\\'))).toBe(true);
+    });
   });
 
   describe('cleanup', () => {
@@ -652,6 +676,30 @@ describe('generatePrompts', () => {
       const files = readdirSync(tempDir);
 
       expect(result.files).toEqual(['feature.prompt.ts']);
+      expect(files).toContain('feature.prompt.ts');
+      expect(files).not.toContain('feature.exp.prompt.ts');
+      expect(files).not.toContain('feature.prompts.ts');
+    });
+
+    it('removes stale nested variant modules and group indexes after prompt deletion', () => {
+      writePrompt(
+        'feature.prompt.md',
+        validPromptFile({ id: 'feature', content: 'Default.' }),
+        'sub',
+      );
+      writePrompt(
+        'feature.exp.prompt.md',
+        validPromptFile({ id: 'feature', content: 'Exp.' }),
+        'sub',
+      );
+
+      generatePrompts(tempDir);
+      rmSync(join(tempDir, 'sub', 'feature.exp.prompt.md'));
+
+      const result = generatePrompts(tempDir);
+      const files = readdirSync(join(tempDir, 'sub'));
+
+      expect(result.files).toEqual(['sub/feature.prompt.ts']);
       expect(files).toContain('feature.prompt.ts');
       expect(files).not.toContain('feature.exp.prompt.ts');
       expect(files).not.toContain('feature.prompts.ts');
