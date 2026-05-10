@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 import matter from 'gray-matter';
 import { OPENROUTER_MODEL_IDS, OPENROUTER_MODELS } from '@/provider/openrouter/models';
@@ -16,8 +16,36 @@ type ParsedPrompt = {
   frontmatter: PromptFrontmatter;
   content: string;
   filename: string;
+  relativePath: string;
+  relativeDir: string;
   variant?: string;
 };
+
+const PROMPT_ID_REGEX = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const GENERATED_FILE_HEADER = '// AUTO-GENERATED';
+
+function toPromptModulePath(relativePath: string): string {
+  return relativePath.replace(/\.md$/, '.ts');
+}
+
+function toGeneratedImportPath(filename: string): string {
+  return `./${filename.replace(/\.md$/, '')}`;
+}
+
+function isGeneratedArtifact(relativePath: string): boolean {
+  return relativePath.endsWith('.prompt.ts') || relativePath.endsWith('.prompts.ts');
+}
+
+function validatePromptId(id: string, filePath: string): void {
+  if (PROMPT_ID_REGEX.test(id)) return;
+
+  throw new Error(
+    `Invalid "id" in frontmatter: ${filePath}\n` +
+      `Received: ${JSON.stringify(id)}\n` +
+      'Prompt ids must be kebab-case so generated export names stay valid TypeScript identifiers.\n' +
+      'Example: my-prompt-id',
+  );
+}
 
 /**
  * Checks if a model ID exists in the OpenRouter registry and returns
@@ -63,7 +91,7 @@ function validateModelId(modelId: string, provider?: string): string | null {
 /**
  * Parses a `.prompt.md` file into frontmatter + content.
  */
-export function parsePromptFile(filePath: string): ParsedPrompt {
+export function parsePromptFile(filePath: string, promptsDir = dirname(filePath)): ParsedPrompt {
   const raw = readFileSync(filePath, 'utf-8');
   const { data, content } = matter(raw);
 
@@ -83,6 +111,7 @@ export function parsePromptFile(filePath: string): ParsedPrompt {
         'Add an "id" field, e.g.:\n  ---\n  id: my-prompt\n  model: openai/gpt-4o\n  ---',
     );
   }
+  validatePromptId(fm.id, filePath);
   if (!fm.model) {
     throw new Error(
       `Missing required "model" field in frontmatter: ${filePath}\n` +
@@ -97,6 +126,7 @@ export function parsePromptFile(filePath: string): ParsedPrompt {
   }
 
   const name = basename(filePath);
+  const relativePath = relative(promptsDir, filePath);
   // e.g., search-filters.exp.prompt.md → variant = "exp"
   const variantMatch = name.match(/^[\w-]+\.([\w-]+)\.prompt\.md$/);
   const variant = variantMatch?.[1];
@@ -105,6 +135,8 @@ export function parsePromptFile(filePath: string): ParsedPrompt {
     frontmatter: fm,
     content: content.trim(),
     filename: name,
+    relativePath,
+    relativeDir: dirname(relativePath),
     variant,
   };
 }
@@ -146,6 +178,7 @@ function generatePromptCode(prompt: ParsedPrompt): string {
 
 type PromptGroup = {
   baseId: string;
+  relativeDir: string;
   default: ParsedPrompt;
   variants: ParsedPrompt[];
 };
@@ -158,14 +191,20 @@ function groupPrompts(prompts: ParsedPrompt[]): PromptGroup[] {
 
   for (const prompt of prompts) {
     const baseId = prompt.frontmatter.id;
-    const existing = groups.get(baseId);
+    const groupKey = `${prompt.relativeDir}:${baseId}`;
+    const existing = groups.get(groupKey);
 
     if (prompt.variant) {
       if (existing) {
         existing.variants.push(prompt);
       } else {
         // Variant arrived before default — park as temporary default
-        groups.set(baseId, { baseId, default: prompt, variants: [] });
+        groups.set(groupKey, {
+          baseId,
+          relativeDir: prompt.relativeDir,
+          default: prompt,
+          variants: [],
+        });
       }
     } else {
       if (existing) {
@@ -175,7 +214,12 @@ function groupPrompts(prompts: ParsedPrompt[]): PromptGroup[] {
         }
         existing.default = prompt;
       } else {
-        groups.set(baseId, { baseId, default: prompt, variants: [] });
+        groups.set(groupKey, {
+          baseId,
+          relativeDir: prompt.relativeDir,
+          default: prompt,
+          variants: [],
+        });
       }
     }
   }
@@ -190,23 +234,23 @@ function generateGroupIndex(group: PromptGroup): string {
   const baseCamel = toCamelCase(group.baseId);
   const lines = [
     `// AUTO-GENERATED — do not edit`,
-    `export { default as ${baseCamel} } from "./${group.default.filename.replace('.md', '')}";`,
+    `export { default as ${baseCamel} } from "${toGeneratedImportPath(group.default.filename)}";`,
   ];
 
   for (const variant of group.variants) {
     const variantCamel = toCamelCase(`${group.baseId}-${variant.variant}`);
     lines.push(
-      `export { default as ${variantCamel} } from "./${variant.filename.replace('.md', '')}";`,
+      `export { default as ${variantCamel} } from "${toGeneratedImportPath(variant.filename)}";`,
     );
   }
 
   // getPrompt() helper
   lines.push('');
-  lines.push(`import ${baseCamel} from "./${group.default.filename.replace('.md', '')}";`);
+  lines.push(`import ${baseCamel} from "${toGeneratedImportPath(group.default.filename)}";`);
 
   for (const variant of group.variants) {
     const variantCamel = toCamelCase(`${group.baseId}-${variant.variant}`);
-    lines.push(`import ${variantCamel} from "./${variant.filename.replace('.md', '')}";`);
+    lines.push(`import ${variantCamel} from "${toGeneratedImportPath(variant.filename)}";`);
   }
 
   lines.push('');
@@ -232,33 +276,41 @@ function generateGroupIndex(group: PromptGroup): string {
 export function generatePrompts(promptsDir: string): { files: string[] } {
   const entries = readdirSync(promptsDir, { recursive: true }) as string[];
   const promptFiles = entries.filter((f) => f.endsWith('.prompt.md'));
-
-  if (promptFiles.length === 0) {
-    return { files: [] };
-  }
-
-  const parsed = promptFiles.map((f) => parsePromptFile(join(promptsDir, f)));
+  const parsed = promptFiles.map((f) => parsePromptFile(join(promptsDir, f), promptsDir));
   const groups = groupPrompts(parsed);
-  const generatedFiles: string[] = [];
+  const generatedFiles = new Set<string>();
 
   // Generate individual prompt files
   for (const prompt of parsed) {
-    const outputPath = join(promptsDir, prompt.filename.replace('.md', '.ts'));
+    const relativeOutputPath = toPromptModulePath(prompt.relativePath);
+    const outputPath = join(promptsDir, relativeOutputPath);
     const code = generatePromptCode(prompt);
     mkdirSync(dirname(outputPath), { recursive: true });
     writeFileSync(outputPath, code, 'utf-8');
-    generatedFiles.push(relative(promptsDir, outputPath));
+    generatedFiles.add(relativeOutputPath);
   }
 
   // Generate group index files for groups with variants
   for (const group of groups) {
     if (group.variants.length > 0) {
-      const indexPath = join(promptsDir, `${group.baseId}.prompts.ts`);
+      const relativeIndexPath = join(group.relativeDir, `${group.baseId}.prompts.ts`);
+      const indexPath = join(promptsDir, relativeIndexPath);
       const code = generateGroupIndex(group);
+      mkdirSync(dirname(indexPath), { recursive: true });
       writeFileSync(indexPath, code, 'utf-8');
-      generatedFiles.push(relative(promptsDir, indexPath));
+      generatedFiles.add(relativeIndexPath);
     }
   }
 
-  return { files: generatedFiles };
+  for (const entry of entries.filter(isGeneratedArtifact)) {
+    if (generatedFiles.has(entry)) continue;
+
+    const artifactPath = join(promptsDir, entry);
+    const artifact = readFileSync(artifactPath, 'utf-8');
+    if (!artifact.startsWith(GENERATED_FILE_HEADER)) continue;
+
+    rmSync(artifactPath, { force: true });
+  }
+
+  return { files: [...generatedFiles] };
 }
