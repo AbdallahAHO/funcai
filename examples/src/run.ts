@@ -1,17 +1,11 @@
-import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { pnpm as runPnpm } from '../../scripts/process';
 
 const command = process.argv[2];
 const examplesRoot = resolve(import.meta.dirname, '..');
 
-function commandForPlatform(commandName: string): string {
-  if (process.platform !== 'win32') return commandName;
-  if (commandName.endsWith('.cmd') || commandName.endsWith('.exe')) return commandName;
-  return `${commandName}.cmd`;
-}
-
 function pnpm(script: string): void {
-  execFileSync(commandForPlatform('pnpm'), [script], {
+  runPnpm([script], {
     cwd: examplesRoot,
     stdio: 'inherit',
   });
