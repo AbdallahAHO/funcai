@@ -4,6 +4,7 @@ import * as p from '@clack/prompts';
 import { generatePrompts } from '../generate';
 import { generateWithAi } from './ai-generate';
 import { collectOptions } from './prompts';
+import { isScaffoldRecipe } from './recipes';
 import {
   e2eTestTemplate,
   fewShotsTemplate,
@@ -37,8 +38,27 @@ export function parseScaffoldFlags(args: string[]): ScaffoldFlags {
           .filter(Boolean);
         i++;
         break;
+      case '--recipe':
+        if (isScaffoldRecipe(next)) {
+          flags.recipe = next;
+        }
+        i++;
+        break;
       case '--model':
         flags.modelId = next;
+        i++;
+        break;
+      case '--cache':
+        flags.cache = true;
+        break;
+      case '--no-cache':
+        flags.cache = false;
+        break;
+      case '--fallback':
+        flags.fallback = next
+          ?.split(',')
+          .map((model) => model.trim())
+          .filter(Boolean);
         i++;
         break;
       case '--provider':
@@ -161,5 +181,5 @@ export async function runScaffold(args: string[]): Promise<void> {
     p.log.message(`  ${file.path}`);
   }
 
-  p.outro(`Done! Run: cd ${opts.name} && npx vitest run tests/`);
+  p.outro(`Done! Next: open ${opts.name}/, then run npx vitest run tests/`);
 }

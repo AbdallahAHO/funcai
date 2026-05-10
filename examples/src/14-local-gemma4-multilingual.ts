@@ -6,17 +6,11 @@
  * customer text to a hosted provider. Gemma 4 is marketed for multilingual
  * experiences, so this example uses a Spanish ticket and returns typed ops data.
  *
- * Run:
- * LOCAL_PROVIDER=lmstudio \
- * LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 \
- * LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
- * pnpm local:multilingual
+ * Run with LM Studio: set LOCAL_PROVIDER=lmstudio, LMSTUDIO_BASE_URL,
+ * and LMSTUDIO_MODEL in your shell or CI, then `pnpm local:multilingual`.
  *
- * Or:
- * LOCAL_PROVIDER=ollama \
- * OLLAMA_BASE_URL=http://127.0.0.1:11434 \
- * OLLAMA_MODEL=gemma4:latest \
- * pnpm local:multilingual
+ * Run with Ollama: set LOCAL_PROVIDER=ollama, OLLAMA_BASE_URL,
+ * and OLLAMA_MODEL in your shell or CI, then `pnpm local:multilingual`.
  *
  * Sample output from a validated LM Studio run:
  * {

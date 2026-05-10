@@ -1,5 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import type { LanguageModel } from 'ai';
+import { FuncaiError } from '@/core/errors';
 import type { Provider } from '@/core/types';
 import type { OpenRouterModelId } from './models';
 
@@ -24,6 +25,11 @@ type OpenRouterConfig = {
    */
   usage?: boolean;
 };
+
+function readEnv(name: string): string | undefined {
+  if (typeof process === 'undefined') return undefined;
+  return process.env[name];
+}
 
 /**
  * OpenRouter provider — reads `OPENROUTER_API_KEY` from env if not provided.
@@ -75,10 +81,11 @@ export function openrouter(config?: OpenRouterConfig): Provider<OpenRouterModelI
         : {},
     model: ({ modelId }): LanguageModel => {
       if (!instance) {
-        const apiKey = config?.apiKey ?? process.env.OPENROUTER_API_KEY;
+        const apiKey = config?.apiKey ?? readEnv('OPENROUTER_API_KEY');
         if (!apiKey) {
-          throw new Error(
+          throw new FuncaiError(
             'OPENROUTER_API_KEY is required. Pass it via openrouter({ apiKey }) or set the environment variable.',
+            { code: 'FUNCAI_MISSING_API_KEY' },
           );
         }
         instance = createOpenRouter({

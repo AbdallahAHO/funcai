@@ -4,7 +4,7 @@
  * The transform function receives the validated schema output and
  * the original input. It can be sync or async (e.g., for API calls).
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm transform
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm transform`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

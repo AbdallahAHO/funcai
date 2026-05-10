@@ -9,7 +9,7 @@
  * Use the in-memory cache for local dev, tests, and short-lived processes.
  * Swap it for Redis/KV in production — same `CacheProvider` contract.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm cache:memory
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm cache:memory`.
  */
 import { createAiFn, createMemoryCache } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

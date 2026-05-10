@@ -1,5 +1,12 @@
 export type TestLevel = 'unit' | 'integration' | 'e2e';
 export type ProviderKind = 'openrouter' | 'lmstudio' | 'ollama' | 'cloudflare';
+export type ScaffoldRecipeId =
+  | 'support-ticket'
+  | 'invoice-extractor'
+  | 'image-inspection'
+  | 'cached-classifier'
+  | 'fallback-chain';
+export type ScaffoldInputKind = 'text' | 'image' | 'pdf';
 
 export type ScaffoldOptions = {
   name: string;
@@ -7,6 +14,10 @@ export type ScaffoldOptions = {
   provider: ProviderKind;
   modelId: string;
   fields: string[];
+  recipe?: ScaffoldRecipeId;
+  inputKind: ScaffoldInputKind;
+  cache: boolean;
+  fallback: string[];
   posthog: boolean;
   testLevels: TestLevel[];
   aiGenerate: boolean;
@@ -25,6 +36,9 @@ export const DEFAULTS: ScaffoldOptions = {
   provider: 'openrouter',
   modelId: DEFAULT_MODEL_IDS.openrouter,
   fields: ['sentiment', 'confidence', 'reason'],
+  inputKind: 'text',
+  cache: false,
+  fallback: [],
   posthog: false,
   testLevels: ['unit', 'integration'],
   aiGenerate: false,

@@ -463,29 +463,28 @@ Full working examples in [`examples/`](./examples/):
 | 17 | `pnpm cloudflare:basic` | Cloudflare AI Gateway + Workers AI structured ticket routing |
 | 18 | `pnpm cloudflare:vision` | Cloudflare AI Gateway multimodal structured archive intake |
 
+From `examples/`, set the relevant environment variables in your shell or CI,
+then run the matching script:
+
 ```bash
-cd examples
-OPENROUTER_API_KEY=sk-or-... pnpm basic    # most examples need an API key
-CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... pnpm cloudflare:basic
-LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm lmstudio:vision
-OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest pnpm ollama:vision
-LOCAL_PROVIDER=lmstudio LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm local:multilingual
-pnpm codegen                                # no API key needed
-pnpm scaffold                               # no API key needed
+pnpm basic              # most hosted examples need OPENROUTER_API_KEY
+pnpm cloudflare:basic   # needs Cloudflare account credentials
+pnpm lmstudio:vision    # needs LMSTUDIO_BASE_URL and LMSTUDIO_MODEL
+pnpm ollama:vision      # needs OLLAMA_BASE_URL and OLLAMA_MODEL
+pnpm local:multilingual # needs LOCAL_PROVIDER plus the selected local provider config
+pnpm codegen            # no API key needed
+pnpm scaffold           # no API key needed
 ```
 
 For local-first workflows, the new examples are tuned around Gemma 4 because Google currently positions it for multimodal reasoning, agentic workflows, and multilingual experiences. See: [Gemma 4](https://deepmind.google/models/gemma/gemma-4/)
 
 The easiest way to understand the new local providers is to run the three Gemma 4 examples in [`examples/`](./examples/). They are documented with exact commands, sample output from validated runs, and local-model caveats in [`examples/README.md`](./examples/README.md).
 
-Validated commands from local testing:
+Validated local settings:
 
-```bash
-cd examples
-LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm lmstudio:vision
-OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest pnpm ollama:vision
-LOCAL_PROVIDER=lmstudio LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm local:multilingual
-```
+- LM Studio: `LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1`, `LMSTUDIO_MODEL=google/gemma-4-26b-a4b`, then `pnpm lmstudio:vision`.
+- Ollama: `OLLAMA_BASE_URL=http://127.0.0.1:11434`, `OLLAMA_MODEL=gemma4:latest`, then `pnpm ollama:vision`.
+- Local multilingual: `LOCAL_PROVIDER=lmstudio` with the LM Studio settings above, then `pnpm local:multilingual`.
 
 ---
 
@@ -948,7 +947,7 @@ input: (pdfUrl: string) => [
 ]
 ```
 
-Part types: `TextPart`, `ImagePart`, `FilePart`, `AudioPart`. Accepts `string | URL | Buffer` for images, `string | URL | Uint8Array | ArrayBuffer | Buffer` for files.
+Part types: `TextPart`, `ImagePart`, `FilePart`, `AudioPart`. Binary input uses `Uint8Array | ArrayBuffer`; URL input uses `string | URL`.
 
 </details>
 

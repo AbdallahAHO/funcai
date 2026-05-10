@@ -20,13 +20,8 @@ const ai = createAiFn({
 
 ## Configure with an API token
 
-Set:
-
-```bash
-export CLOUDFLARE_ACCOUNT_ID=your-account-id
-export CLOUDFLARE_AI_GATEWAY_ID=default
-export CLOUDFLARE_API_TOKEN=your-token
-```
+Set `CLOUDFLARE_ACCOUNT_ID`, optional `CLOUDFLARE_AI_GATEWAY_ID`, and
+`CLOUDFLARE_API_TOKEN` in your shell, CI environment, or process manager.
 
 `CLOUDFLARE_AI_GATEWAY_ID` is optional. The provider falls back to Cloudflare's `default` gateway.
 
@@ -63,12 +58,8 @@ Blank env vars are ignored, so an empty higher-priority variable will not mask a
 
 The Cloudflare Global API Key is not a Bearer token. Use it with the account email:
 
-```bash
-export CLOUDFLARE_ACCOUNT_ID=your-account-id
-export CLOUDFLARE_AI_GATEWAY_ID=default
-export CLOUDFLARE_EMAIL=you@example.com
-export CLOUDFLARE_GLOBAL_API_KEY=your-global-key
-```
+Set `CLOUDFLARE_ACCOUNT_ID`, optional `CLOUDFLARE_AI_GATEWAY_ID`,
+`CLOUDFLARE_EMAIL`, and `CLOUDFLARE_GLOBAL_API_KEY`.
 
 ```ts
 const ai = createAiFn({
@@ -158,31 +149,18 @@ Cloudflare may return structured responses with `message.content` already encode
 
 Token auth:
 
-```bash
-CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_API_TOKEN=... \
-CLOUDFLARE_AI_GATEWAY_ID=default \
-pnpm -C examples cloudflare:basic
-```
+Set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and optional
+`CLOUDFLARE_AI_GATEWAY_ID`, then run `pnpm -C examples cloudflare:basic`.
 
 Global API Key auth:
 
-```bash
-CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_EMAIL=... \
-CLOUDFLARE_GLOBAL_API_KEY=... \
-CLOUDFLARE_AI_GATEWAY_ID=default \
-pnpm -C examples cloudflare:basic
-```
+Set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL`, `CLOUDFLARE_GLOBAL_API_KEY`,
+and optional `CLOUDFLARE_AI_GATEWAY_ID`, then run `pnpm -C examples cloudflare:basic`.
 
 Multimodal structured-output smoke:
 
-```bash
-CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_API_TOKEN=... \
-CLOUDFLARE_AI_GATEWAY_ID=default \
-pnpm -C examples cloudflare:vision
-```
+Set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and optional
+`CLOUDFLARE_AI_GATEWAY_ID`, then run `pnpm -C examples cloudflare:vision`.
 
 ## Troubleshooting
 

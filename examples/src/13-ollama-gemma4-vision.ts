@@ -5,10 +5,8 @@
  * A small bakery receives legacy handwritten recipes and needs a structured
  * production handoff before a human finalizes the batch plan.
  *
- * Run:
- * OLLAMA_BASE_URL=http://127.0.0.1:11434 \
- * OLLAMA_MODEL=gemma4:latest \
- * pnpm ollama:vision
+ * Run: set OLLAMA_BASE_URL and OLLAMA_MODEL in your shell or CI,
+ * then `pnpm ollama:vision`.
  *
  * Sample output from a validated run:
  * {
@@ -27,7 +25,6 @@
  * handwriting still leaves some process details ambiguous, so human review is
  * intentionally part of the workflow.
  */
-import { Buffer } from 'node:buffer';
 import { createAiFn } from 'funcai';
 import { ollama } from 'funcai/providers/ollama';
 import { z } from 'zod';
@@ -43,7 +40,7 @@ if (!recipeImageResponse.ok) {
   throw new Error(`Failed to download recipe image: ${recipeImageResponse.status}`);
 }
 
-const recipeImage = Buffer.from(await recipeImageResponse.arrayBuffer());
+const recipeImage = new Uint8Array(await recipeImageResponse.arrayBuffer());
 
 const ai = createAiFn({
   provider: ollama({ baseURL: OLLAMA_BASE_URL }),

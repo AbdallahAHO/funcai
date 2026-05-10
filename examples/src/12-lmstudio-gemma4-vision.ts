@@ -5,10 +5,8 @@
  * A food archive intake team needs to quickly classify scanned recipe cards
  * before a human archivist spends time on full transcription.
  *
- * Run:
- * LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 \
- * LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
- * pnpm lmstudio:vision
+ * Run: set LMSTUDIO_BASE_URL and LMSTUDIO_MODEL in your shell or CI,
+ * then `pnpm lmstudio:vision`.
  *
  * Sample output from a validated run:
  * {
@@ -22,7 +20,6 @@
  * Gemma 4 through LM Studio was more reliable here with a compact schema and
  * short prompt. Larger OCR-heavy objects tended to produce truncated JSON.
  */
-import { Buffer } from 'node:buffer';
 import { createAiFn } from 'funcai';
 import { lmstudio } from 'funcai/providers/lmstudio';
 import { z } from 'zod';
@@ -38,7 +35,7 @@ if (!recipeImageResponse.ok) {
   throw new Error(`Failed to download recipe image: ${recipeImageResponse.status}`);
 }
 
-const recipeImage = Buffer.from(await recipeImageResponse.arrayBuffer());
+const recipeImage = new Uint8Array(await recipeImageResponse.arrayBuffer());
 
 const ai = createAiFn({
   provider: lmstudio({ baseURL: LMSTUDIO_BASE_URL }),

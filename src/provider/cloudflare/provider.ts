@@ -8,6 +8,7 @@ import {
   parseAiGatewayOptions,
 } from 'ai-gateway-provider';
 import { createUnified } from 'ai-gateway-provider/providers/unified';
+import { FuncaiError } from '@/core/errors';
 import type { Provider } from '@/core/types';
 import type { CloudflareModelId } from './models';
 
@@ -48,6 +49,11 @@ const DEFAULT_GATEWAY_ID = 'default';
 
 function firstNonEmpty(values: Array<string | undefined>): string | undefined {
   return values.find((value): value is string => typeof value === 'string' && value.length > 0);
+}
+
+function readEnv(name: string): string | undefined {
+  if (typeof process === 'undefined') return undefined;
+  return process.env[name];
 }
 
 function gatewayOptionHeaders(options?: CloudflareAiGatewayOptions): Record<string, string> {
@@ -117,44 +123,47 @@ function readConfig(config?: CloudflareAiGatewayConfig) {
     };
   }
 
-  const accountId = firstNonEmpty([config?.accountId, process.env.CLOUDFLARE_ACCOUNT_ID]);
+  const accountId = firstNonEmpty([config?.accountId, readEnv('CLOUDFLARE_ACCOUNT_ID')]);
   const gatewayId =
     firstNonEmpty([
       config?.gatewayId,
-      process.env.CLOUDFLARE_AI_GATEWAY_ID,
-      process.env.CLOUDFLARE_AI_GATEWAY_NAME,
+      readEnv('CLOUDFLARE_AI_GATEWAY_ID'),
+      readEnv('CLOUDFLARE_AI_GATEWAY_NAME'),
     ]) ?? DEFAULT_GATEWAY_ID;
   const apiKey = firstNonEmpty([
     config?.apiKey,
-    process.env.CLOUDFLARE_AI_GATEWAY_API_KEY,
-    process.env.CLOUDFLARE_API_TOKEN,
-    process.env.CLOUDFLARE_AUTH_TOKEN,
+    readEnv('CLOUDFLARE_AI_GATEWAY_API_KEY'),
+    readEnv('CLOUDFLARE_API_TOKEN'),
+    readEnv('CLOUDFLARE_AUTH_TOKEN'),
   ]);
   const email = firstNonEmpty([
     config?.email,
-    process.env.CLOUDFLARE_EMAIL,
-    process.env.CLOUDFLARE_API_EMAIL,
+    readEnv('CLOUDFLARE_EMAIL'),
+    readEnv('CLOUDFLARE_API_EMAIL'),
   ]);
   const globalApiKey = firstNonEmpty([
     config?.globalApiKey,
-    process.env.CLOUDFLARE_GLOBAL_API_KEY,
-    process.env.CLOUDFLARE_API_KEY,
+    readEnv('CLOUDFLARE_GLOBAL_API_KEY'),
+    readEnv('CLOUDFLARE_API_KEY'),
   ]);
 
   if (!accountId) {
-    throw new Error(
+    throw new FuncaiError(
       'CLOUDFLARE_ACCOUNT_ID is required. Pass it via cloudflareAiGateway({ accountId }) or set the environment variable.',
+      { code: 'FUNCAI_MISSING_API_KEY' },
     );
   }
   const hasGlobalAuth = Boolean(email || globalApiKey);
   if (!apiKey && !hasGlobalAuth) {
-    throw new Error(
+    throw new FuncaiError(
       'Cloudflare AI Gateway auth is required. Pass cloudflareAiGateway({ apiKey }) or cloudflareAiGateway({ email, globalApiKey }), or set CLOUDFLARE_API_TOKEN/CLOUDFLARE_AI_GATEWAY_API_KEY or CLOUDFLARE_EMAIL plus CLOUDFLARE_GLOBAL_API_KEY.',
+      { code: 'FUNCAI_MISSING_API_KEY' },
     );
   }
   if (!apiKey && (!email || !globalApiKey)) {
-    throw new Error(
+    throw new FuncaiError(
       'CLOUDFLARE_EMAIL and CLOUDFLARE_GLOBAL_API_KEY must be set together for Global API Key auth.',
+      { code: 'FUNCAI_MISSING_API_KEY' },
     );
   }
 

@@ -1,8 +1,6 @@
-import { createHash } from 'node:crypto';
-
 const DEFAULT_CACHE_NAMESPACE = 'funcai';
 const DEFAULT_CACHE_TTL_SECONDS = 300;
-const CACHE_KEY_VERSION = 1;
+const CACHE_KEY_VERSION = 2;
 const CACHE_ENTRY_KIND = 'funcai.cached-result';
 
 export type CacheProvider = {
@@ -103,14 +101,49 @@ export type MemoryCache = CacheProvider & {
   keys: () => string[];
 };
 
-const sha256Hex = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
+const hashString = (value: string): string => {
+  let first = 0xdeadbeef ^ value.length;
+  let second = 0x41c6ce57 ^ value.length;
 
-const toBytes = (value: ArrayBuffer | Uint8Array | Buffer) => {
-  if (Buffer.isBuffer(value)) return value;
-  if (value instanceof Uint8Array) {
-    return Buffer.from(value.buffer, value.byteOffset, value.byteLength);
+  for (let index = 0; index < value.length; index++) {
+    const code = value.charCodeAt(index);
+    first = Math.imul(first ^ code, 2654435761);
+    second = Math.imul(second ^ code, 1597334677);
   }
-  return Buffer.from(value);
+
+  first =
+    Math.imul(first ^ (first >>> 16), 2246822507) ^ Math.imul(second ^ (second >>> 13), 3266489909);
+  second =
+    Math.imul(second ^ (second >>> 16), 2246822507) ^ Math.imul(first ^ (first >>> 13), 3266489909);
+
+  return `${(second >>> 0).toString(16).padStart(8, '0')}${(first >>> 0).toString(16).padStart(8, '0')}`;
+};
+
+const hashBytes = (bytes: Uint8Array): string => {
+  let first = 0xdeadbeef ^ bytes.byteLength;
+  let second = 0x41c6ce57 ^ bytes.byteLength;
+
+  for (const byte of bytes) {
+    first = Math.imul(first ^ byte, 2654435761);
+    second = Math.imul(second ^ byte, 1597334677);
+  }
+
+  first =
+    Math.imul(first ^ (first >>> 16), 2246822507) ^ Math.imul(second ^ (second >>> 13), 3266489909);
+  second =
+    Math.imul(second ^ (second >>> 16), 2246822507) ^ Math.imul(first ^ (first >>> 13), 3266489909);
+
+  return `${(second >>> 0).toString(16).padStart(8, '0')}${(first >>> 0).toString(16).padStart(8, '0')}`;
+};
+
+const toBytes = (value: ArrayBuffer | ArrayBufferView) => {
+  if (value instanceof Uint8Array) {
+    return value;
+  }
+  if (value instanceof ArrayBuffer) {
+    return new Uint8Array(value);
+  }
+  return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
 };
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
@@ -130,13 +163,15 @@ const normalizeForCacheKey = (value: unknown): unknown => {
   if (typeof value === 'bigint') return { $funcai: 'bigint', value: value.toString() };
 
   if (value instanceof Date) return { $funcai: 'date', value: value.toISOString() };
-  if (value instanceof URL) return { $funcai: 'url', value: value.href };
-  if (Buffer.isBuffer(value) || value instanceof Uint8Array || value instanceof ArrayBuffer) {
+  if (typeof URL !== 'undefined' && value instanceof URL) {
+    return { $funcai: 'url', value: value.href };
+  }
+  if (value instanceof ArrayBuffer || ArrayBuffer.isView(value)) {
     const bytes = toBytes(value);
     return {
       $funcai: 'bytes',
       byteLength: bytes.byteLength,
-      sha256: sha256Hex(bytes),
+      hash: hashBytes(bytes),
     };
   }
 
@@ -176,7 +211,7 @@ export function buildCacheKey(input: CacheKeyInput): string {
     cacheVersion: input.cache.version,
   };
 
-  return `${input.cache.namespace}:result:${sha256Hex(stableStringify(payload))}`;
+  return `${input.cache.namespace}:result:${hashString(stableStringify(payload))}`;
 }
 
 export function resolveCacheConfig({

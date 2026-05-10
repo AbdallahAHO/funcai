@@ -4,7 +4,7 @@
  * Separating prompt from function enables A/B testing, reuse across
  * multiple functions, and cleaner code organization.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm prompt
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm prompt`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

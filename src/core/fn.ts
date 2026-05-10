@@ -29,6 +29,18 @@ type FnContext = {
   cachePolicy?: CachePolicy;
 };
 
+function createTraceId(): string {
+  const cryptoRef = globalThis.crypto;
+  if (typeof cryptoRef?.randomUUID === 'function') return cryptoRef.randomUUID();
+
+  const random = Math.random().toString(36).slice(2);
+  return `trace_${Date.now().toString(36)}_${random}`;
+}
+
+function nowMs(): number {
+  return globalThis.performance?.now() ?? Date.now();
+}
+
 /** Extracts cost (USD) from provider metadata when available. */
 function extractCost(metadata: Record<string, unknown> | undefined): number | undefined {
   if (!metadata) return undefined;
@@ -86,7 +98,7 @@ export function createFn<
 
   // Core execution for a given input + options
   const run = async (input: TInput, options?: CallOptions): Promise<DetailedResult<TOutput>> => {
-    const traceId = options?.traceId ?? globalThis.crypto.randomUUID();
+    const traceId = options?.traceId ?? createTraceId();
 
     // Check mock state: mockOnce queue takes priority, then permanent mock
     const activeMock = mockOnceQueue.length > 0 ? (mockOnceQueue.shift() ?? null) : mockImpl;
@@ -102,7 +114,7 @@ export function createFn<
       };
     }
 
-    const start = performance.now();
+    const start = nowMs();
 
     // Build user content from input function
     const userContent = config.input(input);
@@ -150,7 +162,7 @@ export function createFn<
             model: cached.model,
             usage: { inputTokens: 0, outputTokens: 0 },
             traceId,
-            latencyMs: performance.now() - start,
+            latencyMs: nowMs() - start,
             attempts: 0,
             cache: {
               hit: true,
@@ -203,7 +215,7 @@ export function createFn<
       fallback,
     });
 
-    const latencyMs = performance.now() - start;
+    const latencyMs = nowMs() - start;
 
     // Apply transform if provided
     const output = config.transform

@@ -109,10 +109,9 @@ describe('structured-input: typed input with input function', () => {
 
     const ai = createAiFn({ provider, retries: 0 });
 
-    // Use Buffer for image data to avoid network fetching in tests
-    const fakeImageBuffer = Buffer.from('fake-image-data');
+    const fakeImageData = new TextEncoder().encode('fake-image-data');
 
-    type ImageInput = { imageData: Buffer; context: string };
+    type ImageInput = { imageData: Uint8Array; context: string };
 
     const describeImage = ai.fn({
       model: 'test-model',
@@ -128,7 +127,7 @@ describe('structured-input: typed input with input function', () => {
     });
 
     const result = await describeImage({
-      imageData: fakeImageBuffer,
+      imageData: fakeImageData,
       context: 'Describe this photo',
     });
 
@@ -156,9 +155,9 @@ describe('structured-input: typed input with input function', () => {
 
     const ai = createAiFn({ provider, retries: 0 });
 
-    const fakePdfBuffer = Buffer.from('fake-pdf-data');
+    const fakePdfData = new TextEncoder().encode('fake-pdf-data');
 
-    type PdfInput = { pdfData: Buffer; question: string };
+    type PdfInput = { pdfData: Uint8Array; question: string };
 
     const analyzePdf = ai.fn({
       model: 'test-model',
@@ -175,7 +174,7 @@ describe('structured-input: typed input with input function', () => {
     });
 
     const result = await analyzePdf({
-      pdfData: fakePdfBuffer,
+      pdfData: fakePdfData,
       question: 'Summarize this document',
     });
 

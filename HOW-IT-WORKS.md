@@ -13,7 +13,7 @@
 
 **The tech:** Built on [Vercel AI SDK](https://sdk.vercel.ai/) `generateObject`. OpenRouter as the default provider. PostHog for tracing. A small async KV cache contract for repeatable results. Zero classes — factory functions and closures all the way down. Dual ESM/CJS build via tsup.
 
-**Who this doc is for:** Contributors, AI coding agents picking up development, and anyone wanting a deep understanding of the internals. If you just want to use the library, see [README.md](./README.md).
+**Who this doc is for:** Contributors, maintainers, and anyone wanting a deep understanding of the internals. If you just want to use the library, see [README.md](./README.md).
 
 ---
 

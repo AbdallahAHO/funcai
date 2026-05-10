@@ -1,7 +1,7 @@
 /**
  * 01 — Basic usage: string in, structured output out.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm basic
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm basic`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

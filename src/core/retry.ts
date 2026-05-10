@@ -1,10 +1,14 @@
-import type { AttemptRecord } from './errors';
-import { AiFnError } from './errors';
+import type { AttemptRecord, FuncaiErrorCode } from './errors';
+import { AiFnError, classifyProviderError } from './errors';
 
 const MIN_DELAY = 500;
 const MAX_DELAY = 5000;
 
 const RETRYABLE_STATUS_CODES = new Set([429, 500, 502, 503, 504]);
+
+function nowMs(): number {
+  return globalThis.performance?.now() ?? Date.now();
+}
 
 export function isRetryable(error: unknown): boolean {
   if (error instanceof Error) {
@@ -31,6 +35,16 @@ export function calculateDelay(attempt: number): number {
   const base = MIN_DELAY * 2 ** attempt;
   const jitter = Math.random() * MIN_DELAY;
   return Math.min(base + jitter, MAX_DELAY);
+}
+
+function classifyAttemptFailure(attempts: AttemptRecord[], modelCount: number): FuncaiErrorCode {
+  const lastError = attempts.at(-1)?.error;
+  if (!lastError) return 'FUNCAI_ALL_FALLBACKS_FAILED';
+
+  const classified = classifyProviderError(lastError);
+  if (classified !== 'FUNCAI_ALL_FALLBACKS_FAILED') return classified;
+
+  return modelCount > 1 ? 'FUNCAI_ALL_FALLBACKS_FAILED' : classified;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -61,13 +75,13 @@ export async function withRetry<T>(
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       totalAttempts++;
-      const start = performance.now();
+      const start = nowMs();
 
       try {
         const result = await fn(modelId);
         return { result, model: modelId, attempts: totalAttempts };
       } catch (error) {
-        const duration = performance.now() - start;
+        const duration = nowMs() - start;
         const err = error instanceof Error ? error : new Error(String(error));
         attempts.push({ model: modelId, error: err, durationMs: duration });
 
@@ -85,5 +99,6 @@ export async function withRetry<T>(
   throw new AiFnError(
     `All ${totalAttempts} attempts failed across ${models.length} model(s)`,
     attempts,
+    { code: classifyAttemptFailure(attempts, models.length) },
   );
 }

@@ -100,6 +100,18 @@ describe('schemaTemplate', () => {
 
     expect(result).toContain("z.enum(['happy', 'sad', 'angry'])");
   });
+
+  it('generates recipe-aware field types', () => {
+    const result = schemaTemplate(
+      customOpts({
+        recipe: 'support-ticket',
+        fields: ['intent', 'urgency', 'suggestedAction'],
+      }),
+    );
+
+    expect(result).toContain("urgency: z.enum(['high', 'medium', 'low'])");
+    expect(result).toContain('suggestedAction: z.string()');
+  });
 });
 
 // -- fewShotsTemplate ---------------------------------------------------------
@@ -125,6 +137,13 @@ describe('fewShotsTemplate', () => {
 
     expect(result).toContain('Example input');
     expect(result).toContain('examples');
+  });
+
+  it('generates support-ticket recipe examples', () => {
+    const result = fewShotsTemplate(customOpts({ recipe: 'support-ticket' }));
+
+    expect(result).toContain('bug-report');
+    expect(result).toContain('feature-request');
   });
 
   it('uses AI-generated examples when provided', () => {
@@ -169,6 +188,13 @@ describe('promptMdTemplate', () => {
     });
 
     expect(result).toContain('Custom AI prompt content here');
+  });
+
+  it('generates recipe-specific system prompts', () => {
+    const result = promptMdTemplate(customOpts({ recipe: 'invoice-extractor' }));
+
+    expect(result).toContain('extract invoice data');
+    expect(result).toContain('{{FEW_SHOTS}}');
   });
 
   it('quotes Cloudflare model IDs so YAML frontmatter stays valid', () => {
@@ -241,6 +267,32 @@ describe('indexTemplate', () => {
     expect(result).toContain('Detailed result with metadata');
     expect(result).toContain('latencyMs');
   });
+
+  it('includes cache configuration for cached recipes', () => {
+    const result = indexTemplate(customOpts({ recipe: 'cached-classifier', cache: true }));
+
+    expect(result).toContain('createMemoryCache');
+    expect(result).toContain("cachePolicy: { namespace: 'invoice-parser', ttlSeconds: 300 }");
+    expect(result).toContain("cache: { ttlSeconds: 300, version: 'v1' }");
+  });
+
+  it('includes fallback models for fallback recipes', () => {
+    const result = indexTemplate(
+      customOpts({
+        recipe: 'fallback-chain',
+        fallback: ['anthropic/claude-haiku-4.5', 'google/gemini-2.5-flash'],
+      }),
+    );
+
+    expect(result).toContain('fallback: ["anthropic/claude-haiku-4.5","google/gemini-2.5-flash"]');
+  });
+
+  it('uses content builders for image recipes', () => {
+    const result = indexTemplate(customOpts({ recipe: 'image-inspection', inputKind: 'image' }));
+
+    expect(result).toContain("import { createAiFn, image, text } from 'funcai'");
+    expect(result).toContain("[text('Analyze this image.'), image(imageUrl)]");
+  });
 });
 
 // -- README template ----------------------------------------------------------
@@ -291,8 +343,8 @@ describe('readmeTemplate', () => {
   it('uses provider-specific testing instructions for local providers', () => {
     const result = readmeTemplate(customOpts({ provider: 'ollama', modelId: 'gemma4:latest' }));
 
-    expect(result).toContain('OLLAMA_BASE_URL=http://127.0.0.1:11434');
-    expect(result).toContain('OLLAMA_MODEL=gemma4:latest');
+    expect(result).toContain('`OLLAMA_BASE_URL`, `OLLAMA_MODEL`');
+    expect(result).toContain('npx vitest run tests/invoice-parser.e2e.test.ts');
   });
 
   it('uses provider-specific testing instructions for Cloudflare', () => {
@@ -300,9 +352,20 @@ describe('readmeTemplate', () => {
       customOpts({ provider: 'cloudflare', modelId: '@cf/zai-org/glm-4.7-flash' }),
     );
 
-    expect(result).toContain('CLOUDFLARE_ACCOUNT_ID=...');
-    expect(result).toContain('CLOUDFLARE_API_TOKEN=...');
+    expect(result).toContain('`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`');
     expect(result).toContain('Cloudflare AI Gateway');
+  });
+
+  it('documents cache and fallback recipe behavior', () => {
+    const result = readmeTemplate(
+      customOpts({
+        cache: true,
+        fallback: ['anthropic/claude-haiku-4.5'],
+      }),
+    );
+
+    expect(result).toContain('built-in memory cache');
+    expect(result).toContain('Fallback models are configured');
   });
 });
 
@@ -417,6 +480,23 @@ describe('parseScaffoldFlags', () => {
     const flags = parseScaffoldFlags(['--provider', 'cloudflare']);
 
     expect(flags.provider).toBe('cloudflare');
+  });
+
+  it('parses --recipe when recognized', () => {
+    const flags = parseScaffoldFlags(['--recipe', 'support-ticket']);
+
+    expect(flags.recipe).toBe('support-ticket');
+  });
+
+  it('parses cache and fallback flags', () => {
+    const flags = parseScaffoldFlags([
+      '--cache',
+      '--fallback',
+      'anthropic/claude-haiku-4.5,google/gemini-2.5-flash',
+    ]);
+
+    expect(flags.cache).toBe(true);
+    expect(flags.fallback).toEqual(['anthropic/claude-haiku-4.5', 'google/gemini-2.5-flash']);
   });
 
   it('parses -y flag as skipPrompts', () => {

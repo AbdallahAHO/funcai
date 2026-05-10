@@ -69,8 +69,10 @@ describe('cache key generation', () => {
   });
 
   it('hashes binary content by byte value rather than object identity', () => {
-    const first = stableStringify({ image: Buffer.from('same-image') });
-    const second = stableStringify({ image: new Uint8Array(Buffer.from('same-image')) });
+    const first = stableStringify({ image: new TextEncoder().encode('same-image') });
+    const second = stableStringify({
+      image: new Uint8Array(new TextEncoder().encode('same-image')),
+    });
 
     expect(first).toBe(second);
   });

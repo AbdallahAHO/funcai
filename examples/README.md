@@ -5,18 +5,23 @@ Working examples for every `funcai` pattern. Each file is standalone and runnabl
 ## Setup
 
 ```bash
-cd examples
 pnpm install
-export OPENROUTER_API_KEY=sk-or-your-key-here
-export CLOUDFLARE_ACCOUNT_ID=your-account-id
-export CLOUDFLARE_API_TOKEN=your-cloudflare-token
-export CLOUDFLARE_EMAIL=your-cloudflare-email
-export CLOUDFLARE_GLOBAL_API_KEY=your-cloudflare-global-key
-export CLOUDFLARE_AI_GATEWAY_ID=default
-export LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1
-export LMSTUDIO_MODEL=google/gemma-4-26b-a4b
-export OLLAMA_BASE_URL=http://127.0.0.1:11434
-export OLLAMA_MODEL=gemma4:latest
+```
+
+Set the provider variables in your shell, CI environment, or process manager
+before running examples:
+
+```text
+OPENROUTER_API_KEY=sk-or-your-key-here
+CLOUDFLARE_ACCOUNT_ID=your-account-id
+CLOUDFLARE_API_TOKEN=your-cloudflare-token
+CLOUDFLARE_EMAIL=your-cloudflare-email
+CLOUDFLARE_GLOBAL_API_KEY=your-cloudflare-global-key
+CLOUDFLARE_AI_GATEWAY_ID=default
+LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1
+LMSTUDIO_MODEL=google/gemma-4-26b-a4b
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=gemma4:latest
 ```
 
 Local Gemma 4 examples target the new built-in providers:
@@ -29,23 +34,11 @@ These examples are designed to validate two things in realistic flows:
 
 ## Quick local run
 
-Use these exact commands if your setup matches the one we validated against:
+Use these settings if your setup matches the one validated here:
 
-```bash
-cd examples
-LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 \
-LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
-pnpm lmstudio:vision
-
-OLLAMA_BASE_URL=http://127.0.0.1:11434 \
-OLLAMA_MODEL=gemma4:latest \
-pnpm ollama:vision
-
-LOCAL_PROVIDER=lmstudio \
-LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 \
-LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
-pnpm local:multilingual
-```
+- LM Studio: `LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1`, `LMSTUDIO_MODEL=google/gemma-4-26b-a4b`, then `pnpm lmstudio:vision`.
+- Ollama: `OLLAMA_BASE_URL=http://127.0.0.1:11434`, `OLLAMA_MODEL=gemma4:latest`, then `pnpm ollama:vision`.
+- Local multilingual: `LOCAL_PROVIDER=lmstudio` plus the LM Studio settings above, then `pnpm local:multilingual`.
 
 If your servers are bound to localhost instead, replace the base URLs with:
 - `http://127.0.0.1:1234/v1` for LM Studio
@@ -108,21 +101,9 @@ API tokens should include `AI Gateway Read`, `AI Gateway Write`, `AI Gateway Run
 
 Run:
 
-```bash
-CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_API_TOKEN=... \
-pnpm cloudflare:basic
-
-CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_EMAIL=... \
-CLOUDFLARE_GLOBAL_API_KEY=... \
-pnpm cloudflare:basic
-
-CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_API_TOKEN=... \
-CLOUDFLARE_AI_GATEWAY_ID=production \
-pnpm cloudflare:vision
-```
+- Token auth: set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`, then run `pnpm cloudflare:basic`.
+- Global API Key auth: set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL`, and `CLOUDFLARE_GLOBAL_API_KEY`, then run `pnpm cloudflare:basic`.
+- Vision smoke: set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and optional `CLOUDFLARE_AI_GATEWAY_ID`, then run `pnpm cloudflare:vision`.
 
 Use-case:
 A support team wants structured operational routing through Workers AI while keeping Cloudflare AI Gateway caching, logs, and retries in front of the model.
@@ -150,11 +131,7 @@ card is readable enough to archive now or should be queued for manual review.
 
 Run:
 
-```bash
-LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 \
-LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
-pnpm lmstudio:vision
-```
+Set `LMSTUDIO_BASE_URL` and `LMSTUDIO_MODEL`, then run `pnpm lmstudio:vision`.
 
 Sample output from a validated run:
 
@@ -180,11 +157,7 @@ before a baker recreates it for a live batch.
 
 Run:
 
-```bash
-OLLAMA_BASE_URL=http://127.0.0.1:11434 \
-OLLAMA_MODEL=gemma4:latest \
-pnpm ollama:vision
-```
+Set `OLLAMA_BASE_URL` and `OLLAMA_MODEL`, then run `pnpm ollama:vision`.
 
 Sample output from a validated run:
 
@@ -219,21 +192,13 @@ customer's original language in the response workflow.
 
 Run with LM Studio:
 
-```bash
-LOCAL_PROVIDER=lmstudio \
-LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 \
-LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
-pnpm local:multilingual
-```
+Set `LOCAL_PROVIDER=lmstudio`, `LMSTUDIO_BASE_URL`, and `LMSTUDIO_MODEL`,
+then run `pnpm local:multilingual`.
 
 Run with Ollama:
 
-```bash
-LOCAL_PROVIDER=ollama \
-OLLAMA_BASE_URL=http://127.0.0.1:11434 \
-OLLAMA_MODEL=gemma4:latest \
-pnpm local:multilingual
-```
+Set `LOCAL_PROVIDER=ollama`, `OLLAMA_BASE_URL`, and `OLLAMA_MODEL`,
+then run `pnpm local:multilingual`.
 
 Sample output from a validated LM Studio run:
 
