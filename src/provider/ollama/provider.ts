@@ -27,6 +27,7 @@ export function ollama(config?: OllamaConfig): Provider<OllamaModelId> {
   let instance: ReturnType<typeof createOllama> | null = null;
 
   return {
+    id: 'ollama',
     model: ({ modelId }): LanguageModel => {
       if (!instance) {
         instance = createOllama({
