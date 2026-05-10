@@ -1,12 +1,13 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 import matter from 'gray-matter';
+import { CLOUDFLARE_MODEL_IDS, CLOUDFLARE_MODELS } from '@/provider/cloudflare/models';
 import { OPENROUTER_MODEL_IDS, OPENROUTER_MODELS } from '@/provider/openrouter/models';
 import { toCamelCase } from './utils';
 
 type PromptFrontmatter = {
   id: string;
-  provider?: 'openrouter' | 'lmstudio' | 'ollama';
+  provider?: 'openrouter' | 'lmstudio' | 'ollama' | 'cloudflare';
   model: string;
   temperature?: number;
   maxTokens?: number;
@@ -52,6 +53,27 @@ function validatePromptId(id: string, filePath: string): void {
  * suggestions if not. Returns null if recognized, or a warning string.
  */
 function validateModelId(modelId: string, provider?: string): string | null {
+  if (provider === 'cloudflare') {
+    if (modelId in CLOUDFLARE_MODELS) return null;
+
+    const prefix = modelId.split('/').slice(0, 2).join('/');
+    const sameProvider = CLOUDFLARE_MODEL_IDS.filter((id) => id.startsWith(`${prefix}/`));
+    const candidates = sameProvider.slice(0, 5);
+
+    if (candidates.length === 0) {
+      return `Unknown Cloudflare structured-output model "${modelId}". Run \`pnpm update:cloudflare-models --write\` to refresh the registry.`;
+    }
+
+    const suggestions = candidates
+      .map((id) => {
+        const model = CLOUDFLARE_MODELS[id];
+        return `    ${id}  (${model.structuredOutputSource})`;
+      })
+      .join('\n');
+
+    return `Unknown Cloudflare structured-output model "${modelId}". Did you mean one of:\n${suggestions}`;
+  }
+
   if (provider && provider !== 'openrouter') return null;
   if (!modelId.includes('/')) return null;
   if (modelId in OPENROUTER_MODELS) return null;

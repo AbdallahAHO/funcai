@@ -460,10 +460,13 @@ Full working examples in [`examples/`](./examples/):
 | 12 | `pnpm lmstudio:vision` | LM Studio + Gemma 4 vision for handwritten recipe-card intake triage |
 | 13 | `pnpm ollama:vision` | Ollama + Gemma 4 vision for bakery prep briefs |
 | 14 | `pnpm local:multilingual` | Local Gemma 4 multilingual support triage |
+| 17 | `pnpm cloudflare:basic` | Cloudflare AI Gateway + Workers AI structured ticket routing |
+| 18 | `pnpm cloudflare:vision` | Cloudflare AI Gateway multimodal structured archive intake |
 
 ```bash
 cd examples
 OPENROUTER_API_KEY=sk-or-... pnpm basic    # most examples need an API key
+CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... pnpm cloudflare:basic
 LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm lmstudio:vision
 OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest pnpm ollama:vision
 LOCAL_PROVIDER=lmstudio LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b pnpm local:multilingual
@@ -495,6 +498,7 @@ Scaffolds a working feature folder with schema, prompt, few-shots, index, tests,
 ```bash
 npx funcai scaffold                    # interactive TUI (defaults work out of the box)
 npx funcai scaffold --name invoice-parser --fields "vendor,amount,currency" -y
+npx funcai scaffold --provider cloudflare --model @cf/meta/llama-3.3-70b-instruct-fp8-fast -y
 npx funcai scaffold --provider ollama --model gemma4:latest -y
 npx funcai scaffold -y                 # accept all defaults, no prompts
 ```
@@ -628,6 +632,13 @@ validateExamples(examples, schema); // throws with descriptive error if any exam
 
 ## Providers
 
+Each provider has a focused setup guide:
+
+- [OpenRouter](./src/provider/openrouter/README.md)
+- [Cloudflare AI Gateway](./src/provider/cloudflare/README.md)
+- [LM Studio](./src/provider/lmstudio/README.md)
+- [Ollama](./src/provider/ollama/README.md)
+
 **OpenRouter** ships built-in. Reads `OPENROUTER_API_KEY` from env or accepts it explicitly:
 
 ```typescript
@@ -679,6 +690,59 @@ import {
 ```
 
 </details>
+
+**Cloudflare AI Gateway** ships built-in for Workers AI models that explicitly support structured output. Reads `CLOUDFLARE_ACCOUNT_ID` plus either `CLOUDFLARE_AI_GATEWAY_API_KEY` / `CLOUDFLARE_API_TOKEN` or `CLOUDFLARE_EMAIL` + `CLOUDFLARE_GLOBAL_API_KEY` from env. API tokens need `AI Gateway Read`, `AI Gateway Write`, `AI Gateway Run`, and `Workers AI Read`. Uses Cloudflare's auto-created `default` gateway unless you pass `gatewayId` or set `CLOUDFLARE_AI_GATEWAY_ID`.
+
+```typescript
+import { cloudflareAiGateway } from "funcai/providers/cloudflare";
+
+createAiFn({ provider: cloudflareAiGateway() });
+createAiFn({
+  provider: cloudflareAiGateway({
+    accountId: "your-account-id",
+    gatewayId: "production",
+    apiKey: "cf-token",
+    gatewayOptions: {
+      skipCache: false,
+      cacheTtl: 3600,
+      metadata: { feature: "classify-ticket" },
+    },
+  }),
+});
+
+createAiFn({
+  provider: cloudflareAiGateway({
+    accountId: "your-account-id",
+    gatewayId: "production",
+    email: "you@example.com",
+    globalApiKey: "global-key",
+  }),
+});
+```
+
+Inside a Cloudflare Worker, pass the AI Gateway binding instead of account/token fields:
+
+```typescript
+createAiFn({
+  provider: cloudflareAiGateway({
+    binding: env.AI.gateway("production"),
+  }),
+});
+```
+
+The Cloudflare model type is strict: `CloudflareModelId` only includes non-deprecated Workers AI text-generation models whose Cloudflare docs explicitly document structured output through the JSON Mode supported-model list or model-page controls such as `response_format` and `guided_json`. Multimodal models are included when they pass that same structured-output gate.
+
+```typescript
+import {
+  CLOUDFLARE_MODELS,
+  CLOUDFLARE_MODEL_IDS,
+  CLOUDFLARE_MULTIMODAL_IMAGE_MODELS,
+  CLOUDFLARE_REASONING_MODELS,
+  CLOUDFLARE_TOOL_CALLING_MODELS,
+} from "funcai/providers/cloudflare";
+```
+
+Use `pnpm update:cloudflare-models --write` to refresh the generated registry from Cloudflare docs.
 
 **LM Studio** ships built-in via the OpenAI-compatible local server:
 
@@ -1061,6 +1125,7 @@ const result = await classifySentiment.detailed("The customer service was incred
 | `funcai/providers/lmstudio` | `lmstudio` |
 | `funcai/providers/ollama` | `ollama` |
 | `funcai/providers/openrouter` | `openrouter` |
+| `funcai/providers/cloudflare` | `cloudflareAiGateway`, `CloudflareModelId`, `CLOUDFLARE_MODELS`, `CLOUDFLARE_MODEL_IDS`, Cloudflare model subsets |
 | `funcai/trace/posthog` | `posthog` |
 | `funcai/test` | `track`, `unmockAll`, `isMocked`, `validateExamples` |
 

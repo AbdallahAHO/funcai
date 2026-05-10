@@ -42,7 +42,12 @@ export function parseScaffoldFlags(args: string[]): ScaffoldFlags {
         i++;
         break;
       case '--provider':
-        if (next === 'openrouter' || next === 'lmstudio' || next === 'ollama') {
+        if (
+          next === 'openrouter' ||
+          next === 'lmstudio' ||
+          next === 'ollama' ||
+          next === 'cloudflare'
+        ) {
           flags.provider = next;
         }
         i++;

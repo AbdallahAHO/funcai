@@ -1,7 +1,7 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generatePrompts, parsePromptFile } from '@/cli/generate';
 
 // -- Helpers ------------------------------------------------------------------
@@ -81,14 +81,14 @@ describe('parsePromptFile', () => {
         'simple.prompt.md',
         validPromptFile({
           id: 'simple',
-          model: 'anthropic/claude-3.5-sonnet',
+          model: 'anthropic/claude-sonnet-4.5',
         }),
       );
 
       const result = parsePromptFile(filePath);
 
       expect(result.frontmatter.id).toBe('simple');
-      expect(result.frontmatter.model).toBe('anthropic/claude-3.5-sonnet');
+      expect(result.frontmatter.model).toBe('anthropic/claude-sonnet-4.5');
       expect(result.frontmatter.temperature).toBeUndefined();
       expect(result.frontmatter.maxTokens).toBeUndefined();
     });
@@ -154,6 +154,33 @@ describe('parsePromptFile', () => {
 
       expect(result.frontmatter.provider).toBe('ollama');
       expect(result.frontmatter.model).toBe('gemma4:latest');
+    });
+
+    it('parses Cloudflare provider frontmatter', () => {
+      const filePath = writePrompt(
+        'cloudflare.prompt.md',
+        '---\nid: cloudflare\nprovider: cloudflare\nmodel: "@cf/zai-org/glm-4.7-flash"\n---\n\nContent.',
+      );
+
+      const result = parsePromptFile(filePath);
+
+      expect(result.frontmatter.provider).toBe('cloudflare');
+      expect(result.frontmatter.model).toBe('@cf/zai-org/glm-4.7-flash');
+    });
+
+    it('warns when Cloudflare prompt uses a non-registry structured model', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const filePath = writePrompt(
+        'unknown-cloudflare.prompt.md',
+        '---\nid: unknown-cloudflare\nprovider: cloudflare\nmodel: "@cf/meta/not-real"\n---\n\nContent.',
+      );
+
+      parsePromptFile(filePath);
+
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('Unknown Cloudflare structured-output model'),
+      );
+      warn.mockRestore();
     });
   });
 
