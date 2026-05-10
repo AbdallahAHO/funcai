@@ -64,6 +64,8 @@ pnpm lmstudio:vision # 12 — LM Studio + Gemma 4 archive OCR from image
 pnpm ollama:vision   # 13 — Ollama + Gemma 4 production brief from image
 pnpm local:multilingual # 14 — Local Gemma 4 multilingual ticket triage
 pnpm local:all       # Run the local-provider examples in sequence
+pnpm cache:memory    # 15 — In-memory result cache (built-in)
+pnpm cache:redis     # 16 — Redis result cache adapter
 pnpm all             # Run examples 01-07 in sequence
 ```
 
@@ -85,6 +87,8 @@ pnpm all             # Run examples 01-07 in sequence
 | 12 | `12-lmstudio-gemma4-vision.ts` | LM Studio + Gemma 4 vision for archival recipe-card intake triage | Local LM Studio |
 | 13 | `13-ollama-gemma4-vision.ts` | Ollama + Gemma 4 vision for bakery prep briefs | Local Ollama |
 | 14 | `14-local-gemma4-multilingual.ts` | Switchable local Gemma 4 multilingual support triage | Local LM Studio or Ollama |
+| 15 | `15-cache-memory.ts` | In-memory result cache: hit, miss, and `cacheControl.bypass` | Yes |
+| 16 | `16-cache-redis.ts` | Redis adapter for the `CacheProvider` contract | Yes + Redis |
 
 ## Gemma 4 local workflows
 
