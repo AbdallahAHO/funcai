@@ -632,6 +632,13 @@ validateExamples(examples, schema); // throws with descriptive error if any exam
 
 ## Providers
 
+Each provider has a focused setup guide:
+
+- [OpenRouter](./src/provider/openrouter/README.md)
+- [Cloudflare AI Gateway](./src/provider/cloudflare/README.md)
+- [LM Studio](./src/provider/lmstudio/README.md)
+- [Ollama](./src/provider/ollama/README.md)
+
 **OpenRouter** ships built-in. Reads `OPENROUTER_API_KEY` from env or accepts it explicitly:
 
 ```typescript
