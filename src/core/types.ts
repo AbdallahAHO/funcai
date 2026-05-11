@@ -66,11 +66,12 @@ export type PromptInput<TModelId extends string> = {
 // ---------------------------------------------------------------------------
 
 export type TextPart = { type: 'text'; text: string };
-export type ImagePart = { type: 'image'; image: string | URL | Buffer };
-export type AudioPart = { type: 'audio'; audio: Buffer | string };
+export type BinaryData = Uint8Array | ArrayBuffer;
+export type ImagePart = { type: 'image'; image: string | URL | BinaryData };
+export type AudioPart = { type: 'audio'; audio: BinaryData | string };
 export type FilePart = {
   type: 'file';
-  data: string | URL | Uint8Array | ArrayBuffer | Buffer;
+  data: string | URL | BinaryData;
   mediaType: string;
   filename?: string;
 };

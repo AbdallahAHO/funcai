@@ -22,32 +22,31 @@ function providerReadmeName(provider: ProviderKind): string {
   return 'OpenRouter';
 }
 
-function providerE2eEnv(provider: ProviderKind): { gate: string; command: string } {
+function providerE2eEnv(provider: ProviderKind): { gate: string; envVars: string[] } {
   if (provider === 'lmstudio') {
     return {
       gate: 'process.env.LMSTUDIO_BASE_URL || process.env.LMSTUDIO_MODEL',
-      command:
-        'LMSTUDIO_BASE_URL=http://192.168.2.188:1234/v1 LMSTUDIO_MODEL=google/gemma-4-26b-a4b',
+      envVars: ['LMSTUDIO_BASE_URL', 'LMSTUDIO_MODEL'],
     };
   }
 
   if (provider === 'ollama') {
     return {
       gate: 'process.env.OLLAMA_BASE_URL || process.env.OLLAMA_MODEL',
-      command: 'OLLAMA_BASE_URL=http://127.0.0.1:11434 OLLAMA_MODEL=gemma4:latest',
+      envVars: ['OLLAMA_BASE_URL', 'OLLAMA_MODEL'],
     };
   }
 
   if (provider === 'cloudflare') {
     return {
       gate: 'process.env.CLOUDFLARE_ACCOUNT_ID && (process.env.CLOUDFLARE_AI_GATEWAY_API_KEY || process.env.CLOUDFLARE_API_TOKEN)',
-      command: 'CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=...',
+      envVars: ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN'],
     };
   }
 
   return {
     gate: 'process.env.OPENROUTER_API_KEY',
-    command: 'OPENROUTER_API_KEY=sk-...',
+    envVars: ['OPENROUTER_API_KEY'],
   };
 }
 
@@ -57,11 +56,19 @@ function providerE2eEnv(provider: ProviderKind): { gate: string; command: string
 export function inferZodType(field: string): string {
   const f = field.toLowerCase();
   if (f === 'sentiment') return "z.enum(['positive', 'negative', 'neutral'])";
+  if (f === 'urgency') return "z.enum(['high', 'medium', 'low'])";
+  if (f === 'condition') return "z.enum(['new', 'good', 'fair', 'poor', 'unknown'])";
   if (f.includes('confidence') || f.includes('score') || f.includes('probability'))
     return 'z.number().min(0).max(1)';
   if (f.includes('count') || f.includes('amount') || f.includes('total')) return 'z.number()';
-  if (f.includes('is') || f.includes('has') || f.includes('should')) return 'z.boolean()';
-  if (f.includes('tags') || f.includes('items') || f.includes('categories'))
+  if (f.includes('is') || f.includes('has') || f.includes('should') || f.includes('needs'))
+    return 'z.boolean()';
+  if (
+    f.includes('tags') ||
+    f.includes('items') ||
+    f.includes('categories') ||
+    f.includes('features')
+  )
     return 'z.array(z.string())';
   return 'z.string()';
 }
@@ -76,10 +83,16 @@ export function schemaTemplate(opts: ScaffoldOptions, aiContent?: AiContent): st
     sentiment: 'Detected sentiment classification',
     confidence: 'Model confidence score (0-1)',
     reason: 'Brief explanation for the classification',
+    urgency: 'Operational urgency level',
+    intent: 'Detected user intent',
+    summary: 'Concise summary of the input',
+    suggestedaction: 'Recommended next action',
     score: 'Numeric score',
     tags: 'Relevant tags or labels',
     items: 'Extracted items',
     categories: 'Assigned categories',
+    notablefeatures: 'Important visible features',
+    needshumanreview: 'Whether a human should review this result',
   };
 
   const fieldLines = opts.fields.map((field) => {
@@ -109,6 +122,37 @@ export type ${pascal}Output = z.infer<typeof ${camel}Schema>;
 // -- Few-shots template -------------------------------------------------------
 
 function defaultFewShots(opts: ScaffoldOptions): Array<{ input: string; output: string }> {
+  if (opts.recipe === 'support-ticket') {
+    return [
+      {
+        input: 'Our whole team cannot log in after the latest deploy. Production work is blocked.',
+        output: `{ intent: 'bug-report', urgency: 'high', summary: 'Team-wide login failure after deploy', suggestedAction: 'Escalate to engineering and acknowledge outage impact' }`,
+      },
+      {
+        input: 'Can you add monthly PDF exports to the reporting dashboard?',
+        output: `{ intent: 'feature-request', urgency: 'low', summary: 'Customer wants monthly PDF exports', suggestedAction: 'Log product feedback and send acknowledgement' }`,
+      },
+    ];
+  }
+
+  if (opts.recipe === 'invoice-extractor') {
+    return [
+      {
+        input: 'Invoice INV-100 from Acme Corp. Total due is 1250 USD by 2026-06-01.',
+        output: `{ vendor: 'Acme Corp', invoiceNumber: 'INV-100', totalAmount: 1250, currency: 'USD', dueDate: '2026-06-01', lineItems: ['invoice total: 1250 USD'] }`,
+      },
+    ];
+  }
+
+  if (opts.recipe === 'image-inspection') {
+    return [
+      {
+        input: 'Product image showing a used laptop with visible scratches.',
+        output: `{ objectType: 'laptop', condition: 'fair', notableFeatures: ['visible scratches', 'used condition'], needsHumanReview: true }`,
+      },
+    ];
+  }
+
   // Sentiment classifier defaults
   if (opts.name === 'classify-sentiment' || opts.fields.includes('sentiment')) {
     return [
@@ -183,6 +227,57 @@ ${examplesCode},
 // -- Prompt.md template -------------------------------------------------------
 
 function defaultSystemPrompt(opts: ScaffoldOptions): string {
+  if (opts.recipe === 'support-ticket') {
+    return [
+      'You route support tickets into structured operational fields.',
+      '',
+      '## Instructions',
+      '',
+      '1. Identify the customer intent',
+      '2. Assign urgency based on business impact and user blocking level',
+      '3. Write a concise summary a support teammate can scan quickly',
+      '4. Recommend the next action',
+      '',
+      '## Examples',
+      '',
+      '{{FEW_SHOTS}}',
+    ].join('\n');
+  }
+
+  if (opts.recipe === 'invoice-extractor') {
+    return [
+      'You extract invoice data from documents into structured accounting fields.',
+      '',
+      '## Instructions',
+      '',
+      '1. Extract vendor, invoice number, total amount, currency, due date, and line items',
+      '2. Preserve values exactly when visible',
+      '3. Use concise strings for uncertain or partial line items',
+      '4. Set missing optional-looking values to an empty string rather than inventing data',
+      '',
+      '## Examples',
+      '',
+      '{{FEW_SHOTS}}',
+    ].join('\n');
+  }
+
+  if (opts.recipe === 'image-inspection') {
+    return [
+      'You inspect images and return structured review fields.',
+      '',
+      '## Instructions',
+      '',
+      '1. Identify the primary visible object or scene type',
+      '2. Estimate condition only from visible evidence',
+      '3. List notable visible features',
+      '4. Flag human review when the image is unclear, ambiguous, or safety-critical',
+      '',
+      '## Examples',
+      '',
+      '{{FEW_SHOTS}}',
+    ].join('\n');
+  }
+
   if (opts.name === 'classify-sentiment') {
     return [
       `You are a sentiment classifier. Analyze the given text and determine its emotional tone.`,
@@ -242,17 +337,47 @@ export function indexTemplate(opts: ScaffoldOptions, aiContent?: AiContent): str
   const escapedPrompt = systemPrompt.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
   const providerName = providerFactory(opts.provider);
   const providerPackage = providerImportPath(opts.provider);
+  const funcaiImports = ['createAiFn'];
+  if (opts.cache) funcaiImports.push('createMemoryCache');
+  if (opts.inputKind === 'image') funcaiImports.push('image', 'text');
+  if (opts.inputKind === 'pdf') funcaiImports.push('pdf', 'text');
+  const cacheConfig = opts.cache
+    ? `
+  cache: createMemoryCache(),
+  cachePolicy: { namespace: '${opts.name}', ttlSeconds: 300 },`
+    : '';
+  const inputImplementation =
+    opts.inputKind === 'image'
+      ? `(imageUrl: string) => [text('Analyze this image.'), image(imageUrl)]`
+      : opts.inputKind === 'pdf'
+        ? `(documentUrl: string) => [text('Extract structured data from this PDF.'), pdf(documentUrl)]`
+        : '(text: string) => text';
+  const exampleInput =
+    opts.inputKind === 'image'
+      ? 'https://example.com/image.jpg'
+      : opts.inputKind === 'pdf'
+        ? 'https://example.com/invoice.pdf'
+        : 'Your input text here';
+  const fnConfigLines = [
+    `  model: '${opts.modelId}',`,
+    `  system: \`${escapedPrompt}\`,`,
+    `  schema: ${camel}Schema,`,
+    '  examples,',
+    opts.fallback.length > 0 ? `  fallback: ${JSON.stringify(opts.fallback)},` : null,
+    opts.cache ? "  cache: { ttlSeconds: 300, version: 'v1' }," : null,
+    `  input: ${inputImplementation},`,
+  ].filter((line): line is string => line !== null);
 
   const posthogImport = opts.posthog ? "import { posthog } from 'funcai/trace/posthog';\n" : '';
   const posthogTrace = opts.posthog ? `\n  trace: posthog(process.env.POSTHOG_API_KEY!),` : '';
 
-  return `import { createAiFn } from 'funcai';
+  return `import { ${funcaiImports.join(', ')} } from 'funcai';
 import { ${providerName} } from '${providerPackage}';
 ${posthogImport}import { examples } from './few-shots';
 import { ${camel}Schema, type ${pascal}Output } from './schema';
 
 const ai = createAiFn({
-  provider: ${providerName}(),${posthogTrace}
+  provider: ${providerName}(),${cacheConfig}${posthogTrace}
 });
 
 /**
@@ -263,22 +388,18 @@ const ai = createAiFn({
  *
  * @example
  * \`\`\`ts
- * const result = await ${camel}('Your input text here');
+ * const result = await ${camel}('${exampleInput}');
  * console.log(result.${firstField});
  * \`\`\`
  *
  * @example Detailed result with metadata
  * \`\`\`ts
- * const { output, model, usage, latencyMs } = await ${camel}.detailed('Input text');
+ * const { output, model, usage, latencyMs } = await ${camel}.detailed('${exampleInput}');
  * console.log(output.${firstField}, \`(\${latencyMs}ms)\`);
  * \`\`\`
  */
 export const ${camel} = ai.fn({
-  model: '${opts.modelId}',
-  system: \`${escapedPrompt}\`,
-  schema: ${camel}Schema,
-  examples,
-  input: (text: string) => text,
+${fnConfigLines.join('\n')}
 });
 
 export type { ${pascal}Output };
@@ -327,6 +448,7 @@ const { output, model, usage, latencyMs, traceId } = await ${camel}.detailed(
 );
 \`\`\`
 
+${opts.cache ? 'This scaffold enables the built-in memory cache. Replace `createMemoryCache()` with Redis, KV, or another async cache provider in production.\n\n' : ''}${opts.fallback.length > 0 ? `Fallback models are configured in order: ${opts.fallback.map((model) => `\`${model}\``).join(', ')}.\n\n` : ''}${opts.inputKind !== 'text' ? `This recipe expects a ${opts.inputKind === 'image' ? 'public image URL' : 'PDF URL'} as input.\n\n` : ''}
 ## Files
 
 | File | Purpose |
@@ -344,8 +466,8 @@ const { output, model, usage, latencyMs, traceId } = await ${camel}.detailed(
 # Unit + integration (no API key needed)
 npx vitest run tests/
 
-# E2E with live API
-${liveTest.command} npx vitest run tests/${opts.name}.e2e.test.ts
+# E2E with live API after setting ${liveTest.envVars.map((envVar) => `\`${envVar}\``).join(', ')}
+npx vitest run tests/${opts.name}.e2e.test.ts
 \`\`\`
 
 ## Customization
@@ -457,7 +579,7 @@ describe.skipIf(!(${liveTest.gate}))('${pascal} — e2e', () => {
   it(
     'returns valid output from a live API call',
     async () => {
-      const result = await ${camel}('This is a great product, I love it!');
+      const result = await ${camel}('${sampleInputForOptions(opts)}');
 
       expect(() => ${camel}Schema.parse(result)).not.toThrow();
     },
@@ -469,16 +591,34 @@ describe.skipIf(!(${liveTest.gate}))('${pascal} — e2e', () => {
 
 // -- Helpers ------------------------------------------------------------------
 
+function sampleInputForOptions(opts: ScaffoldOptions): string {
+  if (opts.inputKind === 'image') {
+    return 'https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg';
+  }
+  if (opts.inputKind === 'pdf') {
+    return 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+  }
+  return 'This is a great product, I love it!';
+}
+
 function validOutputForFields(opts: ScaffoldOptions): string {
   const fields = opts.fields.map((field) => {
     const f = field.toLowerCase();
     const key = toCamelCase(field);
     if (f === 'sentiment') return `${key}: 'positive'`;
+    if (f === 'urgency') return `${key}: 'high'`;
+    if (f === 'condition') return `${key}: 'good'`;
     if (f.includes('confidence') || f.includes('score') || f.includes('probability'))
       return `${key}: 0.9`;
     if (f.includes('count') || f.includes('amount') || f.includes('total')) return `${key}: 5`;
-    if (f.includes('is') || f.includes('has') || f.includes('should')) return `${key}: true`;
-    if (f.includes('tags') || f.includes('items') || f.includes('categories'))
+    if (f.includes('is') || f.includes('has') || f.includes('should') || f.includes('needs'))
+      return `${key}: true`;
+    if (
+      f.includes('tags') ||
+      f.includes('items') ||
+      f.includes('categories') ||
+      f.includes('features')
+    )
       return `${key}: ['example']`;
     return `${key}: 'example value'`;
   });

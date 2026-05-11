@@ -3,8 +3,8 @@
  *
  * Uses a Workers AI model that explicitly supports structured output and vision.
  *
- * Run:
- * CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... pnpm cloudflare:vision
+ * Run: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in your shell
+ * or CI, then `pnpm cloudflare:vision`.
  */
 import { createAiFn } from 'funcai';
 import type { CloudflareModelId } from 'funcai/providers/cloudflare';

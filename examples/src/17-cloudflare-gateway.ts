@@ -1,8 +1,8 @@
 /**
  * 17 — Cloudflare AI Gateway: strict structured output with Workers AI.
  *
- * Run:
- * CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... pnpm cloudflare:basic
+ * Run: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in your shell
+ * or CI, then `pnpm cloudflare:basic`.
  */
 import { createAiFn } from 'funcai';
 import type { CloudflareModelId } from 'funcai/providers/cloudflare';

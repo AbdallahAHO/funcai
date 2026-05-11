@@ -4,7 +4,7 @@
  * The input function transforms your domain type into the user message.
  * TypeScript infers TInput from the input function signature.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm typed-input
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm typed-input`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

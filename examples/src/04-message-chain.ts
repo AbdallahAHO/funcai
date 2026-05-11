@@ -4,7 +4,7 @@
  * Messages are prepended before the final user input. They can be
  * static (hardcoded context) or dynamic (computed from input).
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm messages
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm messages`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

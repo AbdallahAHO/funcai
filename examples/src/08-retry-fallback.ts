@@ -5,7 +5,7 @@
  * Each model gets retries+1 attempts before moving to the next.
  * Retryable: 429, 5xx, network errors. Non-retryable: 400, 401, schema errors.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm retry
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm retry`.
  */
 import { AiFnError, createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

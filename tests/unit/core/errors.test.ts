@@ -1,5 +1,28 @@
 import type { AttemptRecord } from '@/core/errors';
-import { AiFnError } from '@/core/errors';
+import { AiFnError, FUNCAI_ERROR_HINTS, FuncaiError, isFuncaiError } from '@/core/errors';
+
+describe('FuncaiError', () => {
+  it('stores product error metadata', () => {
+    const err = new FuncaiError('Missing key', { code: 'FUNCAI_MISSING_API_KEY' });
+
+    expect(err.name).toBe('FuncaiError');
+    expect(err.code).toBe('FUNCAI_MISSING_API_KEY');
+    expect(err.hint).toBe(FUNCAI_ERROR_HINTS.FUNCAI_MISSING_API_KEY);
+    expect(isFuncaiError(err)).toBe(true);
+  });
+
+  it('allows custom hints and causes', () => {
+    const cause = new Error('root');
+    const err = new FuncaiError('Provider failed', {
+      code: 'FUNCAI_PROVIDER_UNAVAILABLE',
+      hint: 'try later',
+      cause,
+    });
+
+    expect(err.hint).toBe('try later');
+    expect(err.cause).toBe(cause);
+  });
+});
 
 describe('AiFnError', () => {
   const makeAttempt = (overrides?: Partial<AttemptRecord>): AttemptRecord => ({
@@ -23,6 +46,20 @@ describe('AiFnError', () => {
   it('stores the message', () => {
     const err = new AiFnError('All 3 attempts failed', [makeAttempt()]);
     expect(err.message).toBe('All 3 attempts failed');
+  });
+
+  it('defaults to a classified product error code', () => {
+    const err = new AiFnError('fail', [makeAttempt({ error: new Error('Too Many Requests') })]);
+    expect(err.code).toBe('FUNCAI_PROVIDER_RATE_LIMITED');
+    expect(err.hint).toBe(FUNCAI_ERROR_HINTS.FUNCAI_PROVIDER_RATE_LIMITED);
+  });
+
+  it('accepts an explicit product error code', () => {
+    const err = new AiFnError('fail', [makeAttempt()], {
+      code: 'FUNCAI_ALL_FALLBACKS_FAILED',
+    });
+
+    expect(err.code).toBe('FUNCAI_ALL_FALLBACKS_FAILED');
   });
 
   it('stores all attempt records', () => {

@@ -1,5 +1,5 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join, relative } from 'node:path';
+import { basename, dirname, join, posix, relative } from 'node:path';
 import matter from 'gray-matter';
 import { CLOUDFLARE_MODEL_IDS, CLOUDFLARE_MODELS } from '@/provider/cloudflare/models';
 import { OPENROUTER_MODEL_IDS, OPENROUTER_MODELS } from '@/provider/openrouter/models';
@@ -24,6 +24,10 @@ type ParsedPrompt = {
 
 const PROMPT_ID_REGEX = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const GENERATED_FILE_HEADER = '// AUTO-GENERATED';
+
+function toPosixPath(filePath: string): string {
+  return filePath.replace(/\\/g, '/');
+}
 
 function toPromptModulePath(relativePath: string): string {
   return relativePath.replace(/\.md$/, '.ts');
@@ -148,7 +152,7 @@ export function parsePromptFile(filePath: string, promptsDir = dirname(filePath)
   }
 
   const name = basename(filePath);
-  const relativePath = relative(promptsDir, filePath);
+  const relativePath = toPosixPath(relative(promptsDir, filePath));
   // e.g., search-filters.exp.prompt.md → variant = "exp"
   const variantMatch = name.match(/^[\w-]+\.([\w-]+)\.prompt\.md$/);
   const variant = variantMatch?.[1];
@@ -158,7 +162,7 @@ export function parsePromptFile(filePath: string, promptsDir = dirname(filePath)
     content: content.trim(),
     filename: name,
     relativePath,
-    relativeDir: dirname(relativePath),
+    relativeDir: posix.dirname(relativePath),
     variant,
   };
 }
@@ -296,7 +300,7 @@ function generateGroupIndex(group: PromptGroup): string {
  * Scans a directory for `.prompt.md` files and generates TypeScript modules.
  */
 export function generatePrompts(promptsDir: string): { files: string[] } {
-  const entries = readdirSync(promptsDir, { recursive: true }) as string[];
+  const entries = (readdirSync(promptsDir, { recursive: true }) as string[]).map(toPosixPath);
   const promptFiles = entries.filter((f) => f.endsWith('.prompt.md'));
   const parsed = promptFiles.map((f) => parsePromptFile(join(promptsDir, f), promptsDir));
   const groups = groupPrompts(parsed);
@@ -315,7 +319,7 @@ export function generatePrompts(promptsDir: string): { files: string[] } {
   // Generate group index files for groups with variants
   for (const group of groups) {
     if (group.variants.length > 0) {
-      const relativeIndexPath = join(group.relativeDir, `${group.baseId}.prompts.ts`);
+      const relativeIndexPath = posix.join(group.relativeDir, `${group.baseId}.prompts.ts`);
       const indexPath = join(promptsDir, relativeIndexPath);
       const code = generateGroupIndex(group);
       mkdirSync(dirname(indexPath), { recursive: true });

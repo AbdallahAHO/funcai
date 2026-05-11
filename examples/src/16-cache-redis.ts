@@ -9,9 +9,8 @@
  *   pnpm add redis           # already added to examples/package.json
  *   docker run -p 6379:6379 redis:7-alpine
  *
- * Run:
- *   OPENROUTER_API_KEY=sk-or-... pnpm cache:redis
- *   REDIS_URL=redis://127.0.0.1:6379 OPENROUTER_API_KEY=... pnpm cache:redis
+ * Run: set OPENROUTER_API_KEY and optional REDIS_URL in your shell or CI,
+ * then `pnpm cache:redis`.
  */
 import { type CacheProvider, type CacheSetOptions, createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

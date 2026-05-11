@@ -67,11 +67,7 @@ const classify = ai.fn({
 });
 ```
 
-Set `OLLAMA_MODEL` in examples when your local model ID differs:
-
-```bash
-export OLLAMA_MODEL=gemma4:latest
-```
+Set `OLLAMA_MODEL` in examples when your local model ID differs.
 
 ## Structured output
 
@@ -83,19 +79,11 @@ For multimodal examples, use a model that actually accepts image input through y
 
 Start Ollama, pull the model, then run:
 
-```bash
-OLLAMA_BASE_URL=http://127.0.0.1:11434 \
-OLLAMA_MODEL=gemma4:latest \
-pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/ollama-live.test.ts
-```
+Set `OLLAMA_BASE_URL` and `OLLAMA_MODEL`, then run `pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/ollama-live.test.ts`.
 
 Examples:
 
-```bash
-OLLAMA_BASE_URL=http://127.0.0.1:11434 \
-OLLAMA_MODEL=gemma4:latest \
-pnpm -C examples ollama:vision
-```
+Set `OLLAMA_BASE_URL` and `OLLAMA_MODEL`, then run `pnpm -C examples ollama:vision`.
 
 ## Troubleshooting
 

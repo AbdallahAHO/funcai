@@ -21,7 +21,7 @@
  * Run: pnpm scaffold (no API key needed)
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -32,10 +32,14 @@ if (existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
 
 // Run the scaffold command with -y (accept defaults)
 console.log('Running: funcai scaffold -y\n');
-execSync(`node ${join(import.meta.dirname, '../../dist/bin/funcai.js')} scaffold -y`, {
-  cwd: join(import.meta.dirname, '..'),
-  stdio: 'inherit',
-});
+execFileSync(
+  process.execPath,
+  [join(import.meta.dirname, '../../dist/bin/funcai.js'), 'scaffold', '-y'],
+  {
+    cwd: join(import.meta.dirname, '..'),
+    stdio: 'inherit',
+  },
+);
 
 // The scaffold creates a directory named after the feature
 const featureDir = join(import.meta.dirname, '../classify-sentiment');
@@ -78,8 +82,10 @@ console.log('  - prompt.ts          Auto-generated from prompt.md');
 console.log('  - tests/             Unit + integration tests');
 console.log('  - README.md          Quick start and customization guide');
 console.log('\nNext steps:');
-console.log('  cd classify-sentiment && npx vitest run tests/');
-console.log('  OPENROUTER_API_KEY=sk-... npx vitest run tests/classify-sentiment.e2e.test.ts');
+console.log('  cd classify-sentiment');
+console.log('  npx vitest run tests/');
+console.log('  # Set OPENROUTER_API_KEY, then run:');
+console.log('  npx vitest run tests/classify-sentiment.e2e.test.ts');
 
 // Cleanup
 rmSync(featureDir, { recursive: true });

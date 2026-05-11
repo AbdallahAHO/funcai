@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { run } from './process';
 
 type ModelInfo = {
   name: string;
@@ -48,10 +48,10 @@ async function importRegistryFromSource(source: string, fileName: string): Promi
 
 function loadPreviousRegistrySource(): string | null {
   try {
-    return execFileSync('git', ['show', `HEAD:${REGISTRY_RELATIVE_PATH}`], {
+    return run('git', ['show', `HEAD:${REGISTRY_RELATIVE_PATH}`], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
-    });
+    }) as string;
   } catch {
     return null;
   }

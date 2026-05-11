@@ -4,7 +4,7 @@
  * .detailed() returns usage tokens, latency, model used (may differ
  * from primary if fallback was triggered), trace ID, and attempt count.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm detailed
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm detailed`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

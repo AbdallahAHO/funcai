@@ -1,6 +1,7 @@
 import * as p from '@clack/prompts';
 import { CLOUDFLARE_MODELS } from '@/provider/cloudflare/models';
 import { OPENROUTER_MODELS } from '@/provider/openrouter/models';
+import { recipeDefaults } from './recipes';
 import {
   DEFAULTS,
   getDefaultModelId,
@@ -64,7 +65,11 @@ function cancelGuard<T>(value: T | symbol): T {
 export async function collectOptions(
   flags: Partial<ScaffoldOptions> & { skipPrompts?: boolean },
 ): Promise<ScaffoldOptions> {
-  const opts: ScaffoldOptions = { ...DEFAULTS, ...flags };
+  const opts: ScaffoldOptions = {
+    ...DEFAULTS,
+    ...(flags.recipe ? recipeDefaults(flags.recipe) : {}),
+    ...flags,
+  };
   opts.modelId = flags.modelId ?? getDefaultModelId(opts.provider);
 
   if (flags.skipPrompts) return opts;

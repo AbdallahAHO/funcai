@@ -1,5 +1,7 @@
 // Factory
 
+// Content helpers
+export { audio, file, image, pdf, text } from './content/parts';
 export type {
   CacheControl,
   CacheMetadata,
@@ -11,15 +13,16 @@ export type {
   MemoryCache,
 } from './core/cache';
 export { createMemoryCache } from './core/cache';
-export type { AttemptRecord } from './core/errors';
+export type { AttemptRecord, FuncaiErrorCode, FuncaiErrorOptions } from './core/errors';
 // Errors
-export { AiFnError } from './core/errors';
+export { AiFnError, FUNCAI_ERROR_HINTS, FuncaiError, isFuncaiError } from './core/errors';
 export { createAiFn } from './core/factory';
 // Types
 export type {
   AiFn,
   AiFnInstance,
   AudioPart,
+  BinaryData,
   CallOptions,
   ContentPart,
   CreateAiFnConfig,

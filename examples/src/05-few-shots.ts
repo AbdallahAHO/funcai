@@ -4,7 +4,7 @@
  * Examples are formatted as markdown and appended to the system prompt.
  * Use {{FEW_SHOTS}} in your system prompt to control placement.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm few-shots
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm few-shots`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';

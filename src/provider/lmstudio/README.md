@@ -69,11 +69,7 @@ const describeImage = ai.fn({
 });
 ```
 
-Set `LMSTUDIO_MODEL` in examples when your local model ID differs:
-
-```bash
-export LMSTUDIO_MODEL=google/gemma-4-26b-a4b
-```
+Set `LMSTUDIO_MODEL` in examples when your local model ID differs.
 
 ## Structured output
 
@@ -85,19 +81,11 @@ Local models vary heavily. Smaller schemas and direct prompts are more reliable 
 
 Start the LM Studio server, then run:
 
-```bash
-LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 \
-LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
-pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/lmstudio-live.test.ts
-```
+Set `LMSTUDIO_BASE_URL` and `LMSTUDIO_MODEL`, then run `pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/lmstudio-live.test.ts`.
 
 Examples:
 
-```bash
-LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1 \
-LMSTUDIO_MODEL=google/gemma-4-26b-a4b \
-pnpm -C examples lmstudio:vision
-```
+Set `LMSTUDIO_BASE_URL` and `LMSTUDIO_MODEL`, then run `pnpm -C examples lmstudio:vision`.
 
 ## Troubleshooting
 

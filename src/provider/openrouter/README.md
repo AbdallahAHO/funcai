@@ -15,11 +15,7 @@ const ai = createAiFn({
 
 ## Configure
 
-Set an API key in the environment:
-
-```bash
-export OPENROUTER_API_KEY=sk-or-...
-```
+Set `OPENROUTER_API_KEY` in your shell, CI environment, or process manager.
 
 Or pass it explicitly:
 
@@ -80,15 +76,11 @@ All funcai calls use schema-backed object generation. Pick models that support s
 
 ## Smoke test
 
-```bash
-OPENROUTER_API_KEY=sk-or-... pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/openrouter-live.test.ts
-```
+Set `OPENROUTER_API_KEY`, then run `pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/openrouter-live.test.ts`.
 
 The examples package also includes OpenRouter examples:
 
-```bash
-OPENROUTER_API_KEY=sk-or-... pnpm -C examples all
-```
+Set `OPENROUTER_API_KEY`, then run `pnpm -C examples all`.
 
 ## Troubleshooting
 

@@ -6,7 +6,7 @@
  *
  * Uses google/gemini-2.5-flash — handles both vision and PDF natively.
  *
- * Run: OPENROUTER_API_KEY=sk-or-... pnpm multimodal
+ * Run: set OPENROUTER_API_KEY in your shell or CI, then `pnpm multimodal`.
  */
 import { createAiFn } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';
