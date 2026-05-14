@@ -44,7 +44,7 @@ jobs:
           echo "Analyzing commits in range: ${COMMIT_RANGE}"
 
           # Extract commit subjects
-          COMMITS=$(git log --pretty=format:"%s" ${COMMIT_RANGE})
+          COMMITS=$(git log --pretty=format:"%s" "$COMMIT_RANGE")
 
           if [ -z "$COMMITS" ]; then
             echo "No new commits since ${LATEST_TAG}"
@@ -87,9 +87,11 @@ jobs:
             exit 0
           fi
 
-          echo "bump=${BUMP}" >> "$GITHUB_OUTPUT"
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "prev_tag=${LATEST_TAG}" >> "$GITHUB_OUTPUT"
+          {
+            echo "bump=${BUMP}"
+            echo "skip=false"
+            echo "prev_tag=${LATEST_TAG}"
+          } >> "$GITHUB_OUTPUT"
           echo "Determined bump: ${BUMP}"
 
       - name: Bump version in package.json
@@ -118,8 +120,10 @@ jobs:
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
-          echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "tag=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          {
+            echo "new_version=${NEW_VERSION}"
+            echo "tag=v${NEW_VERSION}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Generate changelog
         if: steps.version.outputs.skip != 'true'
@@ -157,7 +161,7 @@ jobs:
             elif echo "$MSG" | grep -qE '^(perf|refactor)(\(.+\))?:'; then
               OTHER="${OTHER}- ${CLEAN_MSG} (\`${SHORT_HASH}\`)\n"
             fi
-          done <<< "$(git log --pretty=format:"%H %s" ${COMMIT_RANGE})"
+          done <<< "$(git log --pretty=format:"%H %s" "$COMMIT_RANGE")"
 
           # Assemble changelog
           CHANGELOG=""
@@ -191,7 +195,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         if: steps.version.outputs.skip != 'true'
         with:
-          version: 10
+          version: 10.33.0
       - uses: actions/setup-node@v4
         if: steps.version.outputs.skip != 'true'
         with:
