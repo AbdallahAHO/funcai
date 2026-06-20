@@ -18,33 +18,41 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure git
+        if: env.ACT != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Determine version bump from conventional commits
         id: version
+        env:
+          ACT_HEAD_COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message }}
         run: |
-          # Find the latest version tag
-          LATEST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -1)
-
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No existing tags found, using initial commit"
-            COMMIT_RANGE="HEAD"
+          if [ "${ACT:-}" = "true" ]; then
+            LATEST_TAG=""
+            COMMITS="$ACT_HEAD_COMMIT_MESSAGE"
           else
-            COMMIT_RANGE="${LATEST_TAG}..HEAD"
+            # Find the latest version tag
+            LATEST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -1)
+
+            if [ -z "$LATEST_TAG" ]; then
+              echo "No existing tags found, using initial commit"
+              COMMIT_RANGE="HEAD"
+            else
+              COMMIT_RANGE="${LATEST_TAG}..HEAD"
+            fi
+
+            echo "Analyzing commits in range: ${COMMIT_RANGE}"
+
+            # Extract commit subjects
+            COMMITS=$(git log --pretty=format:"%s" "$COMMIT_RANGE")
           fi
-
-          echo "Analyzing commits in range: ${COMMIT_RANGE}"
-
-          # Extract commit subjects
-          COMMITS=$(git log --pretty=format:"%s" "$COMMIT_RANGE")
 
           if [ -z "$COMMITS" ]; then
             echo "No new commits since ${LATEST_TAG}"
@@ -128,14 +136,22 @@ jobs:
       - name: Generate changelog
         if: steps.version.outputs.skip != 'true'
         id: changelog
+        env:
+          ACT_HEAD_COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message }}
         run: |
           PREV_TAG=${{ steps.version.outputs.prev_tag }}
           NEW_VERSION=${{ steps.bump.outputs.new_version }}
 
-          if [ -z "$PREV_TAG" ]; then
-            COMMIT_RANGE="HEAD"
+          if [ "${ACT:-}" = "true" ]; then
+            COMMIT_LOG="0000000000000000000000000000000000000000 ${ACT_HEAD_COMMIT_MESSAGE}"
           else
-            COMMIT_RANGE="${PREV_TAG}..HEAD"
+            if [ -z "$PREV_TAG" ]; then
+              COMMIT_RANGE="HEAD"
+            else
+              COMMIT_RANGE="${PREV_TAG}..HEAD"
+            fi
+
+            COMMIT_LOG=$(git log --pretty=format:"%H %s" "$COMMIT_RANGE")
           fi
 
           # Build changelog grouped by type
@@ -161,7 +177,7 @@ jobs:
             elif echo "$MSG" | grep -qE '^(perf|refactor)(\(.+\))?:'; then
               OTHER="${OTHER}- ${CLEAN_MSG} (\`${SHORT_HASH}\`)\n"
             fi
-          done <<< "$(git log --pretty=format:"%H %s" "$COMMIT_RANGE")"
+          done <<< "$COMMIT_LOG"
 
           # Assemble changelog
           CHANGELOG=""
@@ -192,11 +208,11 @@ jobs:
           echo "Generated changelog:"
           cat /tmp/changelog.md
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: steps.version.outputs.skip != 'true'
         with:
-          version: 10.33.0
-      - uses: actions/setup-node@v4
+          run_install: false
+      - uses: actions/setup-node@v6
         if: steps.version.outputs.skip != 'true'
         with:
           node-version: 22
@@ -226,7 +242,7 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.version.outputs.skip != 'true' && env.ACT != 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3.0.1
         with:
           tag_name: ${{ steps.bump.outputs.tag }}
           name: ${{ steps.bump.outputs.tag }}

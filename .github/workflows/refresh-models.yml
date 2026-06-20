@@ -16,15 +16,15 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
-          version: 10
+          run_install: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -32,14 +32,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Refresh model registry
-        run: pnpm update:models -- --write
+      - name: Snapshot model registries
+        run: |
+          mkdir -p "$RUNNER_TEMP/model-registry-baseline/src/provider/openrouter"
+          mkdir -p "$RUNNER_TEMP/model-registry-baseline/src/provider/cloudflare"
+          cp src/provider/openrouter/models.ts "$RUNNER_TEMP/model-registry-baseline/src/provider/openrouter/models.ts"
+          cp src/provider/cloudflare/models.ts "$RUNNER_TEMP/model-registry-baseline/src/provider/cloudflare/models.ts"
 
-      - name: Format generated files
-        run: pnpm fix
+      - name: Refresh model registries
+        run: pnpm models:refresh
+
+      - name: Validate refresh
+        run: pnpm maintenance:gate
 
       - name: Generate PR summary
-        run: pnpm models:report -- --output "$RUNNER_TEMP/model-refresh-pr.md"
+        run: pnpm models:report -- --base-dir "$RUNNER_TEMP/model-registry-baseline" --output "$RUNNER_TEMP/model-refresh-pr.md"
 
       - name: Print summary for local act runs
         if: env.ACT == 'true'
@@ -47,12 +54,12 @@ jobs:
 
       - name: Create or update refresh PR
         if: env.ACT != 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/refresh-models
           delete-branch: true
-          commit-message: 'fix(models): refresh OpenRouter registry'
-          title: 'fix(models): refresh OpenRouter registry'
+          commit-message: 'fix(models): refresh model registries'
+          title: 'fix(models): refresh model registries'
           body-path: ${{ runner.temp }}/model-refresh-pr.md
           labels: |
             maintenance
