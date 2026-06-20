@@ -29,12 +29,12 @@ Rules:
           .array(
             z.object({
               input: z.string(),
-              output: z.record(z.unknown()),
+              output: z.record(z.string(), z.unknown()),
             }),
           )
           .min(2)
           .max(4),
-        fieldTypes: z.record(z.string()),
+        fieldTypes: z.record(z.string(), z.string()),
       }),
       input: (data: ScaffoldOptions) =>
         `Feature: ${data.name}\nDescription: ${data.description}\nOutput fields: ${data.fields.join(', ')}`,

@@ -43,7 +43,7 @@ function toSdkMessage(msg: {
  */
 export async function execute<TSchema extends z.ZodType>(
   options: ExecuteOptions<TSchema>,
-): Promise<ExecuteResult<z.infer<TSchema>>> {
+): Promise<ExecuteResult<z.output<TSchema>>> {
   const {
     model,
     systemPrompt,
@@ -65,7 +65,7 @@ export async function execute<TSchema extends z.ZodType>(
   // Add final user message
   sdkMessages.push(toSdkMessage({ role: 'user', content: userContent }));
 
-  const result = await generateObject({
+  const result = await generateObject<TSchema, 'object', z.output<TSchema>>({
     model,
     system: systemPrompt,
     messages: sdkMessages,
