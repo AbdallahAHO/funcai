@@ -74,7 +74,19 @@ jobs:
       - name: Examples smoke
         run: pnpm examples:smoke
 
+      - name: Langfuse model pricing
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        env:
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
+        run: pnpm langfuse:setup
+
       - name: E2E skip-safe
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
         run: pnpm test:e2e

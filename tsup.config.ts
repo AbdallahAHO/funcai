@@ -8,6 +8,7 @@ export default defineConfig([
       'provider/ollama': 'src/provider/ollama/index.ts',
       'provider/openrouter': 'src/provider/openrouter/index.ts',
       'provider/cloudflare': 'src/provider/cloudflare/index.ts',
+      'trace/langfuse': 'src/trace/langfuse.ts',
       'trace/posthog': 'src/trace/posthog.ts',
       'test/index': 'test/index.ts',
       'bin/funcai': 'bin/funcai.ts',
@@ -18,6 +19,13 @@ export default defineConfig([
     clean: true,
     treeshake: true,
     outDir: 'dist',
-    external: ['zod', 'posthog-node', '@posthog/ai'],
+    external: [
+      'zod',
+      'posthog-node',
+      '@posthog/ai',
+      '@langfuse/tracing',
+      '@langfuse/otel',
+      '@opentelemetry/sdk-node',
+    ],
   },
 ]);

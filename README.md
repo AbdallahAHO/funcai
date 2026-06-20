@@ -838,6 +838,51 @@ await ph.shutdown();
 
 </details>
 
+### Langfuse
+
+Langfuse uses the AI SDK's OpenTelemetry spans. Start telemetry once in your app or script, then use `trace: langfuse()` to enable and label each funcai call.
+
+```bash
+pnpm add @langfuse/tracing @langfuse/otel @opentelemetry/sdk-node
+```
+
+```env
+LANGFUSE_SECRET_KEY="sk-lf-..."
+LANGFUSE_PUBLIC_KEY="pk-lf-..."
+LANGFUSE_BASE_URL="https://cloud.langfuse.com"
+```
+
+```typescript
+import { createAiFn } from "funcai";
+import { openrouter } from "funcai/providers/openrouter";
+import { langfuse, startLangfuseTelemetry } from "funcai/trace/langfuse";
+
+const telemetry = startLangfuseTelemetry();
+
+const ai = createAiFn({
+  provider: openrouter(),
+  trace: langfuse({
+    tags: ["production"],
+    metadata: { service: "support-api" },
+  }),
+});
+
+await classify.detailed("input", {
+  traceId: "trace_123",
+  userId: "user_2xK9mQ",
+  sessionId: "sess_8f3a1b",
+  properties: { route: "ticket-classifier" },
+});
+
+await telemetry.shutdown();
+```
+
+If your app already owns OpenTelemetry setup, use `createLangfuseSpanProcessor()` instead and add the returned processor to your existing SDK/tracer provider. `langfuse()` still belongs in `createAiFn({ trace })` so each AI SDK call gets `functionId`, user/session ids, tags, and metadata.
+
+The plugin creates a parent `CHAIN` observation for the full funcai call and lets the AI SDK emit child `SPAN`/`GENERATION` observations for the model request. The parent chain carries `funcaiTraceId`, `langfuseTraceId`, token totals, and provider-reported cost metadata such as `funcaiCostUsd`. When the supplied funcai `traceId` is already a valid 32-character OpenTelemetry trace id, Langfuse uses it as the primary trace id; otherwise the plugin derives a deterministic Langfuse trace id and keeps the original id in `funcaiTraceId`.
+
+Langfuse normalized cost (`totalCost`) is inferred on the child `GENERATION` observation. For OpenRouter models, run `pnpm langfuse:setup` with `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, and `LANGFUSE_BASE_URL` configured to install the project model pricing rules used by the live E2E suite. The script is idempotent and skips cleanly when credentials are absent. Provider-reported cost is still attached as `funcaiCostUsd` for auditing and comparison.
+
 <details>
 <summary><strong>Custom trace plugin</strong> — bring your own observability</summary>
 
@@ -848,6 +893,16 @@ const myTrace: TracePlugin = {
   wrap: (model, context) => {
     // context: { traceId, model, feature, userId?, sessionId?, properties? }
     return myObservabilityWrapper(model, context);
+  },
+  generateOptions: (context) => ({
+    experimental_telemetry: {
+      isEnabled: true,
+      functionId: context.feature,
+      metadata: { traceId: context.traceId },
+    },
+  }),
+  run: (context, operation) => {
+    return myObservabilityScope(context, operation);
   },
 };
 
@@ -1126,13 +1181,15 @@ const result = await classifySentiment.detailed("The customer service was incred
 | `funcai/providers/openrouter` | `openrouter` |
 | `funcai/providers/cloudflare` | `cloudflareAiGateway`, `CloudflareModelId`, `CLOUDFLARE_MODELS`, `CLOUDFLARE_MODEL_IDS`, Cloudflare model subsets |
 | `funcai/trace/posthog` | `posthog` |
+| `funcai/trace/langfuse` | `langfuse`, `createLangfuseSpanProcessor`, `startLangfuseTelemetry` |
 | `funcai/test` | `track`, `unmockAll`, `isMocked`, `validateExamples` |
 
 ## Requirements
 
 - Node.js >= 20
-- zod >= 3.22 (peer dependency)
+- zod >= 3.25.76 (peer dependency)
 - posthog-node + @posthog/ai (optional, for tracing)
+- @langfuse/tracing + @langfuse/otel + @opentelemetry/sdk-node (optional, for Langfuse tracing)
 - ESM and CJS supported
 
 For internals and design decisions, see [HOW-IT-WORKS.md](./HOW-IT-WORKS.md).

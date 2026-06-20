@@ -40,6 +40,7 @@ export type {
   ReasoningConfig,
   TextPart,
   TraceContext,
+  TraceGenerateOptions,
   TracePlugin,
 } from './core/types';
 export { buildSystemPrompt } from './prompt/build';

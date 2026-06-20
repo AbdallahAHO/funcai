@@ -1,4 +1,4 @@
-import type { LanguageModel, ModelMessage, ProviderMetadata } from 'ai';
+import type { LanguageModel, ModelMessage, ProviderMetadata, TelemetrySettings } from 'ai';
 import { generateObject } from 'ai';
 import type { z } from 'zod';
 import type { ContentPart, Message } from './types';
@@ -12,6 +12,7 @@ type ExecuteOptions<TSchema extends z.ZodType> = {
   temperature?: number;
   maxTokens?: number;
   providerOptions?: Record<string, Record<string, unknown>>;
+  experimental_telemetry?: TelemetrySettings;
 };
 
 type ExecuteResult<T> = {
@@ -74,6 +75,9 @@ export async function execute<TSchema extends z.ZodType>(
     maxOutputTokens: maxTokens,
     maxRetries: 0,
     ...(options.providerOptions && { providerOptions: options.providerOptions as never }),
+    ...(options.experimental_telemetry && {
+      experimental_telemetry: options.experimental_telemetry,
+    }),
   });
 
   return {
