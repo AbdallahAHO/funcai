@@ -1,0 +1,83 @@
+name: Auto-merge Maintenance
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Dependabot metadata
+        id: dependabot
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        uses: dependabot/fetch-metadata@v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check maintenance auto-merge policy
+        id: policy
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BASE_REPO: ${{ github.event.pull_request.base.repo.full_name }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          DEPENDABOT_DEPENDENCY_TYPE: ${{ steps.dependabot.outputs.dependency-type }}
+          DEPENDABOT_ECOSYSTEM: ${{ steps.dependabot.outputs.package-ecosystem }}
+          DEPENDABOT_UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
+        run: |
+          set -euo pipefail
+
+          can_automerge=false
+          reason='not an approved maintenance PR'
+
+          if [[ "$PR_HEAD_REPO" != "$PR_BASE_REPO" ]]; then
+            reason='forked PRs are not eligible'
+          elif [[ "$PR_AUTHOR" == 'github-actions[bot]' &&
+            "$PR_HEAD_REF" == 'automation/refresh-models' &&
+            "$PR_TITLE" == 'fix(models): refresh model registries' &&
+            ",$PR_LABELS," == *',maintenance,'* &&
+            ",$PR_LABELS," == *',models,'* ]]; then
+            can_automerge=true
+            reason='model registry refresh'
+          elif [[ "$PR_AUTHOR" == 'dependabot[bot]' ]]; then
+            case "$DEPENDABOT_UPDATE_TYPE" in
+              version-update:semver-patch | version-update:semver-minor)
+                if [[ "$DEPENDABOT_ECOSYSTEM" == 'github-actions' ]]; then
+                  can_automerge=true
+                  reason='patch/minor GitHub Actions update'
+                elif [[ "$DEPENDABOT_ECOSYSTEM" == 'npm' &&
+                  "$DEPENDABOT_DEPENDENCY_TYPE" == 'direct:development' ]]; then
+                  can_automerge=true
+                  reason='patch/minor development dependency update'
+                else
+                  reason="manual review for ${DEPENDABOT_DEPENDENCY_TYPE:-unknown} ${DEPENDABOT_ECOSYSTEM:-unknown} update"
+                fi
+                ;;
+              *)
+                reason="manual review for ${DEPENDABOT_UPDATE_TYPE:-unknown} update"
+                ;;
+            esac
+          fi
+
+          {
+            echo "can_automerge=$can_automerge"
+            echo "reason=$reason"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Auto-merge eligible: $can_automerge"
+          echo "Reason: $reason"
+
+      - name: Enable auto-merge
+        if: steps.policy.outputs.can_automerge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash --delete-branch "$PR_URL"

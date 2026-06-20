@@ -5,10 +5,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      pr_title:
+        description: PR title to lint when dispatching branch validation
+        required: false
+        type: string
 
 jobs:
   commitlint:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.pr_title != '')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -27,7 +32,7 @@ jobs:
 
       - name: Lint PR title
         env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_TITLE: ${{ github.event.pull_request.title || inputs.pr_title }}
         run: printf '%s\n' "$PR_TITLE" | pnpm exec commitlint
 
   validate:
@@ -70,4 +75,6 @@ jobs:
         run: pnpm examples:smoke
 
       - name: E2E skip-safe
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: pnpm test:e2e
