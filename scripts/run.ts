@@ -36,9 +36,29 @@ function gate(): void {
   pnpm(['test']);
 }
 
+function modelsRefresh(): void {
+  pnpm(['update:models', '--', '--write']);
+  pnpm(['update:cloudflare-models', '--', '--write']);
+  pnpm(['fix']);
+}
+
+function maintenanceGate(): void {
+  gate();
+  packageCheck();
+  examplesTypecheck();
+  examplesSmoke();
+  pnpm(['test:e2e']);
+}
+
 switch (command) {
   case 'gate':
     gate();
+    break;
+  case 'maintenance:gate':
+    maintenanceGate();
+    break;
+  case 'models:refresh':
+    modelsRefresh();
     break;
   case 'examples:install':
     examplesInstall();

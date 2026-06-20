@@ -1,5 +1,5 @@
 // Auto-generated from Cloudflare Workers AI docs — run `pnpm update:cloudflare-models --write` to refresh
-// Last updated: 2026-05-10
+// Last updated: 2026-06-20
 
 export type CloudflareInputModality = 'text' | 'image';
 
@@ -240,6 +240,31 @@ export const CLOUDFLARE_MODELS = {
     sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/kimi-k2.6/',
   },
 
+  /** Kimi K2.7 is a frontier-scale open-source 1T parameter model with a 262.1k context window, multi-turn tool calling, vision inputs, and structured outputs for agentic workloads. */
+  '@cf/moonshotai/kimi-k2.7-code': {
+    name: 'kimi-k2.7-code',
+    provider: 'Moonshot AI',
+    description:
+      'Kimi K2.7 is a frontier-scale open-source 1T parameter model with a 262.1k context window, multi-turn tool calling, vision inputs, and structured outputs for agentic workloads.',
+    contextLength: 262_144,
+    pricing: {
+      promptPerMToken: 0.95,
+      cachedPromptPerMToken: 0.19,
+      completionPerMToken: 4,
+      raw: '$0.95 per M input tokens, $4.00 per M output tokens, $0.19 per M cached input tokens',
+    },
+    modalities: ['text', 'image'],
+    capabilities: {
+      structuredOutput: true,
+      tools: true,
+      reasoning: true,
+      vision: true,
+      batch: false,
+    },
+    structuredOutputSource: 'model-page',
+    sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/kimi-k2.7-code/',
+  },
+
   /** NVIDIA Nemotron 3 Super is a hybrid MoE model with leading accuracy for multi-agent applications and specialized agentic AI systems. */
   '@cf/nvidia/nemotron-3-120b-a12b': {
     name: 'nemotron-3-120b-a12b',
@@ -313,6 +338,30 @@ export const CLOUDFLARE_MODELS = {
     },
     structuredOutputSource: 'model-page',
     sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/glm-4.7-flash/',
+  },
+
+  /** Z.ai\'s flagship agentic coding model */
+  '@cf/zai-org/glm-5.2': {
+    name: 'glm-5.2',
+    provider: 'Zhipu AI',
+    description: "Z.ai's flagship agentic coding model",
+    contextLength: 262_144,
+    pricing: {
+      promptPerMToken: 1.4,
+      cachedPromptPerMToken: 0.26,
+      completionPerMToken: 4.4,
+      raw: '$1.40 per M input tokens, $4.40 per M output tokens, $0.26 per M cached input tokens',
+    },
+    modalities: ['text'],
+    capabilities: {
+      structuredOutput: true,
+      tools: true,
+      reasoning: true,
+      vision: false,
+      batch: false,
+    },
+    structuredOutputSource: 'model-page',
+    sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/glm-5.2/',
   },
 } as const satisfies Record<string, CloudflareModelInfo>;
 
