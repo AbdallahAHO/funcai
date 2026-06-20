@@ -1,0 +1,66 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '10:00'
+    open-pull-requests-limit: 5
+    groups:
+      ai-runtime:
+        patterns:
+          - ai
+          - '@ai-sdk/*'
+          - '@openrouter/*'
+          - ai-sdk-*
+          - ai-gateway-provider
+      tracing:
+        patterns:
+          - '@posthog/*'
+          - posthog-node
+      quality-tooling:
+        patterns:
+          - '@arethetypeswrong/*'
+          - '@biomejs/*'
+          - '@commitlint/*'
+          - husky
+          - lint-staged
+          - publint
+      test-and-build:
+        patterns:
+          - '@types/node'
+          - '@vitest/*'
+          - tsup
+          - tsx
+          - typescript
+          - vitest
+      runtime-libraries:
+        patterns:
+          - '@clack/*'
+          - gray-matter
+          - zod
+
+  - package-ecosystem: npm
+    directory: /examples
+    schedule:
+      interval: weekly
+      day: monday
+      time: '10:15'
+    open-pull-requests-limit: 3
+    groups:
+      examples:
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '10:30'
+    open-pull-requests-limit: 3
+    groups:
+      github-actions:
+        patterns:
+          - '*'

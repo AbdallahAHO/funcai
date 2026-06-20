@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from 'node:url';
+
 /**
  * Fetches the latest Workers AI model catalog from Cloudflare docs and
  * generates a strict structured-output-only registry.
@@ -18,7 +20,7 @@ const MODELS_PATH = new URL('../src/provider/cloudflare/models.ts', import.meta.
 type InputModality = 'text' | 'image';
 type StructuredOutputSource = 'json-mode' | 'model-page';
 
-type ParsedModel = {
+export type ParsedModel = {
   id: string;
   slug: string;
   name: string;
@@ -43,7 +45,7 @@ type ParsedModel = {
   sourceUrl: string;
 };
 
-type SkippedModel = {
+export type SkippedModel = {
   slug: string;
   reason: string;
 };
@@ -54,7 +56,7 @@ async function fetchText(url: string): Promise<string> {
   return response.text();
 }
 
-function extractModelSlugs(index: string): string[] {
+export function extractModelSlugs(index: string): string[] {
   const slugs = new Set<string>();
   const linkPattern = /https:\/\/developers\.cloudflare\.com\/workers-ai\/models\/([^/)]+)\//g;
 
@@ -66,7 +68,7 @@ function extractModelSlugs(index: string): string[] {
   return [...slugs].sort((a, b) => a.localeCompare(b));
 }
 
-function extractJsonModeModels(page: string): Map<string, string> {
+export function extractJsonModeModels(page: string): Map<string, string> {
   const models = new Map<string, string>();
   const supportedModels = page.match(/## Supported Models[\s\S]*?(?=\n## |\n```json|$)/)?.[0] ?? '';
   const linkPattern =
@@ -86,8 +88,8 @@ function extractFrontmatterValue(page: string, key: string): string {
   return match?.[1]?.trim() ?? '';
 }
 
-function extractTaskLine(page: string): { task: string; provider: string } | null {
-  const match = page.match(/\n([A-Za-z -]+)\s+•\s+([^•\n]+)\s+•\s+[^\n]+\n\s*\n`@/);
+export function extractTaskLine(page: string): { task: string; provider: string } | null {
+  const match = page.match(/^\s*([A-Za-z -]+)\s+•\s+([^•\n]+?)(?:\s+•\s+[^\n]+)?\s*$/m);
   if (!match?.[1] || !match?.[2]) return null;
 
   return {
@@ -96,28 +98,28 @@ function extractTaskLine(page: string): { task: string; provider: string } | nul
   };
 }
 
-function extractContextLength(page: string): number | null {
+export function extractContextLength(page: string): number | null {
   const match = page.match(/\| Context Window[^|]*\|\s*([0-9,]+)\s+tokens/i);
   if (!match?.[1]) return null;
   return Number.parseInt(match[1].replace(/,/g, ''), 10);
 }
 
-function extractUnitPricing(page: string): string {
+export function extractUnitPricing(page: string): string {
   const match = page.match(/\| Unit Pricing\s*\|\s*([^|]+?)\s*\|/i);
   return match?.[1]?.trim() ?? '';
 }
 
-function parsePrice(raw: string, label: string): number | null {
+export function parsePrice(raw: string, label: string): number | null {
   const match = raw.match(new RegExp(`\\$([0-9.]+)\\s+per M ${label} tokens`, 'i'));
   if (!match?.[1]) return null;
   return Number.parseFloat(match[1]);
 }
 
-function hasModelInfoFlag(page: string, label: string): boolean {
+export function hasModelInfoFlag(page: string, label: string): boolean {
   return new RegExp(`\\| ${label}[^|]*\\|\\s*Yes\\s*\\|`, 'i').test(page);
 }
 
-function hasStructuredOutputEvidence(page: string): boolean {
+export function hasStructuredOutputEvidence(page: string): boolean {
   return (
     /guided\\?_json/i.test(page) ||
     /structured outputs?/i.test(page) ||
@@ -126,7 +128,7 @@ function hasStructuredOutputEvidence(page: string): boolean {
   );
 }
 
-function parseModelPage(
+export function parseModelPage(
   slug: string,
   page: string,
   jsonModeModels: Map<string, string>,
@@ -140,8 +142,8 @@ function parseModelPage(
   if (taskLine.task !== 'Text Generation') {
     return { slug, reason: `unsupported task: ${taskLine.task}` };
   }
-  if (/\| Planned Deprecation\s*\|/i.test(page)) {
-    return { slug, reason: 'planned deprecation' };
+  if (/\|\s*(?:Planned\s+Deprecation|Deprecated)\s*\|/i.test(page)) {
+    return { slug, reason: 'deprecated or planned deprecation' };
   }
   const structuredOutputSource = jsonModeModels.get(slug) === id ? 'json-mode' : 'model-page';
   if (structuredOutputSource === 'model-page' && !hasStructuredOutputEvidence(page)) {
@@ -177,7 +179,7 @@ function parseModelPage(
   };
 }
 
-async function fetchModels(): Promise<{ models: ParsedModel[]; skipped: SkippedModel[] }> {
+export async function fetchModels(): Promise<{ models: ParsedModel[]; skipped: SkippedModel[] }> {
   const [index, jsonModePage] = await Promise.all([
     fetchText(MODELS_INDEX_URL),
     fetchText(JSON_MODE_URL),
@@ -222,7 +224,7 @@ function formatNumber(value: number | null): string {
   return value.toLocaleString('en-US').replace(/,/g, '_');
 }
 
-function generateModelsFile(models: ParsedModel[]): string {
+export function generateModelsFile(models: ParsedModel[]): string {
   const date = new Date().toISOString().split('T')[0];
 
   const entries = models.map((model) => {
@@ -367,7 +369,14 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+function isMainModule(): boolean {
+  const entry = process.argv[1];
+  return entry ? import.meta.url === pathToFileURL(entry).href : false;
+}
+
+if (isMainModule()) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
