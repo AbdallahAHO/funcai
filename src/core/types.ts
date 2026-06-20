@@ -1,4 +1,4 @@
-import type { LanguageModel, ProviderMetadata } from 'ai';
+import type { LanguageModel, ProviderMetadata, TelemetrySettings } from 'ai';
 import type { z } from 'zod';
 import type {
   CacheControl,
@@ -37,8 +37,14 @@ export type TraceContext = {
   properties?: Record<string, unknown>;
 };
 
+export type TraceGenerateOptions = {
+  experimental_telemetry?: TelemetrySettings;
+};
+
 export type TracePlugin = {
-  wrap: (model: LanguageModel, context: TraceContext) => LanguageModel;
+  wrap?: (model: LanguageModel, context: TraceContext) => LanguageModel;
+  generateOptions?: (context: TraceContext) => TraceGenerateOptions;
+  run?: <T>(context: TraceContext, operation: () => Promise<T>) => Promise<T>;
 };
 
 // ---------------------------------------------------------------------------

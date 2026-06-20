@@ -41,9 +41,10 @@ function smokeConsumer(label: string, zodSpec: string): void {
       join(tempDir, 'esm.mjs'),
       `import { createAiFn, pdf, text } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';
+import { langfuse } from 'funcai/trace/langfuse';
 import { validateExamples } from 'funcai/test';
 
-console.log(typeof createAiFn, typeof openrouter, text('x').type, pdf('x').mediaType, typeof validateExamples);
+console.log(typeof createAiFn, typeof openrouter, text('x').type, pdf('x').mediaType, typeof langfuse, typeof validateExamples);
 `,
     );
 
@@ -51,8 +52,9 @@ console.log(typeof createAiFn, typeof openrouter, text('x').type, pdf('x').media
       join(tempDir, 'cjs.cjs'),
       `const { createAiFn, text } = require('funcai');
 const { openrouter } = require('funcai/providers/openrouter');
+const { langfuse } = require('funcai/trace/langfuse');
 
-console.log(typeof createAiFn, typeof openrouter, text('x').type);
+console.log(typeof createAiFn, typeof openrouter, text('x').type, typeof langfuse);
 `,
     );
 
@@ -61,6 +63,7 @@ console.log(typeof createAiFn, typeof openrouter, text('x').type);
       `import { createAiFn, definePrompt, text, type Example } from 'funcai';
 import type { Provider } from 'funcai';
 import { openrouter } from 'funcai/providers/openrouter';
+import { langfuse } from 'funcai/trace/langfuse';
 import { z } from 'zod';
 
 const schema = z.object({ label: z.string() });
@@ -78,7 +81,7 @@ const prompt = definePrompt({
 });
 
 const provider: Provider = openrouter({ apiKey: 'test-key' });
-const ai = createAiFn({ provider });
+const ai = createAiFn({ provider, trace: langfuse({ metadata: { packageSmoke: true } }) });
 const fn = ai.fn({
   prompt,
   schema,

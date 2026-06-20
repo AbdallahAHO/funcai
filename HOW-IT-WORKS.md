@@ -183,8 +183,8 @@ graph TD
 |-------|---------|-----------|
 | **Core** | The execution engine. Factory, function builder, result caching, retry logic, AI SDK integration, error types, all shared types. | `factory.ts`, `fn.ts`, `cache.ts`, `execute.ts`, `retry.ts`, `errors.ts`, `types.ts` |
 | **Prompt** | Prompt assembly. Create prompts (`definePrompt`), assemble with examples (`buildSystemPrompt`), template formatting (`injectVariables`, `formatExamples`). | `define.ts`, `build.ts`, `format.ts` |
-| **Provider** | Model instantiation. Adapts AI services (OpenRouter, custom) into the `Provider` interface that core consumes. | `openrouter/provider.ts`, `types.ts` |
-| **Trace** | Observability. Implements `TracePlugin` to wrap models with monitoring (PostHog). | `posthog.ts` |
+| **Provider** | Model instantiation. Adapts AI services (OpenRouter, Cloudflare AI Gateway, local providers, custom) into the `Provider` interface that core consumes. | `provider/*`, `types.ts` |
+| **Trace** | Observability. Implements `TracePlugin` hooks for model wrappers and AI SDK telemetry. | `posthog.ts`, `langfuse.ts` |
 | **CLI** | Code generation and scaffolding. Reads `.prompt.md` files → TypeScript. Scaffolds feature folders. Standalone from runtime. | `generate.ts`, `scaffold/` |
 
 ### File tree
@@ -206,11 +206,15 @@ src/
 │   └── format.ts                     # injectVariables(), formatExamples()
 ├── provider/
 │   ├── types.ts                      # createProvider() helper
+│   ├── cloudflare/
+│   ├── lmstudio/
+│   ├── ollama/
 │   └── openrouter/
 │       ├── provider.ts               # openrouter() factory with lazy init
 │       ├── models.ts                 # Curated model registry (auto-generated)
 │       └── index.ts                  # Re-exports
 ├── trace/
+│   ├── langfuse.ts                   # Langfuse OpenTelemetry trace plugin
 │   └── posthog.ts                    # PostHog trace plugin
 └── cli/
     ├── generate.ts                   # .prompt.md → .prompt.ts codegen
@@ -253,14 +257,14 @@ type Provider<TModelId extends string = string> = {
 
 ### Lazy initialization for providers
 
-Both `openrouter()` and `posthog()` defer SDK instantiation until the first call to `model()` or `wrap()`. This avoids importing heavy SDKs at module load time, keeps startup fast, and means unused providers never touch the network or allocate memory.
+Provider factories and trace integrations defer SDK instantiation until their runtime path is used. This avoids importing heavy SDKs at module load time, keeps startup fast, and means unused integrations never touch the network or allocate memory.
 
 ### `require()` for optional peer deps
 
-PostHog (`posthog-node`, `@posthog/ai`) and the OpenRouter SDK are loaded via synchronous `require()` (created from `createRequire(import.meta.url)` for ESM compat) inside the lazy initialization path. This is intentional:
+PostHog (`posthog-node`, `@posthog/ai`), Langfuse/OpenTelemetry (`@langfuse/*`, `@opentelemetry/sdk-node`), and provider SDKs are loaded via synchronous `require()` (created from `createRequire(import.meta.url)` for ESM compat) inside the lazy initialization path. This is intentional:
 
 1. **Tree-shaking**: The imports are not statically analyzable, so bundlers exclude them when the entry point is not used. `tsup.config.ts` marks them as `external`.
-2. **Optional peers**: PostHog packages are declared in `peerDependenciesMeta` as optional. A consumer who never uses the `posthog()` trace plugin never needs to install them. A static `import` would cause a hard failure at module load.
+2. **Optional peers**: Trace integration packages are declared in `peerDependenciesMeta` as optional. A consumer who never uses a trace plugin never needs to install that integration's packages. A static `import` would cause a hard failure at module load.
 3. **CJS compatibility**: `require()` works in both the ESM and CJS output formats without additional interop.
 
 ### Separate `definePrompt` from `fn`
@@ -408,14 +412,15 @@ fn(input)
   |   6. provider.model(modelId)   -- Create LanguageModel instance from provider
   |     |
   |     v
-  |   7. trace.wrap(model, ctx)    -- Wrap model with trace plugin (if configured)
+  |   7. trace hooks              -- Wrap model, add telemetry, surround operation
   |     |
   |     v
   |   8. execute({                 -- Call AI SDK's generateObject
   |        model, systemPrompt,
   |        userContent, messages,
   |        schema, temperature,
-  |        maxTokens
+  |        maxTokens,
+  |        experimental_telemetry
   |      })
   |     |
   |     v
@@ -557,7 +562,11 @@ These are passed as the second argument to `instance.chat(modelId, modelSettings
 
 ```typescript
 type TracePlugin = {
-  wrap: (model: LanguageModel, context: TraceContext) => LanguageModel;
+  wrap?: (model: LanguageModel, context: TraceContext) => LanguageModel;
+  generateOptions?: (context: TraceContext) => {
+    experimental_telemetry?: TelemetrySettings;
+  };
+  run?: <T>(context: TraceContext, operation: () => Promise<T>) => Promise<T>;
 };
 
 type TraceContext = {
@@ -570,7 +579,11 @@ type TraceContext = {
 };
 ```
 
-`wrap()` receives a `LanguageModel` and returns a `LanguageModel`. The implementation decorates the model with observability hooks without changing its behavior. This is the decorator pattern applied to the AI SDK model interface.
+Trace plugins are optional-capability based:
+
+- `wrap()` receives a `LanguageModel` and returns a decorated `LanguageModel`. This supports integrations like PostHog that instrument the model interface directly.
+- `generateOptions()` contributes AI SDK call options such as `experimental_telemetry`.
+- `run()` surrounds the actual generation operation. This supports integrations like Langfuse that must propagate OpenTelemetry attributes before the AI SDK creates spans.
 
 ### PostHog plugin internals
 
@@ -590,6 +603,18 @@ On each `wrap()` call, `withTracing` from `@posthog/ai` intercepts `doGenerate` 
 | `properties` | Spread into `posthogProperties` |
 
 The client is created once (lazy) and reused across all `wrap()` calls. The consumer passes per-request context via `CallOptions` on `.detailed()`.
+
+### Langfuse plugin internals
+
+The `langfuse()` plugin does not wrap the model. It contributes AI SDK `experimental_telemetry` with `functionId`, model, feature, user/session ids, and custom metadata. It also uses `run()` to call `propagateAttributes()` from `@langfuse/tracing` before `generateObject()` executes.
+
+`run()` creates a parent Langfuse `CHAIN` observation for the full funcai call. The AI SDK spans sit underneath that chain, so Langfuse shows both the full funcai operation latency and the lower-level model generation. The chain metadata includes `funcaiTraceId`, `langfuseTraceId`, token totals, and provider-reported cost metadata such as `funcaiCostUsd` when OpenRouter returns usage cost.
+
+Langfuse normalized cost is computed on the child `GENERATION`, not the parent `CHAIN`. `pnpm langfuse:setup` prepares the Langfuse project model definitions needed for OpenRouter generation model names, including dated upstream model suffixes, so new live E2E traces populate `totalCost` and `costDetails` while preserving `funcaiCostUsd` as the provider-reported audit value.
+
+Langfuse's primary trace id comes from OpenTelemetry. If the funcai call-level `traceId` is already a valid 32-character OpenTelemetry trace id, the plugin uses it directly as the parent trace id. Otherwise it derives a deterministic Langfuse trace id and keeps the original value in `funcaiTraceId`.
+
+Langfuse export is explicit. `createLangfuseSpanProcessor()` returns a processor for apps that already own OpenTelemetry setup. `startLangfuseTelemetry()` creates a minimal `NodeSDK` with that processor for scripts, CLIs, tests, and small services.
 
 ---
 
@@ -677,7 +702,7 @@ With the `--ai` flag, the scaffold command dogfoods `funcai` itself to generate 
 
 ### tsup dual format output
 
-`tsup.config.ts` defines seven entry points, each compiled to both ESM (`.js`) and CJS (`.cjs`):
+`tsup.config.ts` defines nine entry points, each compiled to both ESM (`.js`) and CJS (`.cjs`):
 
 | Entry | Output |
 |-------|--------|
@@ -685,6 +710,8 @@ With the `--ai` flag, the scaffold command dogfoods `funcai` itself to generate 
 | `src/provider/lmstudio/index.ts` | `dist/provider/lmstudio.{js,cjs,d.ts,d.cts}` |
 | `src/provider/ollama/index.ts` | `dist/provider/ollama.{js,cjs,d.ts,d.cts}` |
 | `src/provider/openrouter/index.ts` | `dist/provider/openrouter.{js,cjs,d.ts,d.cts}` |
+| `src/provider/cloudflare/index.ts` | `dist/provider/cloudflare.{js,cjs,d.ts,d.cts}` |
+| `src/trace/langfuse.ts` | `dist/trace/langfuse.{js,cjs,d.ts,d.cts}` |
 | `src/trace/posthog.ts` | `dist/trace/posthog.{js,cjs,d.ts,d.cts}` |
 | `test/index.ts` | `dist/test/index.{js,cjs,d.ts,d.cts}` |
 | `bin/funcai.ts` | `dist/bin/funcai.{js,cjs}` |
@@ -699,6 +726,8 @@ Build flags: `dts: true`, `splitting: true` (code-splits shared chunks in ESM), 
   "./providers/lmstudio":  { "import": { ... }, "require": { ... } },
   "./providers/ollama":    { "import": { ... }, "require": { ... } },
   "./providers/openrouter": { "import": { ... }, "require": { ... } },
+  "./providers/cloudflare": { "import": { ... }, "require": { ... } },
+  "./trace/langfuse":      { "import": { ... }, "require": { ... } },
   "./trace/posthog":       { "import": { ... }, "require": { ... } },
   "./test":                { "import": { ... }, "require": { ... } }
 }
@@ -708,7 +737,7 @@ Each export has separate `types` and `default` conditions for both `import` and 
 
 ### Tree-shaking considerations
 
-- `external: ['zod', 'posthog-node', '@posthog/ai']` ensures these are never bundled into the output. `zod` is a peer dep; PostHog packages are optional peers.
+- `external` keeps peer integrations out of the bundle: `zod`, PostHog packages, and Langfuse/OpenTelemetry packages are resolved by the consumer only when the matching entrypoint is used.
 - `@openrouter/ai-sdk-provider`, `@ai-sdk/openai-compatible`, and `ai-sdk-ollama` are runtime dependencies but loaded lazily inside their provider factories. Consumers who import only from `funcai` (the root) and use `createProvider()` with a custom model never load provider-specific code.
 - `splitting: true` means shared code between entry points (like `types.ts`) is extracted into shared chunks rather than duplicated.
 
@@ -719,6 +748,9 @@ Each export has separate `types` and `default` conditions for both `import` and 
 | `zod` | Required peer | Consumer defines schemas — must be the same instance to avoid `instanceof` mismatches |
 | `posthog-node` | Optional peer | Only needed if using `posthog()` trace plugin |
 | `@posthog/ai` | Optional peer | Only needed if using `posthog()` trace plugin |
+| `@langfuse/tracing` | Optional peer | Only needed if using `langfuse()` trace plugin |
+| `@langfuse/otel` | Optional peer | Only needed if using Langfuse OpenTelemetry export |
+| `@opentelemetry/sdk-node` | Optional peer | Only needed if using `startLangfuseTelemetry()` |
 
 `ai` (Vercel AI SDK) is a direct dependency, not a peer. This pins the SDK version to avoid breaking changes from upstream. The library owns the `generateObject` call contract.
 
@@ -869,7 +901,7 @@ export function azure(config: AzureConfig): Provider<AzureModelId> {
 
 ### Adding a new trace plugin
 
-Implement the `TracePlugin` interface — a single `wrap()` method:
+Implement only the `TracePlugin` hooks your integration needs:
 
 ```typescript
 // src/trace/datadog.ts
@@ -896,6 +928,13 @@ export function datadog(config: { apiKey: string; service: string }): TracePlugi
         tags: context.properties,
       });
     },
+    generateOptions: (context) => ({
+      experimental_telemetry: {
+        isEnabled: true,
+        functionId: context.feature,
+        metadata: { traceId: context.traceId },
+      },
+    }),
   };
 }
 ```

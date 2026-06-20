@@ -12,6 +12,7 @@ import {
 import { cloudflareAiGateway } from 'funcai/providers/cloudflare';
 import { openrouter } from 'funcai/providers/openrouter';
 import { validateExamples } from 'funcai/test';
+import { langfuse, startLangfuseTelemetry } from 'funcai/trace/langfuse';
 import { posthog } from 'funcai/trace/posthog';
 import { z } from 'zod';
 
@@ -33,6 +34,12 @@ const ai = createAiFn({
   trace: posthog({ apiKey: 'phc_test' }),
   cache: createMemoryCache(),
 });
+
+const langfuseAi = createAiFn({
+  provider: openrouter({ apiKey: 'sk-test' }),
+  trace: langfuse({ tags: ['type-test'], metadata: { surface: 'public-api' } }),
+});
+const langfuseTelemetry = startLangfuseTelemetry({ exportMode: 'immediate' });
 
 const prompt = ai.definePrompt({
   id: 'classify-message',
@@ -82,3 +89,5 @@ cloudflare.definePrompt({
 void outputPromise;
 void detailedPromise;
 void multimodal;
+void langfuseAi;
+void langfuseTelemetry;

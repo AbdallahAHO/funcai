@@ -72,6 +72,16 @@
         "default": "./dist/trace/posthog.cjs"
       }
     },
+    "./trace/langfuse": {
+      "import": {
+        "types": "./dist/trace/langfuse.d.ts",
+        "default": "./dist/trace/langfuse.js"
+      },
+      "require": {
+        "types": "./dist/trace/langfuse.d.cts",
+        "default": "./dist/trace/langfuse.cjs"
+      }
+    },
     "./test": {
       "import": {
         "types": "./dist/test/index.d.ts",
@@ -111,9 +121,15 @@
     "models:report": "tsx scripts/model-registry-report.ts",
     "update:models": "tsx scripts/update-openrouter-models.ts",
     "update:cloudflare-models": "tsx scripts/update-cloudflare-models.ts",
+    "langfuse:setup": "tsx scripts/setup-langfuse-models.ts",
     "prepare": "husky"
   },
   "peerDependencies": {
+    "@langfuse/otel": "^5.5.3",
+    "@langfuse/tracing": "^5.5.3",
+    "@opentelemetry/sdk-node": "^0.219.0",
+    "@posthog/ai": "^8.2.1",
+    "posthog-node": "^5.38.2",
     "zod": "^3.25.76 || ^4.1.8"
   },
   "peerDependenciesMeta": {
@@ -121,6 +137,15 @@
       "optional": true
     },
     "@posthog/ai": {
+      "optional": true
+    },
+    "@langfuse/otel": {
+      "optional": true
+    },
+    "@langfuse/tracing": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-node": {
       "optional": true
     }
   },
@@ -138,6 +163,9 @@
     "@biomejs/biome": "^2.5.0",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@langfuse/otel": "^5.5.3",
+    "@langfuse/tracing": "^5.5.3",
+    "@opentelemetry/sdk-node": "^0.219.0",
     "@posthog/ai": "^8.2.1",
     "@types/node": "^26.0.0",
     "@vitest/coverage-v8": "^4.1.9",

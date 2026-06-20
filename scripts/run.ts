@@ -47,6 +47,7 @@ function maintenanceGate(): void {
   packageCheck();
   examplesTypecheck();
   examplesSmoke();
+  pnpm(['langfuse:setup']);
   pnpm(['test:e2e']);
 }
 

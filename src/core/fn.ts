@@ -184,31 +184,42 @@ export function createFn<
       attempts,
     } = await withRetry({
       fn: async (currentModelId) => {
+        const traceContext = {
+          traceId,
+          model: currentModelId,
+          feature: featureId,
+          userId: options?.userId,
+          sessionId: options?.sessionId,
+          properties: options?.properties,
+        };
+
         // Get base model from provider
         let model = context.provider.model({ modelId: currentModelId });
 
         // Wrap with tracing if configured
-        if (context.trace) {
-          model = context.trace.wrap(model, {
-            traceId,
-            model: currentModelId,
-            feature: featureId,
-            userId: options?.userId,
-            sessionId: options?.sessionId,
-            properties: options?.properties,
-          });
+        if (context.trace?.wrap) {
+          model = context.trace.wrap(model, traceContext);
         }
 
-        return execute({
-          model,
-          systemPrompt,
-          userContent: userContent as string | ContentPart[],
-          messages,
-          schema: config.schema,
-          temperature,
-          maxTokens,
-          ...generateOptions,
-        });
+        const traceGenerateOptions = context.trace?.generateOptions?.(traceContext) ?? {};
+        const operation = () =>
+          execute({
+            model,
+            systemPrompt,
+            userContent: userContent as string | ContentPart[],
+            messages,
+            schema: config.schema,
+            temperature,
+            maxTokens,
+            ...generateOptions,
+            ...traceGenerateOptions,
+          });
+
+        if (context.trace?.run) {
+          return context.trace.run(traceContext, operation);
+        }
+
+        return operation();
       },
       primaryModel: modelId,
       retries,
