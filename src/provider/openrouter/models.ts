@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-06-20
+// Last updated: 2026-06-22
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -316,7 +316,7 @@ export const OPENROUTER_MODELS = {
     description:
       'Gemini 3.1 Flash Image Preview, a.k.a. "Nano Banana 2," is Google’s latest state of the art image generation and editing',
     contextLength: 131_072,
-    maxCompletionTokens: 65_536,
+    maxCompletionTokens: 32_768,
     pricing: { promptPerMToken: 0.5, completionPerMToken: 3 },
     modalities: ['image', 'text'],
     capabilities: { structuredOutput: true, tools: false, reasoning: true },
