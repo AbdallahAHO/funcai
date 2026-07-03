@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-06-22
+// Last updated: 2026-06-29
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -1017,7 +1017,7 @@ export const OPENROUTER_MODELS = {
     description:
       'The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear ',
     contextLength: 262_144,
-    maxCompletionTokens: 262_144,
+    maxCompletionTokens: 81_920,
     pricing: { promptPerMToken: 0.14, completionPerMToken: 1 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -1096,7 +1096,7 @@ export const OPENROUTER_MODELS = {
       'Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It fea',
     contextLength: 262_144,
     maxCompletionTokens: 262_140,
-    pricing: { promptPerMToken: 0.289, completionPerMToken: 3.17 },
+    pricing: { promptPerMToken: 0.26, completionPerMToken: 2.385 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
