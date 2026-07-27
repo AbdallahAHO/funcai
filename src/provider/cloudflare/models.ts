@@ -1,5 +1,5 @@
 // Auto-generated from Cloudflare Workers AI docs — run `pnpm update:cloudflare-models --write` to refresh
-// Last updated: 2026-06-29
+// Last updated: 2026-07-27
 
 export type CloudflareInputModality = 'text' | 'image';
 

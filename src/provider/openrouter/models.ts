@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-06-29
+// Last updated: 2026-07-27
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -88,19 +88,6 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
-  /** Fast-mode variant of [Opus 4.6](/anthropic/claude-opus-4.6) - identical capabilities with higher output speed at premium */
-  'anthropic/claude-opus-4.6-fast': {
-    name: 'Anthropic: Claude Opus 4.6 (Fast)',
-    provider: 'Anthropic',
-    description:
-      'Fast-mode variant of [Opus 4.6](/anthropic/claude-opus-4.6) - identical capabilities with higher output speed at premium',
-    contextLength: 1_000_000,
-    maxCompletionTokens: 128_000,
-    pricing: { promptPerMToken: 30, completionPerMToken: 150 },
-    modalities: ['text', 'image', 'file'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: true },
-  },
-
   /** Opus 4.7 is the next generation of Anthropic\'s Opus family, built for long-running, asynchronous agents. Building on the */
   'anthropic/claude-opus-4.7': {
     name: 'Anthropic: Claude Opus 4.7',
@@ -153,6 +140,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Claude Opus 5 is Anthropic’s flagship model for demanding reasoning, coding, and long-horizon agentic work. It is partic */
+  'anthropic/claude-opus-5': {
+    name: 'Claude Opus 5',
+    provider: 'Anthropic',
+    description:
+      'Claude Opus 5 is Anthropic’s flagship model for demanding reasoning, coding, and long-horizon agentic work. It is partic',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 5, completionPerMToken: 25 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Fast-mode variant of [Opus 5](/anthropic/claude-opus-5) - identical capabilities with higher output speed at 2x pricing  */
+  'anthropic/claude-opus-5-fast': {
+    name: 'Claude Opus 5 (Fast)',
+    provider: 'Anthropic',
+    description:
+      'Fast-mode variant of [Opus 5](/anthropic/claude-opus-5) - identical capabilities with higher output speed at 2x pricing ',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 10, completionPerMToken: 50 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Claude Sonnet 4.5 is Anthropic’s most advanced Sonnet model to date, optimized for real-world agents and coding workflow */
   'anthropic/claude-sonnet-4.5': {
     name: 'Anthropic: Claude Sonnet 4.5',
@@ -179,13 +192,26 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Sonnet 5 is Anthropic\'s most capable Sonnet-class model, with frontier performance across coding, agents, and profession */
+  'anthropic/claude-sonnet-5': {
+    name: 'Anthropic: Claude Sonnet 5',
+    provider: 'Anthropic',
+    description:
+      "Sonnet 5 is Anthropic's most capable Sonnet-class model, with frontier performance across coding, agents, and profession",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2, completionPerMToken: 10 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of  */
   'deepseek/deepseek-chat': {
     name: 'DeepSeek: DeepSeek V3',
     provider: 'DeepSeek',
     description:
       'DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of ',
-    contextLength: 131_072,
+    contextLength: 163_840,
     maxCompletionTokens: 16_000,
     pricing: { promptPerMToken: 0.2, completionPerMToken: 0.8 },
     modalities: ['text'],
@@ -200,7 +226,7 @@ export const OPENROUTER_MODELS = {
       'DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinki',
     contextLength: 163_840,
     maxCompletionTokens: 32_768,
-    pricing: { promptPerMToken: 0.21, completionPerMToken: 0.79 },
+    pricing: { promptPerMToken: 0.25, completionPerMToken: 0.95 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -239,7 +265,7 @@ export const OPENROUTER_MODELS = {
       "DeepSeek-V3.1 Terminus is an update to [DeepSeek V3.1](/deepseek/deepseek-chat-v3.1) that maintains the model's original",
     contextLength: 163_840,
     maxCompletionTokens: 32_768,
-    pricing: { promptPerMToken: 0.27, completionPerMToken: 0.95 },
+    pricing: { promptPerMToken: 0.27, completionPerMToken: 1 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -250,9 +276,9 @@ export const OPENROUTER_MODELS = {
     provider: 'DeepSeek',
     description:
       'DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and ag',
-    contextLength: 131_072,
-    maxCompletionTokens: 64_000,
-    pricing: { promptPerMToken: 0.229, completionPerMToken: 0.343 },
+    contextLength: 163_840,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.269, completionPerMToken: 0.4 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -264,8 +290,8 @@ export const OPENROUTER_MODELS = {
     description:
       'DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B a',
     contextLength: 1_048_576,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.09, completionPerMToken: 0.18 },
+    maxCompletionTokens: 393_216,
+    pricing: { promptPerMToken: 0.14, completionPerMToken: 0.28 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -315,8 +341,8 @@ export const OPENROUTER_MODELS = {
     provider: 'Google',
     description:
       'Gemini 3.1 Flash Image Preview, a.k.a. "Nano Banana 2," is Google’s latest state of the art image generation and editing',
-    contextLength: 131_072,
-    maxCompletionTokens: 32_768,
+    contextLength: 65_536,
+    maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 0.5, completionPerMToken: 3 },
     modalities: ['image', 'text'],
     capabilities: { structuredOutput: true, tools: false, reasoning: true },
@@ -367,7 +393,7 @@ export const OPENROUTER_MODELS = {
     provider: 'Google',
     description:
       'Gemini 3.1 Pro Preview Custom Tools is a variant of Gemini 3.1 Pro that improves tool selection behavior by preventing o',
-    contextLength: 1_048_756,
+    contextLength: 1_048_576,
     maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 2, completionPerMToken: 12 },
     modalities: ['text', 'audio', 'image', 'video', 'file'],
@@ -387,6 +413,45 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Gemini 3.5 Flash Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subage */
+  'google/gemini-3.5-flash-lite': {
+    name: 'Google: Gemini 3.5 Flash Lite',
+    provider: 'Google',
+    description:
+      'Gemini 3.5 Flash Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subage',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.3, completionPerMToken: 2.5 },
+    modalities: ['text', 'image', 'video', 'file', 'audio'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It i */
+  'google/gemini-3.6-flash': {
+    name: 'Google: Gemini 3.6 Flash',
+    provider: 'Google',
+    description:
+      'Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It i',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 1.5, completionPerMToken: 7.5 },
+    modalities: ['text', 'image', 'video', 'file', 'audio'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language process */
+  'meta-llama/llama-3.2-3b-instruct': {
+    name: 'Meta: Llama 3.2 3B Instruct',
+    provider: 'Meta',
+    description:
+      'Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language process',
+    contextLength: 131_072,
+    maxCompletionTokens: 131_072,
+    pricing: { promptPerMToken: 0.05, completionPerMToken: 0.33 },
+    modalities: ['text'],
+    capabilities: { structuredOutput: true, tools: false, reasoning: false },
+  },
+
   /** The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B */
   'meta-llama/llama-3.3-70b-instruct': {
     name: 'Meta: Llama 3.3 70B Instruct',
@@ -394,8 +459,8 @@ export const OPENROUTER_MODELS = {
     description:
       'The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B',
     contextLength: 131_072,
-    maxCompletionTokens: 16_384,
-    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.32 },
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.13, completionPerMToken: 0.4 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -408,7 +473,7 @@ export const OPENROUTER_MODELS = {
       'Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-exper',
     contextLength: 1_048_576,
     maxCompletionTokens: 16_384,
-    pricing: { promptPerMToken: 0.15, completionPerMToken: 0.6 },
+    pricing: { promptPerMToken: 0.2, completionPerMToken: 0.8 },
     modalities: ['text', 'image'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -419,7 +484,7 @@ export const OPENROUTER_MODELS = {
     provider: 'Meta',
     description:
       'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion p',
-    contextLength: 10_000_000,
+    contextLength: 1_310_720,
     maxCompletionTokens: 16_384,
     pricing: { promptPerMToken: 0.1, completionPerMToken: 0.3 },
     modalities: ['text', 'image'],
@@ -537,7 +602,7 @@ export const OPENROUTER_MODELS = {
     description:
       'GPT-4.1 is a flagship large language model optimized for advanced instruction following, real-world software engineering',
     contextLength: 1_047_576,
-    maxCompletionTokens: null,
+    maxCompletionTokens: 32_768,
     pricing: { promptPerMToken: 2, completionPerMToken: 8 },
     modalities: ['image', 'text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
@@ -654,7 +719,7 @@ export const OPENROUTER_MODELS = {
     description:
       'GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, a',
     contextLength: 400_000,
-    maxCompletionTokens: null,
+    maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 0.05, completionPerMToken: 0.4 },
     modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -680,7 +745,7 @@ export const OPENROUTER_MODELS = {
     description:
       'GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retain',
     contextLength: 128_000,
-    maxCompletionTokens: 32_000,
+    maxCompletionTokens: 16_384,
     pricing: { promptPerMToken: 1.25, completionPerMToken: 10 },
     modalities: ['file', 'image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
@@ -718,7 +783,7 @@ export const OPENROUTER_MODELS = {
     provider: 'OpenAI',
     description: 'GPT-5.1-Codex-Mini is a smaller and faster version of GPT-5.1-Codex',
     contextLength: 400_000,
-    maxCompletionTokens: 100_000,
+    maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 0.25, completionPerMToken: 2 },
     modalities: ['image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -854,6 +919,45 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5.6 Luna is a fast, cost-efficient model in OpenAI\'s GPT-5.6 series. It is suited for high-volume, latency-sensitive */
+  'openai/gpt-5.6-luna': {
+    name: 'OpenAI: GPT-5.6 Luna',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.6 Luna is a fast, cost-efficient model in OpenAI's GPT-5.6 series. It is suited for high-volume, latency-sensitive",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 1, completionPerMToken: 6 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Sol is the flagship model in OpenAI\'s GPT-5.6 series. It is suited for complex reasoning, coding, and agentic wo */
+  'openai/gpt-5.6-sol': {
+    name: 'OpenAI: GPT-5.6 Sol',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.6 Sol is the flagship model in OpenAI's GPT-5.6 series. It is suited for complex reasoning, coding, and agentic wo",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 5, completionPerMToken: 30 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Terra is a balanced model in OpenAI\'s GPT-5.6 series, positioned between the flagship Sol tier and the cost-effi */
+  'openai/gpt-5.6-terra': {
+    name: 'OpenAI: GPT-5.6 Terra',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.6 Terra is a balanced model in OpenAI's GPT-5.6 series, positioned between the flagship Sol tier and the cost-effi",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 15 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** GPT Chat Latest points to OpenAI\'s stable API alias `chat-latest` that always resolves to the latest Instant chat model  */
   'openai/gpt-chat-latest': {
     name: 'OpenAI: GPT Chat Latest',
@@ -927,7 +1031,7 @@ export const OPENROUTER_MODELS = {
       'Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-',
     contextLength: 262_144,
     maxCompletionTokens: 16_384,
-    pricing: { promptPerMToken: 0.09, completionPerMToken: 0.1 },
+    pricing: { promptPerMToken: 0.09, completionPerMToken: 0.55 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -945,28 +1049,15 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
-  /** Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks  */
-  'qwen/qwen3-8b': {
-    name: 'Qwen: Qwen3 8B',
-    provider: 'Qwen',
-    description:
-      'Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks ',
-    contextLength: 131_072,
-    maxCompletionTokens: 8_192,
-    pricing: { promptPerMToken: 0.05, completionPerMToken: 0.4 },
-    modalities: ['text'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: true },
-  },
-
   /** Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is opt */
   'qwen/qwen3-coder': {
     name: 'Qwen: Qwen3 Coder 480B A35B',
     provider: 'Qwen',
     description:
       'Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is opt',
-    contextLength: 1_048_576,
+    contextLength: 262_144,
     maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.22, completionPerMToken: 1.8 },
+    pricing: { promptPerMToken: 0.3, completionPerMToken: 1 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -991,7 +1082,7 @@ export const OPENROUTER_MODELS = {
     description:
       'The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention ',
     contextLength: 262_144,
-    maxCompletionTokens: 262_144,
+    maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 0.26, completionPerMToken: 2.08 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -1017,7 +1108,7 @@ export const OPENROUTER_MODELS = {
     description:
       'The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear ',
     contextLength: 262_144,
-    maxCompletionTokens: 81_920,
+    maxCompletionTokens: 262_144,
     pricing: { promptPerMToken: 0.14, completionPerMToken: 1 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -1029,9 +1120,9 @@ export const OPENROUTER_MODELS = {
     provider: 'Qwen',
     description:
       'The Qwen3.5 series 397B-A17B native vision-language model is built on a hybrid architecture that integrates a linear att',
-    contextLength: 256_000,
-    maxCompletionTokens: null,
-    pricing: { promptPerMToken: 0.385, completionPerMToken: 2.45 },
+    contextLength: 262_144,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.39, completionPerMToken: 2.34 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1095,8 +1186,8 @@ export const OPENROUTER_MODELS = {
     description:
       'Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It fea',
     contextLength: 262_144,
-    maxCompletionTokens: 262_140,
-    pricing: { promptPerMToken: 0.26, completionPerMToken: 2.385 },
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.3, completionPerMToken: 2 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1161,7 +1252,7 @@ export const OPENROUTER_MODELS = {
       "Qwen3.7-Max is the flagship model in Alibaba's Qwen3.7 series. It supports text input and output and is designed for age",
     contextLength: 1_000_000,
     maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 1.25, completionPerMToken: 3.75 },
+    pricing: { promptPerMToken: 1.475, completionPerMToken: 4.425 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
