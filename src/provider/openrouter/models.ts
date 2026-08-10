@@ -1,5 +1,5 @@
 // Auto-generated from OpenRouter API — run `pnpm update:models` to refresh
-// Last updated: 2026-07-27
+// Last updated: 2026-08-10
 
 export type InputModality = 'text' | 'image' | 'file' | 'audio' | 'video';
 
@@ -36,6 +36,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Claude Fable 5 is a Mythos-class model from Anthropic, built for autonomous knowledge work and coding. It supports text, */
+  'anthropic/claude-fable-5:batch': {
+    name: 'Anthropic: Claude Fable 5 (batch)',
+    provider: 'Anthropic',
+    description:
+      'Claude Fable 5 is a Mythos-class model from Anthropic, built for autonomous knowledge work and coding. It supports text,',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 5, completionPerMToken: 25 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Claude Haiku 4.5 is Anthropic’s fastest and most efficient model, delivering near-frontier intelligence at a fraction of */
   'anthropic/claude-haiku-4.5': {
     name: 'Anthropic: Claude Haiku 4.5',
@@ -49,15 +62,28 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Claude Haiku 4.5 is Anthropic’s fastest and most efficient model, delivering near-frontier intelligence at a fraction of */
+  'anthropic/claude-haiku-4.5:batch': {
+    name: 'Anthropic: Claude Haiku 4.5 (batch)',
+    provider: 'Anthropic',
+    description:
+      'Claude Haiku 4.5 is Anthropic’s fastest and most efficient model, delivering near-frontier intelligence at a fraction of',
+    contextLength: 200_000,
+    maxCompletionTokens: 64_000,
+    pricing: { promptPerMToken: 0.5, completionPerMToken: 2.5 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Claude Opus 4.1 is an updated version of Anthropic’s flagship model, offering improved performance in coding, reasoning, */
-  'anthropic/claude-opus-4.1': {
-    name: 'Anthropic: Claude Opus 4.1',
+  'anthropic/claude-opus-4.1:batch': {
+    name: 'Anthropic: Claude Opus 4.1 (batch)',
     provider: 'Anthropic',
     description:
       'Claude Opus 4.1 is an updated version of Anthropic’s flagship model, offering improved performance in coding, reasoning,',
     contextLength: 200_000,
     maxCompletionTokens: 32_000,
-    pricing: { promptPerMToken: 15, completionPerMToken: 75 },
+    pricing: { promptPerMToken: 7.5, completionPerMToken: 37.5 },
     modalities: ['image', 'text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -75,6 +101,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Claude Opus 4.5 is Anthropic’s frontier reasoning model optimized for complex software engineering, agentic workflows, a */
+  'anthropic/claude-opus-4.5:batch': {
+    name: 'Anthropic: Claude Opus 4.5 (batch)',
+    provider: 'Anthropic',
+    description:
+      'Claude Opus 4.5 is Anthropic’s frontier reasoning model optimized for complex software engineering, agentic workflows, a',
+    contextLength: 200_000,
+    maxCompletionTokens: 64_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 12.5 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Opus 4.6 is Anthropic’s strongest model for coding and long-running professional tasks. It is built for agents that oper */
   'anthropic/claude-opus-4.6': {
     name: 'Anthropic: Claude Opus 4.6',
@@ -84,6 +123,19 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_000_000,
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 5, completionPerMToken: 25 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Opus 4.6 is Anthropic’s strongest model for coding and long-running professional tasks. It is built for agents that oper */
+  'anthropic/claude-opus-4.6:batch': {
+    name: 'Anthropic: Claude Opus 4.6 (batch)',
+    provider: 'Anthropic',
+    description:
+      'Opus 4.6 is Anthropic’s strongest model for coding and long-running professional tasks. It is built for agents that oper',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 12.5 },
     modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -114,6 +166,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Opus 4.7 is the next generation of Anthropic\'s Opus family, built for long-running, asynchronous agents. Building on the */
+  'anthropic/claude-opus-4.7:batch': {
+    name: 'Anthropic: Claude Opus 4.7 (batch)',
+    provider: 'Anthropic',
+    description:
+      "Opus 4.7 is the next generation of Anthropic's Opus family, built for long-running, asynchronous agents. Building on the",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 12.5 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Claude Opus 4.8 is Anthropic\'s most capable generally available model in the Opus family. It supports text, image, and f */
   'anthropic/claude-opus-4.8': {
     name: 'Anthropic: Claude Opus 4.8',
@@ -136,6 +201,19 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_000_000,
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 10, completionPerMToken: 50 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Claude Opus 4.8 is Anthropic\'s most capable generally available model in the Opus family. It supports text, image, and f */
+  'anthropic/claude-opus-4.8:batch': {
+    name: 'Anthropic: Claude Opus 4.8 (batch)',
+    provider: 'Anthropic',
+    description:
+      "Claude Opus 4.8 is Anthropic's most capable generally available model in the Opus family. It supports text, image, and f",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 12.5 },
     modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -166,6 +244,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Claude Opus 5 is Anthropic’s flagship model for demanding reasoning, coding, and long-horizon agentic work. It is partic */
+  'anthropic/claude-opus-5:batch': {
+    name: 'Claude Opus 5 (batch)',
+    provider: 'Anthropic',
+    description:
+      'Claude Opus 5 is Anthropic’s flagship model for demanding reasoning, coding, and long-horizon agentic work. It is partic',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 12.5 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Claude Sonnet 4.5 is Anthropic’s most advanced Sonnet model to date, optimized for real-world agents and coding workflow */
   'anthropic/claude-sonnet-4.5': {
     name: 'Anthropic: Claude Sonnet 4.5',
@@ -175,6 +266,19 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_000_000,
     maxCompletionTokens: 64_000,
     pricing: { promptPerMToken: 3, completionPerMToken: 15 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Claude Sonnet 4.5 is Anthropic’s most advanced Sonnet model to date, optimized for real-world agents and coding workflow */
+  'anthropic/claude-sonnet-4.5:batch': {
+    name: 'Anthropic: Claude Sonnet 4.5 (batch)',
+    provider: 'Anthropic',
+    description:
+      'Claude Sonnet 4.5 is Anthropic’s most advanced Sonnet model to date, optimized for real-world agents and coding workflow',
+    contextLength: 1_000_000,
+    maxCompletionTokens: 64_000,
+    pricing: { promptPerMToken: 1.5, completionPerMToken: 7.5 },
     modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -192,6 +296,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Sonnet 4.6 is Anthropic\'s most capable Sonnet-class model yet, with frontier performance across coding, agents, and prof */
+  'anthropic/claude-sonnet-4.6:batch': {
+    name: 'Anthropic: Claude Sonnet 4.6 (batch)',
+    provider: 'Anthropic',
+    description:
+      "Sonnet 4.6 is Anthropic's most capable Sonnet-class model yet, with frontier performance across coding, agents, and prof",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 1.5, completionPerMToken: 7.5 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Sonnet 5 is Anthropic\'s most capable Sonnet-class model, with frontier performance across coding, agents, and profession */
   'anthropic/claude-sonnet-5': {
     name: 'Anthropic: Claude Sonnet 5',
@@ -205,6 +322,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Sonnet 5 is Anthropic\'s most capable Sonnet-class model, with frontier performance across coding, agents, and profession */
+  'anthropic/claude-sonnet-5:batch': {
+    name: 'Anthropic: Claude Sonnet 5 (batch)',
+    provider: 'Anthropic',
+    description:
+      "Sonnet 5 is Anthropic's most capable Sonnet-class model, with frontier performance across coding, agents, and profession",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 1, completionPerMToken: 5 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of  */
   'deepseek/deepseek-chat': {
     name: 'DeepSeek: DeepSeek V3',
@@ -213,7 +343,7 @@ export const OPENROUTER_MODELS = {
       'DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of ',
     contextLength: 163_840,
     maxCompletionTokens: 16_000,
-    pricing: { promptPerMToken: 0.2, completionPerMToken: 0.8 },
+    pricing: { promptPerMToken: 0.257, completionPerMToken: 1.029 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -285,13 +415,26 @@ export const OPENROUTER_MODELS = {
 
   /** DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B a */
   'deepseek/deepseek-v4-flash': {
-    name: 'DeepSeek: DeepSeek V4 Flash',
+    name: 'DeepSeek: DeepSeek V4 Flash 0423',
     provider: 'DeepSeek',
     description:
       'DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B a',
     contextLength: 1_048_576,
     maxCompletionTokens: 393_216,
     pricing: { promptPerMToken: 0.14, completionPerMToken: 0.28 },
+    modalities: ['text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total. */
+  'deepseek/deepseek-v4-flash-0731': {
+    name: 'DeepSeek: DeepSeek V4 Flash 0731',
+    provider: 'DeepSeek',
+    description:
+      'DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total.',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 384_000,
+    pricing: { promptPerMToken: 0.08, completionPerMToken: 0.18 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -322,6 +465,45 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Gemini 2.5 Flash-Lite is a lightweight reasoning model in the Gemini 2.5 family, optimized for ultra-low latency and cos */
+  'google/gemini-2.5-flash-lite:batch': {
+    name: 'Google: Gemini 2.5 Flash Lite (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 2.5 Flash-Lite is a lightweight reasoning model in the Gemini 2.5 family, optimized for ultra-low latency and cos',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_535,
+    pricing: { promptPerMToken: 0.05, completionPerMToken: 0.2 },
+    modalities: ['text', 'image', 'file', 'audio', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 2.5 Flash is Google\'s state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mat */
+  'google/gemini-2.5-flash:batch': {
+    name: 'Google: Gemini 2.5 Flash (batch)',
+    provider: 'Google',
+    description:
+      "Gemini 2.5 Flash is Google's state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mat",
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_535,
+    pricing: { promptPerMToken: 0.15, completionPerMToken: 1.25 },
+    modalities: ['file', 'image', 'text', 'audio', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientifi */
+  'google/gemini-2.5-pro:batch': {
+    name: 'Google: Gemini 2.5 Pro (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientifi',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.625, completionPerMToken: 5 },
+    modalities: ['text', 'image', 'file', 'audio', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and c */
   'google/gemini-3-flash-preview': {
     name: 'Google: Gemini 3 Flash Preview',
@@ -329,8 +511,21 @@ export const OPENROUTER_MODELS = {
     description:
       'Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and c',
     contextLength: 1_048_576,
-    maxCompletionTokens: 65_535,
+    maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 0.5, completionPerMToken: 3 },
+    modalities: ['text', 'image', 'file', 'audio', 'video'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and c */
+  'google/gemini-3-flash-preview:batch': {
+    name: 'Google: Gemini 3 Flash Preview (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and c',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.25, completionPerMToken: 1.5 },
     modalities: ['text', 'image', 'file', 'audio', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -374,6 +569,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Gemini 3.1 Flash Lite is Google’s GA high-efficiency multimodal model optimized for low-latency, high-volume workloads.  */
+  'google/gemini-3.1-flash-lite:batch': {
+    name: 'Google: Gemini 3.1 Flash Lite (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 3.1 Flash Lite is Google’s GA high-efficiency multimodal model optimized for low-latency, high-volume workloads. ',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.125, completionPerMToken: 0.75 },
+    modalities: ['text', 'image', 'video', 'file', 'audio'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, impro */
   'google/gemini-3.1-pro-preview': {
     name: 'Google: Gemini 3.1 Pro Preview',
@@ -397,6 +605,19 @@ export const OPENROUTER_MODELS = {
     maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 2, completionPerMToken: 12 },
     modalities: ['text', 'audio', 'image', 'video', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, impro */
+  'google/gemini-3.1-pro-preview:batch': {
+    name: 'Google: Gemini 3.1 Pro Preview (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, impro',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 1, completionPerMToken: 6 },
+    modalities: ['audio', 'file', 'image', 'text', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
@@ -426,6 +647,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** Gemini 3.5 Flash Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subage */
+  'google/gemini-3.5-flash-lite:batch': {
+    name: 'Google: Gemini 3.5 Flash Lite (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 3.5 Flash Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subage',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.15, completionPerMToken: 1.25 },
+    modalities: ['text', 'image', 'video', 'file', 'audio'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 3.5 Flash is Google\'s high-efficiency multimodal model, bringing near-Pro level coding and reasoning at Flash-tie */
+  'google/gemini-3.5-flash:batch': {
+    name: 'Google: Gemini 3.5 Flash (batch)',
+    provider: 'Google',
+    description:
+      "Gemini 3.5 Flash is Google's high-efficiency multimodal model, bringing near-Pro level coding and reasoning at Flash-tie",
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.75, completionPerMToken: 4.5 },
+    modalities: ['text', 'image', 'video', 'file', 'audio'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It i */
   'google/gemini-3.6-flash': {
     name: 'Google: Gemini 3.6 Flash',
@@ -435,6 +682,19 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_048_576,
     maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 1.5, completionPerMToken: 7.5 },
+    modalities: ['text', 'image', 'video', 'file', 'audio'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It i */
+  'google/gemini-3.6-flash:batch': {
+    name: 'Google: Gemini 3.6 Flash (batch)',
+    provider: 'Google',
+    description:
+      'Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It i',
+    contextLength: 1_048_576,
+    maxCompletionTokens: 65_536,
+    pricing: { promptPerMToken: 0.75, completionPerMToken: 3.75 },
     modalities: ['text', 'image', 'video', 'file', 'audio'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -459,8 +719,8 @@ export const OPENROUTER_MODELS = {
     description:
       'The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B',
     contextLength: 131_072,
-    maxCompletionTokens: 128_000,
-    pricing: { promptPerMToken: 0.13, completionPerMToken: 0.4 },
+    maxCompletionTokens: 16_384,
+    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.32 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -472,8 +732,8 @@ export const OPENROUTER_MODELS = {
     description:
       'Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-exper',
     contextLength: 1_048_576,
-    maxCompletionTokens: 16_384,
-    pricing: { promptPerMToken: 0.2, completionPerMToken: 0.8 },
+    maxCompletionTokens: null,
+    pricing: { promptPerMToken: 0.2, completionPerMToken: 0.696 },
     modalities: ['text', 'image'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -500,19 +760,6 @@ export const OPENROUTER_MODELS = {
     contextLength: 256_000,
     maxCompletionTokens: null,
     pricing: { promptPerMToken: 0.3, completionPerMToken: 0.9 },
-    modalities: ['text', 'file'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: false },
-  },
-
-  /** Devstral 2 is a state-of-the-art open-source model by Mistral AI specializing in agentic coding. It is a 123B-parameter  */
-  'mistralai/devstral-2512': {
-    name: 'Mistral: Devstral 2 2512',
-    provider: 'Mistral',
-    description:
-      'Devstral 2 is a state-of-the-art open-source model by Mistral AI specializing in agentic coding. It is a 123B-parameter ',
-    contextLength: 262_144,
-    maxCompletionTokens: null,
-    pricing: { promptPerMToken: 0.4, completionPerMToken: 2 },
     modalities: ['text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -621,6 +868,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
 
+  /** GPT-4.1 Mini is a mid-sized model delivering performance competitive with GPT-4o at substantially lower latency and cost */
+  'openai/gpt-4.1-mini:batch': {
+    name: 'OpenAI: GPT-4.1 Mini (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-4.1 Mini is a mid-sized model delivering performance competitive with GPT-4o at substantially lower latency and cost',
+    contextLength: 1_047_576,
+    maxCompletionTokens: 32_768,
+    pricing: { promptPerMToken: 0.2, completionPerMToken: 0.8 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+  },
+
   /** For tasks that demand low latency, GPT‑4.1 nano is the fastest and cheapest model in the GPT-4.1 series. It delivers exc */
   'openai/gpt-4.1-nano': {
     name: 'OpenAI: GPT-4.1 Nano',
@@ -630,6 +890,32 @@ export const OPENROUTER_MODELS = {
     contextLength: 1_047_576,
     maxCompletionTokens: 32_768,
     pricing: { promptPerMToken: 0.1, completionPerMToken: 0.4 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+  },
+
+  /** For tasks that demand low latency, GPT‑4.1 nano is the fastest and cheapest model in the GPT-4.1 series. It delivers exc */
+  'openai/gpt-4.1-nano:batch': {
+    name: 'OpenAI: GPT-4.1 Nano (batch)',
+    provider: 'OpenAI',
+    description:
+      'For tasks that demand low latency, GPT‑4.1 nano is the fastest and cheapest model in the GPT-4.1 series. It delivers exc',
+    contextLength: 1_047_576,
+    maxCompletionTokens: 32_768,
+    pricing: { promptPerMToken: 0.05, completionPerMToken: 0.2 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+  },
+
+  /** GPT-4.1 is a flagship large language model optimized for advanced instruction following, real-world software engineering */
+  'openai/gpt-4.1:batch': {
+    name: 'OpenAI: GPT-4.1 (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-4.1 is a flagship large language model optimized for advanced instruction following, real-world software engineering',
+    contextLength: 1_047_576,
+    maxCompletionTokens: 32_768,
+    pricing: { promptPerMToken: 1, completionPerMToken: 4 },
     modalities: ['image', 'text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
@@ -660,6 +946,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
 
+  /** GPT-4o mini is OpenAI\'s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs wi */
+  'openai/gpt-4o-mini:batch': {
+    name: 'OpenAI: GPT-4o-mini (batch)',
+    provider: 'OpenAI',
+    description:
+      "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs wi",
+    contextLength: 128_000,
+    maxCompletionTokens: 16_384,
+    pricing: { promptPerMToken: 0.075, completionPerMToken: 0.3 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+  },
+
+  /** GPT-4o ("o" for "omni") is OpenAI\'s latest AI model, supporting both text and image inputs with text outputs. It maintai */
+  'openai/gpt-4o:batch': {
+    name: 'OpenAI: GPT-4o (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-4o ("o" for "omni") is OpenAI\'s latest AI model, supporting both text and image inputs with text outputs. It maintai',
+    contextLength: 128_000,
+    maxCompletionTokens: 16_384,
+    pricing: { promptPerMToken: 1.25, completionPerMToken: 5 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: false },
+  },
+
   /** GPT-5 is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. It i */
   'openai/gpt-5': {
     name: 'OpenAI: GPT-5',
@@ -673,28 +985,15 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
-  /** GPT-5 Chat is designed for advanced, natural, multimodal, and context-aware conversations for enterprise applications. */
-  'openai/gpt-5-chat': {
-    name: 'OpenAI: GPT-5 Chat',
-    provider: 'OpenAI',
-    description:
-      'GPT-5 Chat is designed for advanced, natural, multimodal, and context-aware conversations for enterprise applications.',
-    contextLength: 128_000,
-    maxCompletionTokens: 16_384,
-    pricing: { promptPerMToken: 1.25, completionPerMToken: 10 },
-    modalities: ['file', 'image', 'text'],
-    capabilities: { structuredOutput: true, tools: false, reasoning: false },
-  },
-
   /** GPT-5-Codex is a specialized version of GPT-5 optimized for software engineering and coding workflows. It is designed fo */
-  'openai/gpt-5-codex': {
-    name: 'OpenAI: GPT-5 Codex',
+  'openai/gpt-5-codex:batch': {
+    name: 'OpenAI: GPT-5 Codex (batch)',
     provider: 'OpenAI',
     description:
       'GPT-5-Codex is a specialized version of GPT-5 optimized for software engineering and coding workflows. It is designed fo',
     contextLength: 400_000,
     maxCompletionTokens: 128_000,
-    pricing: { promptPerMToken: 1.25, completionPerMToken: 10 },
+    pricing: { promptPerMToken: 0.625, completionPerMToken: 5 },
     modalities: ['text', 'image'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -712,6 +1011,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instru */
+  'openai/gpt-5-mini:batch': {
+    name: 'OpenAI: GPT-5 Mini (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instru',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.125, completionPerMToken: 1 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, a */
   'openai/gpt-5-nano': {
     name: 'OpenAI: GPT-5 Nano',
@@ -721,6 +1033,45 @@ export const OPENROUTER_MODELS = {
     contextLength: 400_000,
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 0.05, completionPerMToken: 0.4 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, a */
+  'openai/gpt-5-nano:batch': {
+    name: 'OpenAI: GPT-5 Nano (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, a',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.025, completionPerMToken: 0.2 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5 Pro is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience.  */
+  'openai/gpt-5-pro:batch': {
+    name: 'OpenAI: GPT-5 Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5 Pro is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. ',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 7.5, completionPerMToken: 60 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5 is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. It i */
+  'openai/gpt-5:batch': {
+    name: 'OpenAI: GPT-5 (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5 is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. It i',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.625, completionPerMToken: 5 },
     modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -736,19 +1087,6 @@ export const OPENROUTER_MODELS = {
     pricing: { promptPerMToken: 1.25, completionPerMToken: 10 },
     modalities: ['image', 'text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
-  },
-
-  /** GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retain */
-  'openai/gpt-5.1-chat': {
-    name: 'OpenAI: GPT-5.1 Chat',
-    provider: 'OpenAI',
-    description:
-      'GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retain',
-    contextLength: 128_000,
-    maxCompletionTokens: 16_384,
-    pricing: { promptPerMToken: 1.25, completionPerMToken: 10 },
-    modalities: ['file', 'image', 'text'],
-    capabilities: { structuredOutput: true, tools: true, reasoning: false },
   },
 
   /** GPT-5.1-Codex is a specialized version of GPT-5.1 optimized for software engineering and coding workflows. It is designe */
@@ -789,6 +1127,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5.1 is the latest frontier-grade model in the GPT-5 series, offering stronger general-purpose reasoning, improved in */
+  'openai/gpt-5.1:batch': {
+    name: 'OpenAI: GPT-5.1 (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.1 is the latest frontier-grade model in the GPT-5 series, offering stronger general-purpose reasoning, improved in',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.625, completionPerMToken: 5 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance co */
   'openai/gpt-5.2': {
     name: 'OpenAI: GPT-5.2',
@@ -825,6 +1176,32 @@ export const OPENROUTER_MODELS = {
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 1.75, completionPerMToken: 14 },
     modalities: ['text', 'image'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.2 Pro is OpenAI’s most advanced model, offering major improvements in agentic coding and long context performance  */
+  'openai/gpt-5.2-pro:batch': {
+    name: 'OpenAI: GPT-5.2 Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.2 Pro is OpenAI’s most advanced model, offering major improvements in agentic coding and long context performance ',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 10.5, completionPerMToken: 84 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance co */
+  'openai/gpt-5.2:batch': {
+    name: 'OpenAI: GPT-5.2 (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance co',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.875, completionPerMToken: 7 },
+    modalities: ['file', 'image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
@@ -893,6 +1270,19 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput wor */
+  'openai/gpt-5.4-mini:batch': {
+    name: 'OpenAI: GPT-5.4 Mini (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput wor',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.375, completionPerMToken: 2.25 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and  */
   'openai/gpt-5.4-nano': {
     name: 'OpenAI: GPT-5.4 Nano',
@@ -903,6 +1293,45 @@ export const OPENROUTER_MODELS = {
     maxCompletionTokens: 128_000,
     pricing: { promptPerMToken: 0.2, completionPerMToken: 1.25 },
     modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and  */
+  'openai/gpt-5.4-nano:batch': {
+    name: 'OpenAI: GPT-5.4 Nano (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and ',
+    contextLength: 400_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.625 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.4 Pro is OpenAI\'s most advanced model, building on GPT-5.4\'s unified architecture with enhanced reasoning capabili */
+  'openai/gpt-5.4-pro:batch': {
+    name: 'OpenAI: GPT-5.4 Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.4 Pro is OpenAI's most advanced model, building on GPT-5.4's unified architecture with enhanced reasoning capabili",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 15, completionPerMToken: 90 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.4 is OpenAI’s latest frontier model, unifying the Codex and GPT lines into a single system. It features a 1M+ toke */
+  'openai/gpt-5.4:batch': {
+    name: 'OpenAI: GPT-5.4 (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.4 is OpenAI’s latest frontier model, unifying the Codex and GPT lines into a single system. It features a 1M+ toke',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 1.25, completionPerMToken: 7.5 },
+    modalities: ['text', 'image', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
@@ -919,6 +1348,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5.5 Pro is OpenAI’s high-capability model optimized for deep reasoning and accuracy on complex, high-stakes workload */
+  'openai/gpt-5.5-pro:batch': {
+    name: 'OpenAI: GPT-5.5 Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.5 Pro is OpenAI’s high-capability model optimized for deep reasoning and accuracy on complex, high-stakes workload',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 15, completionPerMToken: 90 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.5 is OpenAI’s frontier model designed for complex professional workloads, building on GPT-5.4 with stronger reason */
+  'openai/gpt-5.5:batch': {
+    name: 'OpenAI: GPT-5.5 (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.5 is OpenAI’s frontier model designed for complex professional workloads, building on GPT-5.4 with stronger reason',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 15 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** GPT-5.6 Luna is a fast, cost-efficient model in OpenAI\'s GPT-5.6 series. It is suited for high-volume, latency-sensitive */
   'openai/gpt-5.6-luna': {
     name: 'OpenAI: GPT-5.6 Luna',
@@ -927,7 +1382,33 @@ export const OPENROUTER_MODELS = {
       "GPT-5.6 Luna is a fast, cost-efficient model in OpenAI's GPT-5.6 series. It is suited for high-volume, latency-sensitive",
     contextLength: 1_050_000,
     maxCompletionTokens: 128_000,
-    pricing: { promptPerMToken: 1, completionPerMToken: 6 },
+    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.6 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Luna Pro is the same underlying model as [GPT-5.6 Luna](https://openrouter.ai/openai/gpt-5.6-luna), served with  */
+  'openai/gpt-5.6-luna-pro:batch': {
+    name: 'OpenAI: GPT-5.6 Luna Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.6 Luna Pro is the same underlying model as [GPT-5.6 Luna](https://openrouter.ai/openai/gpt-5.6-luna), served with ',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.6 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Luna is a fast, cost-efficient model in OpenAI\'s GPT-5.6 series. It is suited for high-volume, latency-sensitive */
+  'openai/gpt-5.6-luna:batch': {
+    name: 'OpenAI: GPT-5.6 Luna (batch)',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.6 Luna is a fast, cost-efficient model in OpenAI's GPT-5.6 series. It is suited for high-volume, latency-sensitive",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 0.1, completionPerMToken: 0.6 },
     modalities: ['file', 'image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -945,6 +1426,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** GPT-5.6 Sol Pro is the same underlying model as [GPT-5.6 Sol](https://openrouter.ai/openai/gpt-5.6-sol), served with `re */
+  'openai/gpt-5.6-sol-pro:batch': {
+    name: 'OpenAI: GPT-5.6 Sol Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.6 Sol Pro is the same underlying model as [GPT-5.6 Sol](https://openrouter.ai/openai/gpt-5.6-sol), served with `re',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 15 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Sol is the flagship model in OpenAI\'s GPT-5.6 series. It is suited for complex reasoning, coding, and agentic wo */
+  'openai/gpt-5.6-sol:batch': {
+    name: 'OpenAI: GPT-5.6 Sol (batch)',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.6 Sol is the flagship model in OpenAI's GPT-5.6 series. It is suited for complex reasoning, coding, and agentic wo",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 2.5, completionPerMToken: 15 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** GPT-5.6 Terra is a balanced model in OpenAI\'s GPT-5.6 series, positioned between the flagship Sol tier and the cost-effi */
   'openai/gpt-5.6-terra': {
     name: 'OpenAI: GPT-5.6 Terra',
@@ -953,7 +1460,33 @@ export const OPENROUTER_MODELS = {
       "GPT-5.6 Terra is a balanced model in OpenAI's GPT-5.6 series, positioned between the flagship Sol tier and the cost-effi",
     contextLength: 1_050_000,
     maxCompletionTokens: 128_000,
-    pricing: { promptPerMToken: 2.5, completionPerMToken: 15 },
+    pricing: { promptPerMToken: 1, completionPerMToken: 6 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Terra Pro is the same underlying model as [GPT-5.6 Terra](https://openrouter.ai/openai/gpt-5.6-terra), served wi */
+  'openai/gpt-5.6-terra-pro:batch': {
+    name: 'OpenAI: GPT-5.6 Terra Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'GPT-5.6 Terra Pro is the same underlying model as [GPT-5.6 Terra](https://openrouter.ai/openai/gpt-5.6-terra), served wi',
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 1, completionPerMToken: 6 },
+    modalities: ['file', 'image', 'text'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** GPT-5.6 Terra is a balanced model in OpenAI\'s GPT-5.6 series, positioned between the flagship Sol tier and the cost-effi */
+  'openai/gpt-5.6-terra:batch': {
+    name: 'OpenAI: GPT-5.6 Terra (batch)',
+    provider: 'OpenAI',
+    description:
+      "GPT-5.6 Terra is a balanced model in OpenAI's GPT-5.6 series, positioned between the flagship Sol tier and the cost-effi",
+    contextLength: 1_050_000,
+    maxCompletionTokens: 128_000,
+    pricing: { promptPerMToken: 1, completionPerMToken: 6 },
     modalities: ['file', 'image', 'text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -984,6 +1517,32 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** The o1 series of models are trained with reinforcement learning to think before they answer and perform complex reasonin */
+  'openai/o1-pro:batch': {
+    name: 'OpenAI: o1-pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'The o1 series of models are trained with reinforcement learning to think before they answer and perform complex reasonin',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 75, completionPerMToken: 300 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: false, reasoning: true },
+  },
+
+  /** The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. The o1  */
+  'openai/o1:batch': {
+    name: 'OpenAI: o1 (batch)',
+    provider: 'OpenAI',
+    description:
+      'The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. The o1 ',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 7.5, completionPerMToken: 30 },
+    modalities: ['text', 'image', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual rea */
   'openai/o3': {
     name: 'OpenAI: o3',
@@ -1010,6 +1569,58 @@ export const OPENROUTER_MODELS = {
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 
+  /** OpenAI o3-mini-high is the same model as [o3-mini](/openai/o3-mini) with reasoning_effort set to high. o3-mini is a cost */
+  'openai/o3-mini-high:batch': {
+    name: 'OpenAI: o3 Mini High (batch)',
+    provider: 'OpenAI',
+    description:
+      'OpenAI o3-mini-high is the same model as [o3-mini](/openai/o3-mini) with reasoning_effort set to high. o3-mini is a cost',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 0.55, completionPerMToken: 2.2 },
+    modalities: ['text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, */
+  'openai/o3-mini:batch': {
+    name: 'OpenAI: o3 Mini (batch)',
+    provider: 'OpenAI',
+    description:
+      'OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science,',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 0.55, completionPerMToken: 2.2 },
+    modalities: ['text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** The o-series of models are trained with reinforcement learning to think before they answer and perform complex reasoning */
+  'openai/o3-pro:batch': {
+    name: 'OpenAI: o3 Pro (batch)',
+    provider: 'OpenAI',
+    description:
+      'The o-series of models are trained with reinforcement learning to think before they answer and perform complex reasoning',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 10, completionPerMToken: 40 },
+    modalities: ['text', 'file', 'image'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual rea */
+  'openai/o3:batch': {
+    name: 'OpenAI: o3 (batch)',
+    provider: 'OpenAI',
+    description:
+      'o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual rea',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 1, completionPerMToken: 4 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
   /** OpenAI o4-mini is a compact reasoning model in the o-series, optimized for fast, cost-efficient performance while retain */
   'openai/o4-mini': {
     name: 'OpenAI: o4 Mini',
@@ -1019,6 +1630,32 @@ export const OPENROUTER_MODELS = {
     contextLength: 200_000,
     maxCompletionTokens: 100_000,
     pricing: { promptPerMToken: 1.1, completionPerMToken: 4.4 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** OpenAI o4-mini-high is the same model as [o4-mini](/openai/o4-mini) with reasoning_effort set to high. OpenAI o4-mini is */
+  'openai/o4-mini-high:batch': {
+    name: 'OpenAI: o4 Mini High (batch)',
+    provider: 'OpenAI',
+    description:
+      'OpenAI o4-mini-high is the same model as [o4-mini](/openai/o4-mini) with reasoning_effort set to high. OpenAI o4-mini is',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 0.55, completionPerMToken: 2.2 },
+    modalities: ['image', 'text', 'file'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** OpenAI o4-mini is a compact reasoning model in the o-series, optimized for fast, cost-efficient performance while retain */
+  'openai/o4-mini:batch': {
+    name: 'OpenAI: o4 Mini (batch)',
+    provider: 'OpenAI',
+    description:
+      'OpenAI o4-mini is a compact reasoning model in the o-series, optimized for fast, cost-efficient performance while retain',
+    contextLength: 200_000,
+    maxCompletionTokens: 100_000,
+    pricing: { promptPerMToken: 0.55, completionPerMToken: 2.2 },
     modalities: ['image', 'text', 'file'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1069,7 +1706,7 @@ export const OPENROUTER_MODELS = {
     description:
       'Qwen3-Max is an updated release built on the Qwen3 series, offering major improvements in reasoning, instruction followi',
     contextLength: 262_144,
-    maxCompletionTokens: 32_768,
+    maxCompletionTokens: 65_536,
     pricing: { promptPerMToken: 0.78, completionPerMToken: 3.9 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: false },
@@ -1082,8 +1719,8 @@ export const OPENROUTER_MODELS = {
     description:
       'The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention ',
     contextLength: 262_144,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.26, completionPerMToken: 2.08 },
+    maxCompletionTokens: 81_920,
+    pricing: { promptPerMToken: 0.29, completionPerMToken: 2.4 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1186,8 +1823,8 @@ export const OPENROUTER_MODELS = {
     description:
       'Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It fea',
     contextLength: 262_144,
-    maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 0.3, completionPerMToken: 2 },
+    maxCompletionTokens: 262_144,
+    pricing: { promptPerMToken: 0.6, completionPerMToken: 3.6 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1200,7 +1837,7 @@ export const OPENROUTER_MODELS = {
       'Qwen3.6-35B-A3B is an open-weight multimodal model from Alibaba Cloud with 35 billion total parameters and 3 billion act',
     contextLength: 262_144,
     maxCompletionTokens: 262_144,
-    pricing: { promptPerMToken: 0.14, completionPerMToken: 1 },
+    pricing: { promptPerMToken: 0.15, completionPerMToken: 1 },
     modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1226,7 +1863,7 @@ export const OPENROUTER_MODELS = {
       'Qwen3.6-Max-Preview is a proprietary frontier model from Alibaba Cloud built on a sparse mixture-of-experts architecture',
     contextLength: 262_144,
     maxCompletionTokens: 65_536,
-    pricing: { promptPerMToken: 1.04, completionPerMToken: 6.24 },
+    pricing: { promptPerMToken: 1.027, completionPerMToken: 6.162 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
@@ -1251,7 +1888,7 @@ export const OPENROUTER_MODELS = {
     description:
       "Qwen3.7-Max is the flagship model in Alibaba's Qwen3.7 series. It supports text input and output and is designed for age",
     contextLength: 1_000_000,
-    maxCompletionTokens: 65_536,
+    maxCompletionTokens: 131_072,
     pricing: { promptPerMToken: 1.475, completionPerMToken: 4.425 },
     modalities: ['text'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
@@ -1264,9 +1901,22 @@ export const OPENROUTER_MODELS = {
     description:
       "Qwen3.7-Plus is a cost-effective model in Alibaba's Qwen3.7 series. It supports text and image input with text output, b",
     contextLength: 1_000_000,
-    maxCompletionTokens: 65_536,
+    maxCompletionTokens: 131_072,
     pricing: { promptPerMToken: 0.32, completionPerMToken: 1.28 },
     modalities: ['text', 'image'],
+    capabilities: { structuredOutput: true, tools: true, reasoning: true },
+  },
+
+  /** Qwen3.8 Max is the flagship model in Alibaba\'s Qwen3.8 series, the general-availability successor to the Qwen3.8 Max Pre */
+  'qwen/qwen3.8-max': {
+    name: 'Qwen: Qwen3.8 Max',
+    provider: 'Qwen',
+    description:
+      "Qwen3.8 Max is the flagship model in Alibaba's Qwen3.8 series, the general-availability successor to the Qwen3.8 Max Pre",
+    contextLength: 1_000_000,
+    maxCompletionTokens: 131_072,
+    pricing: { promptPerMToken: 2, completionPerMToken: 6 },
+    modalities: ['text', 'image', 'video'],
     capabilities: { structuredOutput: true, tools: true, reasoning: true },
   },
 } as const satisfies Record<string, ModelInfo>;
