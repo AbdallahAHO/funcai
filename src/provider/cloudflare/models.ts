@@ -1,5 +1,5 @@
 // Auto-generated from Cloudflare Workers AI docs — run `pnpm update:cloudflare-models --write` to refresh
-// Last updated: 2026-08-10
+// Last updated: 2026-08-31
 
 export type CloudflareInputModality = 'text' | 'image';
 
@@ -61,6 +61,56 @@ export const CLOUDFLARE_MODELS = {
     },
     structuredOutputSource: 'json-mode',
     sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/deepseek-r1-distill-qwen-32b/',
+  },
+
+  /** DeepSeek-V4-Flash-0731 is the official release of DeepSeek-V4-Flash, superseding the preview version, with substantially enhanced agentic capabilities. */
+  '@cf/deepseek-ai/deepseek-v4-flash-0731': {
+    name: 'deepseek-v4-flash-0731',
+    provider: 'DeepSeek',
+    description:
+      'DeepSeek-V4-Flash-0731 is the official release of DeepSeek-V4-Flash, superseding the preview version, with substantially enhanced agentic capabilities.',
+    contextLength: 1_310_720,
+    pricing: {
+      promptPerMToken: 0.44,
+      cachedPromptPerMToken: 0.014,
+      completionPerMToken: 1.32,
+      raw: '$0.44 per M input tokens, $1.32 per M output tokens, $0.014 per M cached input tokens',
+    },
+    modalities: ['text'],
+    capabilities: {
+      structuredOutput: true,
+      tools: true,
+      reasoning: true,
+      vision: false,
+      batch: false,
+    },
+    structuredOutputSource: 'model-page',
+    sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/deepseek-v4-flash-0731/',
+  },
+
+  /** DeepSeek V4 Pro is a high-capability reasoning model from DeepSeek with a one million token context window, built for long-horizon agentic workflows and complex, multi-step problem-solving */
+  '@cf/deepseek-ai/deepseek-v4-pro-0813': {
+    name: 'deepseek-v4-pro-0813',
+    provider: 'DeepSeek',
+    description:
+      'DeepSeek V4 Pro is a high-capability reasoning model from DeepSeek with a one million token context window, built for long-horizon agentic workflows and complex, multi-step problem-solving',
+    contextLength: 1_048_576,
+    pricing: {
+      promptPerMToken: 1.32,
+      cachedPromptPerMToken: 0.044,
+      completionPerMToken: 3.96,
+      raw: '$1.32 per M input tokens, $3.96 per M output tokens, $0.044 per M cached input tokens',
+    },
+    modalities: ['text'],
+    capabilities: {
+      structuredOutput: true,
+      tools: true,
+      reasoning: true,
+      vision: false,
+      batch: false,
+    },
+    structuredOutputSource: 'model-page',
+    sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/deepseek-v4-pro-0813/',
   },
 
   /** Gemma 4 is Google\'s most intelligent family of open models, built from Gemini 3 research to maximize intelligence-per-parameter. */
@@ -356,12 +406,62 @@ export const CLOUDFLARE_MODELS = {
     capabilities: {
       structuredOutput: true,
       tools: true,
-      reasoning: true,
+      reasoning: false,
       vision: false,
       batch: false,
     },
     structuredOutputSource: 'model-page',
     sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/glm-5.2/',
+  },
+
+  /** GLM-5.3 is Z.ai\'s flagship agentic coding model, pairing a 1M-token context window with reasoning, function calling, and structured outputs to power multi-step, tool-driven development workflows. */
+  '@cf/zai-org/glm-5.3': {
+    name: 'glm-5.3',
+    provider: 'Zhipu AI',
+    description:
+      "GLM-5.3 is Z.ai's flagship agentic coding model, pairing a 1M-token context window with reasoning, function calling, and structured outputs to power multi-step, tool-driven development workflows.",
+    contextLength: 1_048_576,
+    pricing: {
+      promptPerMToken: 1.4,
+      cachedPromptPerMToken: 0.26,
+      completionPerMToken: 4.4,
+      raw: '$1.40 per M input tokens, $4.40 per M output tokens, $0.26 per M cached input tokens',
+    },
+    modalities: ['text'],
+    capabilities: {
+      structuredOutput: true,
+      tools: true,
+      reasoning: true,
+      vision: false,
+      batch: false,
+    },
+    structuredOutputSource: 'model-page',
+    sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/glm-5.3/',
+  },
+
+  /** The first natively multimodal model in the GLM-5 series. With 320B total parameters and just 18B active parameters, it outperforms GLM-5.2 across benchmarks and real-world workloads at one-tenth the price, while approaching Claude Opus 4.8 on coding and agentic benchmarks. */
+  '@cf/zai-org/glm-5.3-flash': {
+    name: 'glm-5.3-flash',
+    provider: 'Zhipu AI',
+    description:
+      'The first natively multimodal model in the GLM-5 series. With 320B total parameters and just 18B active parameters, it outperforms GLM-5.2 across benchmarks and real-world workloads at one-tenth the price, while approaching Claude Opus 4.8 on coding and agentic benchmarks.',
+    contextLength: 1_048_576,
+    pricing: {
+      promptPerMToken: 0.15,
+      cachedPromptPerMToken: 0.03,
+      completionPerMToken: 0.5,
+      raw: '$0.15 per M input tokens, $0.50 per M output tokens, $0.03 per M cached input tokens',
+    },
+    modalities: ['text', 'image'],
+    capabilities: {
+      structuredOutput: true,
+      tools: true,
+      reasoning: true,
+      vision: true,
+      batch: false,
+    },
+    structuredOutputSource: 'model-page',
+    sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/glm-5.3-flash/',
   },
 } as const satisfies Record<string, CloudflareModelInfo>;
 
